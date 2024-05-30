@@ -14,7 +14,7 @@ const FlowHeadParamsNode = () => {
   const playgrounState = useStore($boardPlayground);
   return (
     <Panel position="top-right">
-      <div className="w-[200px] h-auto flex flex-col gap-5 justify-start items-center bg-yellow-400 rounded-md border-box p-2">
+      <div className="text-white w-[200px] h-auto flex flex-col gap-5 justify-start items-center bg-yellow-400 rounded-md border-box p-2">
         <EditColorParams
           buffer={playgrounState.create}
           setBuffer={setCreateBuffer}

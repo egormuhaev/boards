@@ -61,14 +61,6 @@ const ToolbarControlls: React.FC<Props> = ({ id, bgColor }) => {
           </div>
         )}
       </Button>
-      <Button className="h-[40px] w-[40px] border-[#000] border-2  bg-yellow-400 hover:bg-yellow-300 rounded-full" />
-
-      <Button className="h-[30px] w-[30px] outline-none border-none bg-yellow-400 hover:bg-yellow-300">
-        3
-      </Button>
-      <Button className="h-[30px] w-[30px] outline-none border-none bg-yellow-400 hover:bg-yellow-300">
-        4
-      </Button>
     </div>
   );
 };

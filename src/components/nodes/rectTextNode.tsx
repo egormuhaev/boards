@@ -11,8 +11,9 @@ interface Props {
 
 const styles = {
   wrapper:
-    "h-full w-full  flex flex-col justify-center items-center p-10 rounded-md min-w-[180px] min-h-[68px]",
-  textarea: "h-full w-full resize-none  text-left outline-none text-[#fff]",
+    "h-full w-full  flex flex-col justify-center items-center p-5 rounded-md min-w-[180px] min-h-[68px]",
+  textarea:
+    "h-full w-full resize-none  text-left outline-none text-[#fff] border-box text-balance",
 };
 
 const RectTextNode: React.FC<NodeProps<Props>> = ({ selected, data, id }) => {
