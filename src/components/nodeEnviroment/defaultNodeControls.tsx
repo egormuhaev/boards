@@ -18,7 +18,7 @@ const DefaultNodeControlls: React.FC<Props> = ({
   return (
     <>
       <NodeResizer isVisible={isSelect} minWidth={180} minHeight={68} />
-      <Handle type="source" position={Position.Top} id={"1"} />
+      <Handle type="target" position={Position.Top} id={"1"} />
       <Handle type="target" position={Position.Bottom} id={"2"} />
       <Handle type="target" position={Position.Left} id={"3"} />
       <Handle type="target" position={Position.Right} id={"4"} />
