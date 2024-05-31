@@ -1,5 +1,6 @@
 import { Handle, Position, NodeResizer, NodeToolbar } from "reactflow";
-import ToolbarControlls from "./toolbar";
+import ToolbarControlls, { TextAlign } from "./ToolbarControlls";
+import { memo } from "react";
 
 interface Props {
   isSelect: boolean;
@@ -7,18 +8,32 @@ interface Props {
   isDrawMode: boolean;
   id: string;
   bgColor: string;
+  textColor: string;
+  textAlign: TextAlign;
 }
 
 const DefaultNodeControlls: React.FC<Props> = ({
   children,
   isSelect,
   bgColor,
+  textColor,
+  textAlign,
   id,
 }) => {
   return (
     <>
+      <NodeToolbar isVisible={isSelect} position={Position.Top}>
+        <ToolbarControlls
+          bgColor={bgColor}
+          textColor={textColor}
+          textAlign={textAlign}
+          id={id}
+        />
+      </NodeToolbar>
+
       <NodeResizer isVisible={isSelect} minWidth={180} minHeight={68} />
-      <Handle type="source" position={Position.Top} id={"1"} />
+
+      <Handle type="target" position={Position.Top} id={"1"} />
       <Handle type="target" position={Position.Bottom} id={"2"} />
       <Handle type="target" position={Position.Left} id={"3"} />
       <Handle type="target" position={Position.Right} id={"4"} />
@@ -26,12 +41,10 @@ const DefaultNodeControlls: React.FC<Props> = ({
       <Handle type="source" position={Position.Bottom} id={"6"} />
       <Handle type="source" position={Position.Left} id={"7"} />
       <Handle type="source" position={Position.Right} id={"8"} />
-      <NodeToolbar isVisible={isSelect} position={Position.Top}>
-        <ToolbarControlls bgColor={bgColor} id={id} />
-      </NodeToolbar>
+
       {children}
     </>
   );
 };
 
-export default DefaultNodeControlls;
+export default memo(DefaultNodeControlls);

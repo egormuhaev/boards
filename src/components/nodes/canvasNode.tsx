@@ -7,10 +7,10 @@ import {
   // NodeToolbar,
 } from "reactflow";
 import { $flow } from "../../flow/store/flow.slice";
-import { useStore } from "effector-react";
+import { useUnit } from "effector-react";
 
 const CanvasNode: React.FC<NodeProps> = ({ selected }) => {
-  const flowState = useStore($flow);
+  const flowState = useUnit($flow);
   const id = useId();
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);

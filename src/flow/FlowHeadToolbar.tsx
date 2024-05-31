@@ -1,5 +1,5 @@
 import { Button } from "@/shadcn/ui/button";
-import { useStore } from "effector-react";
+import { useUnit } from "effector-react";
 import { $flow, changeDrawingMode } from "./store/flow.slice";
 import { $boardPlayground } from "./store/playground.slice";
 import { setCreateBuffer } from "./store/playground.slice";
@@ -9,12 +9,13 @@ import { MdOutlineDraw } from "react-icons/md";
 import { BsMusicNoteBeamed } from "react-icons/bs";
 import { FaPhotoVideo, FaFile } from "react-icons/fa";
 import { CgShapeCircle } from "react-icons/cg";
-import { LuRectangleHorizontal } from "react-icons/lu";
+import { LuRectangleHorizontal, LuText } from "react-icons/lu";
 import { NodeTypes } from "@/components";
+import { Type } from "lucide-react";
 
 const FlowHeadToolbar = () => {
-  const flowState = useStore($flow);
-  const playgroundState = useStore($boardPlayground);
+  const flowState = useUnit($flow);
+  const playgroundState = useUnit($boardPlayground);
 
   const saveNewNodeDataInBuffer = (type: string) => (_: React.MouseEvent) => {
     setCreateBuffer({
@@ -49,6 +50,17 @@ const FlowHeadToolbar = () => {
           })}
         >
           <LuRectangleHorizontal className="h-[30px] w-[30px]" />
+        </Button>
+        <Button
+          onClick={saveNewNodeDataInBuffer(NodeTypes.TextNodeFlowTypes)}
+          className={cn("h-[50px] w-[50px] outline-none border-none", {
+            "bg-yellow-400":
+              playgroundState.create?.type !== NodeTypes.TextNodeFlowTypes,
+            "bg-green-400":
+              playgroundState.create?.type === NodeTypes.TextNodeFlowTypes,
+          })}
+        >
+          <Type className="h-[30px] w-[30px]" />
         </Button>
         <Button className="h-[50px] w-[50px] outline-none border-none bg-yellow-400">
           <FaFile className="h-[30px] w-[30px]" />

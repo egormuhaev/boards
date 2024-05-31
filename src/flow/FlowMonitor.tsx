@@ -7,6 +7,9 @@ import ReactFlow, {
   MiniMap,
   BackgroundVariant,
   useReactFlow,
+  NodeChange,
+  EdgeChange,
+  Connection,
 } from "reactflow";
 import {
   $boardPlayground,
@@ -15,28 +18,28 @@ import {
   addNewNode,
 } from "./store/playground.slice";
 import { $flow } from "./store/flow.slice";
-import { useStore } from "effector-react";
+import { useUnit } from "effector-react";
 import FlowHeadToolbar from "./FlowHeadToolbar";
 import FlowHeadParamsNode from "./FlowHeadParamsNode";
 
 const FlowMonitor = () => {
-  const playgroundState = useStore($boardPlayground);
-  const flowState = useStore($flow);
+  const playgroundState = useUnit($boardPlayground);
+  const flowState = useUnit($flow);
   const { screenToFlowPosition } = useReactFlow();
 
-  const onNodesChange = (changes: any) => {
+  const onNodesChange = (changes: NodeChange[]) => {
     if (!flowState.isDrawingMode) {
       return changeNode(applyNodeChanges(changes, playgroundState.nodes));
     }
   };
 
-  const onEdgesChanges = (changes: any) => {
+  const onEdgesChanges = (changes: EdgeChange[]) => {
     if (!flowState.isDrawingMode) {
       changeEdge(applyEdgeChanges(changes, playgroundState.edges));
     }
   };
 
-  const onConnect = (connection: any) => {
+  const onConnect = (connection: Connection) => {
     changeEdge(addEdge(connection, playgroundState.edges));
   };
 

@@ -3,7 +3,7 @@ import { SketchPicker } from "react-color";
 import { useState } from "react";
 import { $boardPlayground, setCreateBuffer } from "./store/playground.slice";
 import { ICreateNewNodeBuffer } from "./store/types/playground.schema";
-import { useStore } from "effector-react";
+import { useUnit } from "effector-react";
 
 interface EditColorParamsProps {
   buffer: ICreateNewNodeBuffer | null;
@@ -11,7 +11,7 @@ interface EditColorParamsProps {
 }
 
 const FlowHeadParamsNode = () => {
-  const playgrounState = useStore($boardPlayground);
+  const playgrounState = useUnit($boardPlayground);
   return (
     <Panel position="top-right">
       <div className="w-[200px] h-auto flex flex-col gap-5 justify-start items-center bg-yellow-400 rounded-md border-box p-2">

@@ -5,10 +5,11 @@ import {
   ICreateNewNodeBuffer,
 } from "./types/playground.schema";
 import CanvasNode from "@/components/nodes/canvasNode";
-import RectTextNode from "@/components/nodes/rectTextNode";
+import RectTextNode from "@/components/nodes/RectTextNode";
 import { v4 } from "uuid";
 import { NodeTypes } from "@/components";
 import { randomColor } from "../utils/randomColor";
+import Text from "@/components/nodes/Text";
 
 export const $boardPlayground = createStore<IReactFlowSliceSchema>({
   nodes: [],
@@ -16,6 +17,7 @@ export const $boardPlayground = createStore<IReactFlowSliceSchema>({
   nodeTypes: {
     [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
     [NodeTypes.RectTextNodeFlowTypes]: RectTextNode,
+    [NodeTypes.TextNodeFlowTypes]: Text,
   },
   create: null,
   colorsPalet: [
@@ -47,7 +49,7 @@ export const setCreateBuffer = createEvent<ICreateNewNodeBuffer>();
 
 const setCreateBufferReducer = (
   state: IReactFlowSliceSchema,
-  buffer: ICreateNewNodeBuffer,
+  buffer: ICreateNewNodeBuffer
 ): IReactFlowSliceSchema => {
   return {
     ...state,
@@ -60,13 +62,20 @@ const setCreateBufferReducer = (
 
 const addNewNodeReducer = (
   state: IReactFlowSliceSchema,
-  node: Omit<Node, "id">,
+  node: Omit<Node, "id">
 ): IReactFlowSliceSchema => {
   return {
     ...state,
     nodes: [
       ...state.nodes,
-      { ...node, id: v4(), data: { bgColor: state.create?.bgColor ?? "#fff" } },
+      {
+        ...node,
+        id: v4(),
+        data: {
+          bgColor: state.create?.bgColor ?? "#fff",
+          textColor: state.create?.textColor ?? "#000",
+        },
+      },
     ],
     create: null,
   };
@@ -74,7 +83,7 @@ const addNewNodeReducer = (
 
 const changeNodesReducer = (
   state: IReactFlowSliceSchema,
-  nodes: Node[],
+  nodes: Node[]
 ): IReactFlowSliceSchema => {
   return {
     ...state,
@@ -84,7 +93,7 @@ const changeNodesReducer = (
 
 const changeEdgesReducer = (
   state: IReactFlowSliceSchema,
-  edges: Edge[],
+  edges: Edge[]
 ): IReactFlowSliceSchema => {
   return {
     ...state,
