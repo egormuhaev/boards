@@ -1,11 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
-import {
-  Handle,
-  Position,
-  NodeResizer,
-  NodeProps,
-  // NodeToolbar,
-} from "reactflow";
+import { Handle, Position, NodeResizer, NodeProps } from "reactflow";
 import { $flow } from "../../flow/store/flow.slice";
 import { useUnit } from "effector-react";
 

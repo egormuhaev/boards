@@ -32,7 +32,6 @@ const DefaultNodeControlls: React.FC<Props> = ({
       </NodeToolbar>
 
       <NodeResizer isVisible={isSelect} minWidth={180} minHeight={68} />
-
       <Handle type="target" position={Position.Top} id={"1"} />
       <Handle type="target" position={Position.Bottom} id={"2"} />
       <Handle type="target" position={Position.Left} id={"3"} />
