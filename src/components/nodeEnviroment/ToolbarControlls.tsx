@@ -98,11 +98,23 @@ const ToolbarControlls: React.FC<Props> = ({
         icon={<Type color="white" size={16} />}
       />
 
-      <PositionTextButton clickHandler={positionText} position="left" />
+      <PositionTextButton
+        clickHandler={positionText}
+        position="left"
+        active={textAlign === "left"}
+      />
 
-      <PositionTextButton clickHandler={positionText} position="center" />
+      <PositionTextButton
+        clickHandler={positionText}
+        position="center"
+        active={textAlign === "center"}
+      />
 
-      <PositionTextButton clickHandler={positionText} position="right" />
+      <PositionTextButton
+        clickHandler={positionText}
+        position="right"
+        active={textAlign === "right"}
+      />
     </div>
   );
 };
@@ -111,14 +123,20 @@ const PositionTextButton = memo(
   ({
     clickHandler,
     position,
+    active,
   }: {
     clickHandler: (position: TextAlign) => void;
     position: TextAlign;
+    active?: boolean;
   }) => {
+    const theme = active
+      ? "text-white bg-black"
+      : "text-black bg-white hover:text-white hover:bg-black";
+
     return (
       <Button
         onClick={() => clickHandler(position)}
-        className="bg-white px-2 border border-solid-2 border-black rounded-lg h-full text-black hover:text-white"
+        className={`bg-white px-2 border border-solid-2 border-black rounded-lg h-full ${theme}`}
       >
         {position === "center" ? (
           <AlignCenter size={16} />
