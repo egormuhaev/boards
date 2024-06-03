@@ -56,6 +56,10 @@ const setCreateBufferReducer = (
     create: {
       ...buffer,
       bgColor: buffer.bgColor ?? randomColor(state.colorsPalet),
+      textColor: buffer.textColor ?? randomColor(state.colorsPalet),
+      horizontalAlign: buffer.horizontalAlign ?? "center",
+      verticalAlign: buffer.verticalAlign ?? "center",
+      fontSize: buffer.fontSize ?? 14,
     },
   };
 };
@@ -71,10 +75,7 @@ const addNewNodeReducer = (
       {
         ...node,
         id: v4(),
-        data: {
-          bgColor: state.create?.bgColor ?? "#fff",
-          textColor: state.create?.textColor ?? "#000",
-        },
+        data: state.create,
       },
     ],
     create: null,

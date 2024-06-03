@@ -3,24 +3,13 @@ import DefaultNodeControlls from "../nodeEnviroment/DefaultNodeControlls";
 import { $flow } from "../../flow/store/flow.slice";
 import { useUnit } from "effector-react";
 import { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
-import { TextAlign } from "../nodeEnviroment/ToolbarControlls";
+import { Settings } from "../nodeEnviroment/ToolbarControlls";
 
-interface Props {
+interface Props extends Settings {
   id: string;
-  bgColor?: string;
-  textColor?: string;
-  textAlign: TextAlign;
 }
 
-const styles = {
-  wrapper:
-    "h-full w-full flex flex-col justify-center items-center rounded-md min-w-[180px] min-h-[68px] box-border p-2",
-  textarea:
-    "flex-1 w-full resize-none text-left outline-none text-white overflow-y-auto align-middle break-words",
-};
-
-const RectTextNode: React.FC<NodeProps<Props>> = ({ selected, data, id }) => {
+const RectTextNode = ({ selected, data, id }: NodeProps<Props>) => {
   const flowState = useUnit($flow);
 
   const [editText, setEditText] = useState(false);
@@ -50,51 +39,52 @@ const RectTextNode: React.FC<NodeProps<Props>> = ({ selected, data, id }) => {
     <DefaultNodeControlls
       id={id}
       isSelect={selected}
-      bgColor={data.bgColor ?? "#fff"}
-      textColor={data.textColor ?? "#000"}
+      bgColor={data.bgColor}
+      textColor={data.textColor}
       isDrawMode={flowState.isDrawingMode}
-      textAlign={data.textAlign ?? "left"}
+      horizontalAlign={data.horizontalAlign}
+      verticalAlign={data.verticalAlign}
+      fontSize={data.fontSize}
     >
       <div
         onClick={() => setEditText(false)}
-        className={styles.wrapper}
+        className="h-full w-full flex flex-col justify-center items-center rounded-md min-w-[180px] min-h-[68px] box-border p-2"
         style={{
           backgroundColor: data.bgColor,
         }}
       >
-        {editText ? (
-          <textarea
-            value={text}
-            ref={textarea}
-            onChange={onEditText}
-            onClick={(e) => e.stopPropagation()}
-            onBlur={() => setEditText(false)}
-            className={cn(styles.textarea, "nodrag")}
-            style={{
-              backgroundColor: data.bgColor,
-              color: data.textColor,
-              textAlign: data.textAlign,
-            }}
-          />
-        ) : (
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditText(true);
-            }}
-            className={cn(
-              styles.textarea,
-              "inline text-ellipsis overflow-hidden"
-            )}
-            style={{
-              backgroundColor: data.bgColor,
-              color: data.textColor,
-              textAlign: data.textAlign,
-            }}
-          >
-            {text}
-          </div>
-        )}
+        <textarea
+          value={text}
+          ref={textarea}
+          onChange={onEditText}
+          onClick={(e) => e.stopPropagation()}
+          onBlur={() => setEditText(false)}
+          className="flex-1 w-full resize-none outline-none break-words text-ellipsis overflow-hidden nodrag"
+          style={{
+            backgroundColor: data.bgColor,
+            color: data.textColor,
+            textAlign: data.horizontalAlign,
+            alignContent: data.verticalAlign,
+            fontSize: data.fontSize + "px",
+          }}
+        />
+
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            setEditText(true);
+          }}
+          className="flex-1 flex w-full resize-none outline-none break-words text-ellipsis overflow-hidden"
+          style={{
+            backgroundColor: data.bgColor,
+            color: data.textColor,
+            justifyContent: data.horizontalAlign,
+            alignItems: data.verticalAlign,
+            fontSize: data.fontSize + "px",
+          }}
+        >
+          {text}
+        </div>
       </div>
     </DefaultNodeControlls>
   );

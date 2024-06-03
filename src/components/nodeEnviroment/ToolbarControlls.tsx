@@ -1,25 +1,39 @@
 import { $flow } from "@/flow/store/flow.slice";
 import { $boardPlayground, changeNode } from "@/flow/store/playground.slice";
+import {
+  HorizontalAlign,
+  VerticalAlign,
+} from "@/flow/store/types/playground.schema";
 import { Button } from "@/shadcn/ui/button";
 import { useUnit } from "effector-react";
-import { AlignCenter, AlignLeft, AlignRight, Type } from "lucide-react";
-import { memo, useCallback, useState } from "react";
+import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
+  ArrowDownToLine,
+  ArrowUpToLine,
+  FoldVertical,
+  Type,
+} from "lucide-react";
+import { ChangeEvent, memo, useCallback, useEffect, useState } from "react";
 import { BlockPicker, ColorResult } from "react-color";
 
-export type TextAlign = "center" | "left" | "right";
+export type Settings = {
+  horizontalAlign?: HorizontalAlign;
+  verticalAlign?: VerticalAlign;
+  textColor?: string;
+  bgColor?: string;
+  fontSize?: number;
+};
 
 interface Props {
   id: string;
-  bgColor: string;
-  textColor: string;
-  textAlign: TextAlign;
+  settings: Settings;
 }
 
 const ToolbarControlls: React.FC<Props> = ({
   id,
-  bgColor,
-  textColor,
-  textAlign,
+  settings: { horizontalAlign, verticalAlign, textColor, bgColor, fontSize },
 }) => {
   const playgroundState = useUnit($boardPlayground);
   const flowState = useUnit($flow);
@@ -68,15 +82,15 @@ const ToolbarControlls: React.FC<Props> = ({
     [textColor, playgroundState.nodes]
   );
 
-  const positionText = useCallback(
-    (textAlign: TextAlign) => {
+  const horizontalAlignText = useCallback(
+    (horizontalAlign: HorizontalAlign) => {
       const newNodes = playgroundState.nodes.map((node) => {
         if (node.id === id) {
           return {
             ...node,
             data: {
               ...node.data,
-              textAlign,
+              horizontalAlign,
             },
           };
         }
@@ -85,48 +99,156 @@ const ToolbarControlls: React.FC<Props> = ({
 
       changeNode([...newNodes]);
     },
-    [textAlign, playgroundState.nodes]
+    [horizontalAlign, playgroundState.nodes]
+  );
+
+  const verticalAlignText = useCallback(
+    (verticalAlign: VerticalAlign) => {
+      const newNodes = playgroundState.nodes.map((node) => {
+        if (node.id === id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              verticalAlign,
+            },
+          };
+        }
+        return node;
+      });
+
+      changeNode([...newNodes]);
+    },
+    [verticalAlign, playgroundState.nodes]
+  );
+
+  const changeFontSize = useCallback(
+    (e: ChangeEvent<HTMLSelectElement>) => {
+      const newNodes = playgroundState.nodes.map((node) => {
+        if (node.id === id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              fontSize: +e.target.value,
+            },
+          };
+        }
+        return node;
+      });
+
+      changeNode([...newNodes]);
+    },
+    [fontSize, playgroundState.nodes]
   );
 
   return (
-    <div className="flex flex-row gap-2 justify-center items-center bg-white border border-solid-2 border-black rounded-lg h-10 box-border p-2">
-      <ColorPickerButton color={bgColor} pickHandler={changeBgThisNodeColor} />
+    <div className="flex flex-row gap-2 justify-center p-2 items-center bg-white border border-solid-1 border-slate-300 rounded-lg h-10 box-border">
+      {bgColor && (
+        <>
+          <ColorPickerButton
+            color={bgColor}
+            pickHandler={changeBgThisNodeColor}
+          />
+          <div className="h-full w-[1px] bg-slate-300" />
+        </>
+      )}
 
-      <ColorPickerButton
-        color={textColor}
-        pickHandler={changeTextThisNodeColor}
-        icon={<Type color="white" size={16} />}
-      />
+      {textColor && (
+        <>
+          <ColorPickerButton
+            color={textColor}
+            pickHandler={changeTextThisNodeColor}
+            icon={<Type color="white" size={16} />}
+          />
+          <div className="h-full w-[1px] bg-slate-300" />
+        </>
+      )}
 
-      <PositionTextButton
-        clickHandler={positionText}
-        position="left"
-        active={textAlign === "left"}
-      />
+      {horizontalAlign && (
+        <>
+          <HorizontalAlignTextButton
+            clickHandler={horizontalAlignText}
+            position="left"
+            active={horizontalAlign === "left"}
+          />
+          <HorizontalAlignTextButton
+            clickHandler={horizontalAlignText}
+            position="center"
+            active={horizontalAlign === "center"}
+          />
+          <HorizontalAlignTextButton
+            clickHandler={horizontalAlignText}
+            position="right"
+            active={horizontalAlign === "right"}
+          />
+          <div className="h-full w-[1px] bg-slate-300" />
+        </>
+      )}
 
-      <PositionTextButton
-        clickHandler={positionText}
-        position="center"
-        active={textAlign === "center"}
-      />
+      {verticalAlign && (
+        <>
+          <VerticalAlignTextButton
+            clickHandler={verticalAlignText}
+            position="start"
+            active={verticalAlign === "start"}
+          />
+          <VerticalAlignTextButton
+            clickHandler={verticalAlignText}
+            position="center"
+            active={verticalAlign === "center"}
+          />
+          <VerticalAlignTextButton
+            clickHandler={verticalAlignText}
+            position="end"
+            active={verticalAlign === "end"}
+          />
+        </>
+      )}
 
-      <PositionTextButton
-        clickHandler={positionText}
-        position="right"
-        active={textAlign === "right"}
-      />
+      {fontSize && (
+        <FontSelect fontSize={fontSize} clickHandler={changeFontSize} />
+      )}
     </div>
   );
 };
 
-const PositionTextButton = memo(
+const FontSelect = memo(
+  ({
+    fontSize,
+    clickHandler,
+  }: {
+    fontSize: number;
+    clickHandler: (e: ChangeEvent<HTMLSelectElement>) => void;
+  }) => {
+    const values: number[] = [...Array(100)]
+      .map((_, i) => i + 1)
+      .filter((val) => val % 2 === 0);
+
+    return (
+      <select value={fontSize} onChange={clickHandler}>
+        {values.map((val) => (
+          <option
+            key={val}
+            value={val}
+            className={val === fontSize ? `bg-slate-300` : undefined}
+          >
+            {val + "px"}
+          </option>
+        ))}
+      </select>
+    );
+  }
+);
+
+const VerticalAlignTextButton = memo(
   ({
     clickHandler,
     position,
     active,
   }: {
-    clickHandler: (position: TextAlign) => void;
-    position: TextAlign;
+    clickHandler: (position: VerticalAlign) => void;
+    position: VerticalAlign;
     active?: boolean;
   }) => {
     const theme = active
@@ -136,7 +258,38 @@ const PositionTextButton = memo(
     return (
       <Button
         onClick={() => clickHandler(position)}
-        className={`bg-white px-2 border border-solid-2 border-black rounded-lg h-full ${theme}`}
+        className={`h-full aspect-square bg-white p-[1px] border border-solid-2 border-black rounded-sm ${theme}`}
+      >
+        {position === "start" ? (
+          <ArrowUpToLine size={16} />
+        ) : position === "center" ? (
+          <FoldVertical size={16} />
+        ) : (
+          <ArrowDownToLine size={16} />
+        )}
+      </Button>
+    );
+  }
+);
+
+const HorizontalAlignTextButton = memo(
+  ({
+    clickHandler,
+    position,
+    active,
+  }: {
+    clickHandler: (position: HorizontalAlign) => void;
+    position: HorizontalAlign;
+    active?: boolean;
+  }) => {
+    const theme = active
+      ? "text-white bg-black"
+      : "text-black bg-white hover:text-white hover:bg-black";
+
+    return (
+      <Button
+        onClick={() => clickHandler(position)}
+        className={`h-full aspect-square bg-white p-[1px] border border-solid-2 border-black rounded-sm ${theme}`}
       >
         {position === "center" ? (
           <AlignCenter size={16} />
@@ -174,7 +327,7 @@ const ColorPickerButton = memo(
         onMouseLeave={() => {
           setVisibleColorPicker(false);
         }}
-        className="h-full w-[40px] p-0 bg-yellow-400 hover:bg-yellow-300 rounded-lg relative"
+        className="h-full aspect-square p-[1px] bg-yellow-400 hover:bg-yellow-300 rounded-lg relative"
       >
         {icon}
 

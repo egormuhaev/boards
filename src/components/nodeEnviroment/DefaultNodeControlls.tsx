@@ -1,33 +1,36 @@
 import { Handle, Position, NodeResizer, NodeToolbar } from "reactflow";
-import ToolbarControlls, { TextAlign } from "./ToolbarControlls";
+import ToolbarControlls, { Settings } from "./ToolbarControlls";
 import { memo } from "react";
 
-interface Props {
-  isSelect: boolean;
-  children: React.ReactNode;
-  isDrawMode: boolean;
+interface Props extends Settings {
   id: string;
-  bgColor: string;
-  textColor: string;
-  textAlign: TextAlign;
+  children: React.ReactNode;
+  isSelect: boolean;
+  isDrawMode: boolean;
 }
 
-const DefaultNodeControlls: React.FC<Props> = ({
+const DefaultNodeControlls = ({
+  id,
   children,
   isSelect,
   bgColor,
   textColor,
-  textAlign,
-  id,
-}) => {
+  horizontalAlign,
+  verticalAlign,
+  fontSize,
+}: Props) => {
   return (
     <>
       <NodeToolbar isVisible={isSelect} position={Position.Top}>
         <ToolbarControlls
-          bgColor={bgColor}
-          textColor={textColor}
-          textAlign={textAlign}
           id={id}
+          settings={{
+            bgColor,
+            textColor,
+            horizontalAlign,
+            verticalAlign,
+            fontSize,
+          }}
         />
       </NodeToolbar>
 

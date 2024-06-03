@@ -1,11 +1,15 @@
 import { Node, Edge } from "reactflow";
 
+export type HorizontalAlign = "center" | "left" | "right";
+export type VerticalAlign = "start" | "center" | "end";
+
 export interface ICreateNewNodeBuffer {
   type: string | null;
   fontSize?: number;
   bgColor?: string;
   textColor?: string;
-  textAlign?: "center" | "left" | "right";
+  horizontalAlign?: HorizontalAlign;
+  verticalAlign?: VerticalAlign;
 }
 
 export interface IReactFlowSliceSchema {

@@ -44,9 +44,8 @@ const Text: React.FC<NodeProps<Props>> = ({ selected, data, id }) => {
     <>
       <NodeToolbar isVisible={selected} position={Position.Top}>
         <ToolbarControlls
-          bgColor={data.bgColor ?? "#fff"}
-          textColor={data.textColor ?? "#000"}
           id={id}
+          settings={{ bgColor: data.bgColor, textColor: data.textColor }}
         />
       </NodeToolbar>
 
@@ -65,7 +64,6 @@ const Text: React.FC<NodeProps<Props>> = ({ selected, data, id }) => {
         {editText ? (
           <textarea
             value={text}
-            contentEditable="true"
             ref={textarea}
             onChange={onEditText}
             onClick={(e) => e.stopPropagation()}
