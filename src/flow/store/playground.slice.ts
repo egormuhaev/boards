@@ -1,5 +1,5 @@
 import { createStore, createEvent } from "effector";
-import { Edge, Node } from "reactflow";
+import { Edge, Node, XYPosition } from "reactflow";
 import {
   IReactFlowSliceSchema,
   ICreateNewNodeBuffer,
@@ -10,6 +10,8 @@ import { v4 } from "uuid";
 import { NodeTypes } from "@/components";
 import { randomColor } from "../utils/randomColor";
 import Text from "@/components/nodes/Text";
+import { EdgeTypes } from "@/components/egdes";
+import { EditableEdge } from "@/components/egdes/EditableEdge";
 
 export const $boardPlayground = createStore<IReactFlowSliceSchema>({
   nodes: [],
@@ -19,6 +21,11 @@ export const $boardPlayground = createStore<IReactFlowSliceSchema>({
     [NodeTypes.RectTextNodeFlowTypes]: RectTextNode,
     [NodeTypes.TextNodeFlowTypes]: Text,
   },
+
+  edgeTypes: {
+    [EdgeTypes.EditableEdgeFlowTypes]: EditableEdge,
+  },
+  connectionLinePath: [],
   create: null,
   colorsPalet: [
     "8ecae6",
@@ -46,10 +53,21 @@ export const changeNode = createEvent<Node[]>();
 export const changeEdge = createEvent<Edge[]>();
 export const addNewNode = createEvent<Omit<Node, "id">>();
 export const setCreateBuffer = createEvent<ICreateNewNodeBuffer>();
+export const setConnectionLinePath = createEvent<XYPosition[]>();
+
+const setConnectionLinePathReducer = (
+  state: IReactFlowSliceSchema,
+  connectionLinePath: XYPosition[],
+): IReactFlowSliceSchema => {
+  return {
+    ...state,
+    connectionLinePath: connectionLinePath,
+  };
+};
 
 const setCreateBufferReducer = (
   state: IReactFlowSliceSchema,
-  buffer: ICreateNewNodeBuffer
+  buffer: ICreateNewNodeBuffer,
 ): IReactFlowSliceSchema => {
   return {
     ...state,
@@ -62,7 +80,7 @@ const setCreateBufferReducer = (
 
 const addNewNodeReducer = (
   state: IReactFlowSliceSchema,
-  node: Omit<Node, "id">
+  node: Omit<Node, "id">,
 ): IReactFlowSliceSchema => {
   return {
     ...state,
@@ -83,7 +101,7 @@ const addNewNodeReducer = (
 
 const changeNodesReducer = (
   state: IReactFlowSliceSchema,
-  nodes: Node[]
+  nodes: Node[],
 ): IReactFlowSliceSchema => {
   return {
     ...state,
@@ -93,11 +111,11 @@ const changeNodesReducer = (
 
 const changeEdgesReducer = (
   state: IReactFlowSliceSchema,
-  edges: Edge[]
+  edges: Edge[],
 ): IReactFlowSliceSchema => {
   return {
     ...state,
-    edges: edges,
+    edges: [...edges],
   };
 };
 
@@ -105,3 +123,4 @@ $boardPlayground.on(changeNode, changeNodesReducer);
 $boardPlayground.on(changeEdge, changeEdgesReducer);
 $boardPlayground.on(addNewNode, addNewNodeReducer);
 $boardPlayground.on(setCreateBuffer, setCreateBufferReducer);
+$boardPlayground.on(setConnectionLinePath, setConnectionLinePathReducer);

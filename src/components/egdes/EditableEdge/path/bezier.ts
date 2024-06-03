@@ -37,6 +37,11 @@ import { Position } from "reactflow";
   чтобы сделать кривые визуально привлекательными и управляемыми.
 */
 
+/*
+Основыне математические операции данного модуля происхлдят в функции calculateControlOffset
+Функция getControlWithCurvature позволяет получить новые координаты точки относиттельно его смещения,
+Конструкция switch позволяет изменять только значение по определенным осям зависимо от направления смещения
+*/
 function calculateControlOffset(distance: number, curvature: number): number {
   if (distance >= 0) {
     return 0.5 * distance;
@@ -45,11 +50,6 @@ function calculateControlOffset(distance: number, curvature: number): number {
   return curvature * 25 * Math.sqrt(-distance);
 }
 
-/*
-Основыне математические операции данного модуля происхлдят в функции calculateControlOffset
-Функция getControlWithCurvature позволяет получить новые координаты точки относиттельно его смещения,
-Конструкция switch позволяет изменять только значение по определенным осям зависимо от направления смещения
-*/
 export function getControlWithCurvature(
   pos: Position,
   x1: number,
