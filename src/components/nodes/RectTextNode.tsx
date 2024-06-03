@@ -53,38 +53,42 @@ const RectTextNode = ({ selected, data, id }: NodeProps<Props>) => {
           backgroundColor: data.bgColor,
         }}
       >
-        <textarea
-          value={text}
-          ref={textarea}
-          onChange={onEditText}
-          onClick={(e) => e.stopPropagation()}
-          onBlur={() => setEditText(false)}
-          className="flex-1 w-full resize-none outline-none break-words text-ellipsis overflow-hidden nodrag"
-          style={{
-            backgroundColor: data.bgColor,
-            color: data.textColor,
-            textAlign: data.horizontalAlign,
-            alignContent: data.verticalAlign,
-            fontSize: data.fontSize + "px",
-          }}
-        />
-
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            setEditText(true);
-          }}
-          className="flex-1 flex w-full resize-none outline-none break-words text-ellipsis overflow-hidden"
-          style={{
-            backgroundColor: data.bgColor,
-            color: data.textColor,
-            justifyContent: data.horizontalAlign,
-            alignItems: data.verticalAlign,
-            fontSize: data.fontSize + "px",
-          }}
-        >
-          {text}
-        </div>
+        {editText ? (
+          <textarea
+            value={text}
+            ref={textarea}
+            onChange={onEditText}
+            onClick={(e) => e.stopPropagation()}
+            onBlur={() => setEditText(false)}
+            className="flex-1 w-full resize-none outline-none break-words text-ellipsis overflow-hidden p-0 m-0 nodrag"
+            style={{
+              backgroundColor: data.bgColor,
+              color: data.textColor,
+              textAlign: data.horizontalAlign,
+              alignContent: data.verticalAlign,
+              fontSize: data.fontSize + "px",
+              lineHeight: data.fontSize + "px",
+            }}
+          />
+        ) : (
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditText(true);
+            }}
+            className="flex-1 flex w-full resize-none outline-none break-words text-ellipsis overflow-hidden p-0 m-0"
+            style={{
+              backgroundColor: data.bgColor,
+              color: data.textColor,
+              justifyContent: data.horizontalAlign,
+              alignItems: data.verticalAlign,
+              fontSize: data.fontSize + "px",
+              lineHeight: data.fontSize + "px",
+            }}
+          >
+            {text}
+          </div>
+        )}
       </div>
     </DefaultNodeControlls>
   );
