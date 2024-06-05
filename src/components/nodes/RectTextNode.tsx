@@ -15,22 +15,22 @@ const RectTextNode = ({ selected, data, id }: NodeProps<Props>) => {
   const [editText, setEditText] = useState(false);
   const [text, setText] = useState("");
 
-  const textarea = useRef<HTMLTextAreaElement>(null);
+  const textarea = useRef<HTMLDivElement>(null);
 
-  const onEditText = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
+  const onEditText = (e: React.ChangeEvent<HTMLDivElement>) => {
+    const value = e.target.innerHTML;
     setText(value);
   };
 
   useEffect(() => {
     if (editText) {
       textarea.current?.focus();
-      textarea.current?.setSelectionRange(
-        textarea.current.value.length,
-        textarea.current.value.length
-      );
+      // textarea.current?.setSelectionRange(
+      //   textarea.current.value.length,
+      //   textarea.current.value.length
+      // );
     } else {
-      textarea.current?.setSelectionRange(0, 0);
+      // textarea.current?.setSelectionRange(0, 0);
       textarea.current?.blur();
     }
   }, [editText]);
@@ -54,13 +54,13 @@ const RectTextNode = ({ selected, data, id }: NodeProps<Props>) => {
         }}
       >
         {editText ? (
-          <textarea
-            value={text}
+          <div
+            contentEditable={editText}
             ref={textarea}
             onChange={onEditText}
             onClick={(e) => e.stopPropagation()}
             onBlur={() => setEditText(false)}
-            className="flex-1 w-full resize-none outline-none break-words text-ellipsis overflow-hidden p-0 m-0 nodrag"
+            className="flex-1  w-full resize-none outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none nodrag cursor-text"
             style={{
               backgroundColor: data.bgColor,
               color: data.textColor,
@@ -69,19 +69,21 @@ const RectTextNode = ({ selected, data, id }: NodeProps<Props>) => {
               fontSize: data.fontSize + "px",
               lineHeight: data.fontSize + "px",
             }}
-          />
+          >
+            {text}
+          </div>
         ) : (
           <div
             onClick={(e) => {
               e.stopPropagation();
               setEditText(true);
             }}
-            className="flex-1 flex w-full resize-none outline-none break-words text-ellipsis overflow-hidden p-0 m-0"
+            className="flex-1  w-full resize-none outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none"
             style={{
               backgroundColor: data.bgColor,
               color: data.textColor,
-              justifyContent: data.horizontalAlign,
-              alignItems: data.verticalAlign,
+              textAlign: data.horizontalAlign,
+              alignContent: data.verticalAlign,
               fontSize: data.fontSize + "px",
               lineHeight: data.fontSize + "px",
             }}
