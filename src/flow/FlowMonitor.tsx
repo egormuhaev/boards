@@ -12,6 +12,7 @@ import ReactFlow, {
   Connection,
   OnConnect,
   ConnectionMode,
+  Panel,
 } from "reactflow";
 import {
   $boardPlayground,
@@ -27,6 +28,7 @@ import { ControlPointData } from "@/components/egdes/EditableEdge";
 import { DEFAULT_ALGORITHM } from "@/components/egdes/EditableEdge/constants";
 import { v4 } from "uuid";
 import { ConnectionLine } from "@/components/egdes/ConectionLine";
+import React from "react";
 
 const FlowMonitor = () => {
   const playgroundState = useUnit($boardPlayground);
@@ -46,9 +48,6 @@ const FlowMonitor = () => {
   };
 
   const onConnect: OnConnect = (connection: Connection) => {
-    // We add a new edge based on the selected DEFAULT_ALGORITHM
-    // and transfer all the control points from the connectionLinePath
-    // in case the user has added any while creating the connection
     const edge = {
       ...connection,
       id: `${Date.now()}-${connection.source}-${connection.target}`,
@@ -60,6 +59,10 @@ const FlowMonitor = () => {
           (point, i) =>
             ({
               ...point,
+              data: {
+                lineColor: "#000",
+                lineWidth: 2,
+              },
               id: v4(),
               prev:
                 i === 0 ? undefined : playgroundState.connectionLinePath[i - 1],
@@ -92,6 +95,21 @@ const FlowMonitor = () => {
       onContextMenu={(e: any) => {
         e.preventDefault();
       }}
+      onSelectionEnd={() => {
+        console.log("onSelectionEnd");
+      }}
+      onAuxClick={() => {
+        console.log("onAuxClick");
+      }}
+      onSelectionChange={() => {
+        console.log("onSelectionChange");
+      }}
+      onClickCapture={() => {
+        console.log("onClickCapture");
+      }}
+      onEdgeDoubleClick={() => {
+        console.log("onEdgeDoubleClick");
+      }}
       onClick={addNewItemPlaygroud}
       selectionOnDrag
       panOnScroll
@@ -110,6 +128,7 @@ const FlowMonitor = () => {
       <FlowHeadToolbar />
       <Background color="#ccc" variant={BackgroundVariant.Cross} size={1} />
       <Controls />
+
       <MiniMap nodeStrokeWidth={3} zoomable pannable />
     </ReactFlow>
   );

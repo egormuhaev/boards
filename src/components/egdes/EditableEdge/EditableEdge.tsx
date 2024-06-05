@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import {
   BaseEdge,
+  getBezierPath,
   useStore,
   type Edge,
   type EdgeProps,
@@ -11,9 +12,11 @@ import { ControlPoint, type ControlPointData } from "./ControlPoint";
 import { getPath, getControlPoints } from "./path";
 import { Algorithm, COLORS } from "./constants";
 import { useUnit } from "effector-react";
+import EdgeToolbar from "../edgesEnviroment/EdgeToolbar";
 
 const useIdsForInactiveControlPoints = (points: ControlPointData[]) => {
   const prevIds = useRef<string[]>([]);
+
   let newPoints: ControlPointData[] = [];
   if (prevIds.current.length === points.length) {
     newPoints = points.map((point, i) =>
@@ -33,6 +36,8 @@ const useIdsForInactiveControlPoints = (points: ControlPointData[]) => {
 export type EditableEdgeData = {
   algorithm?: Algorithm;
   points: ControlPointData[];
+  lineColor?: string;
+  lineWidth?: number;
 };
 
 export function EditableEdge({
@@ -49,16 +54,30 @@ export function EditableEdge({
   markerEnd,
   markerStart,
   style,
-  data = { points: [] },
+
+  data = {
+    algorithm: Algorithm.Linear,
+    points: [],
+    lineColor: "#000",
+    lineWidth: 2,
+  },
   ...delegated
 }: EdgeProps<EditableEdgeData>) {
   const sourceOrigin = { x: sourceX, y: sourceY } as XYPosition;
   const targetOrigin = { x: targetX, y: targetY } as XYPosition;
   const playgroundState = useUnit($boardPlayground);
 
+  const [, labelX, labelY] = getBezierPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+  });
+
   const color = COLORS[data.algorithm ?? Algorithm.BezierCatmullRom];
 
-  // const { setEdges } = useReactFlow();
   const shouldShowPoints = useStore((store) => {
     const sourceNode = store.nodeInternals.get(source)!;
     const targetNode = store.nodeInternals.get(target)!;
@@ -104,10 +123,23 @@ export function EditableEdge({
         markerEnd={markerEnd}
         style={{
           ...style,
-          strokeWidth: 2,
-          stroke: color,
+          strokeWidth: data.lineWidth,
+          stroke: data.lineColor,
         }}
       />
+
+      {selected && (
+        <EdgeToolbar
+          settings={{
+            lineColor: data.lineColor,
+            lineWidth: data.lineWidth,
+            algorithm: data.algorithm,
+          }}
+          id={id}
+          labelX={labelX}
+          labelY={labelY}
+        />
+      )}
 
       {shouldShowPoints &&
         controlPointsWithIds.map((point, index) => (
