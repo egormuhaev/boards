@@ -97,7 +97,6 @@ const FlowMonitor = () => {
       }}
       onClick={addNewItemPlaygroud}
       selectionOnDrag
-      panOnScroll
       edges={playgroundState.edges}
       nodes={playgroundState.nodes}
       onConnect={onConnect}

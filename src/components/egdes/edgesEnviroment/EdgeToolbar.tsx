@@ -11,8 +11,6 @@ import { useReactFlow } from "reactflow";
 
 interface EdgeToolbarProps {
   id: string;
-  labelX: number;
-  labelY: number;
   settings: Settings;
 }
 
@@ -25,13 +23,13 @@ interface Settings {
 }
 
 export default function EdgeToolbar({ id, settings }: EdgeToolbarProps) {
-  const playgroundState = useUnit($boardPlayground);
+  const { isMovementPlayground, edges } = useUnit($boardPlayground);
   const flowState = useUnit($flow);
   const { flowToScreenPosition } = useReactFlow();
 
   const changeLineWidth = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newEdges = playgroundState.edges.map((node) => {
+      const newEdges = edges.map((node) => {
         if (node.id === id) {
           return {
             ...node,
@@ -46,12 +44,12 @@ export default function EdgeToolbar({ id, settings }: EdgeToolbarProps) {
 
       changeEdge([...newEdges]);
     },
-    [settings.lineWidth, playgroundState.edges],
+    [settings.lineWidth, edges],
   );
 
   const changeLineType = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newEdges = playgroundState.edges.map((node) => {
+      const newEdges = edges.map((node) => {
         if (node.id === id) {
           return {
             ...node,
@@ -66,13 +64,13 @@ export default function EdgeToolbar({ id, settings }: EdgeToolbarProps) {
 
       changeEdge([...newEdges]);
     },
-    [settings.lineWidth, playgroundState.edges],
+    [settings.lineWidth, edges],
   );
 
   const changeEdgeColor = useCallback(
     (color: ColorResult) => {
       if (!flowState.isDrawingMode) {
-        const newEdges = playgroundState.edges.map((edgs) => {
+        const newEdges = edges.map((edgs) => {
           if (edgs.id === id) {
             return {
               ...edgs,
@@ -88,7 +86,7 @@ export default function EdgeToolbar({ id, settings }: EdgeToolbarProps) {
         changeEdge([...newEdges]);
       }
     },
-    [playgroundState.edges, settings.lineColor],
+    [edges, settings.lineColor],
   );
 
   return createPortal(

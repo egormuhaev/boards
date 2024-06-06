@@ -1,4 +1,4 @@
-import { createStore, createEvent, Store, StoreWritable } from "effector";
+import { createStore, createEvent, StoreWritable } from "effector";
 import { Edge, Node, XYPosition } from "reactflow";
 import {
   IReactFlowSliceSchema,
@@ -13,44 +13,45 @@ import Text from "@/components/nodes/Text";
 import { EdgeTypes } from "@/components/egdes";
 import { EditableEdge } from "@/components/egdes/EditableEdge";
 
-export const $boardPlayground: StoreWritable<IReactFlowSliceSchema> = createStore<IReactFlowSliceSchema>({
-  nodes: [],
-  edges: [],
-  nodeTypes: {
-    [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
-    [NodeTypes.RectTextNodeFlowTypes]: RectTextNode,
-    [NodeTypes.TextNodeFlowTypes]: Text,
-  },
+export const $boardPlayground: StoreWritable<IReactFlowSliceSchema> =
+  createStore<IReactFlowSliceSchema>({
+    nodes: [],
+    edges: [],
+    nodeTypes: {
+      [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
+      [NodeTypes.RectTextNodeFlowTypes]: RectTextNode,
+      [NodeTypes.TextNodeFlowTypes]: Text,
+    },
 
-  edgeTypes: {
-    [EdgeTypes.EditableEdgeFlowTypes]: EditableEdge,
-  },
+    edgeTypes: {
+      [EdgeTypes.EditableEdgeFlowTypes]: EditableEdge,
+    },
 
-  isMovementPlayground: false,
+    isMovementPlayground: false,
 
-  connectionLinePath: [],
-  create: null,
-  colorsPalet: [
-    "8ecae6",
-    "219ebc",
-    "023047",
-    "cdb4db",
-    "ffc8dd",
-    "ffafcc",
-    "bde0fe",
-    "a2d2ff",
-    "ffbe0b",
-    "fb5607",
-    "ff006e",
-    "8338ec",
-    "3a86ff",
-    "9b5de5",
-    "f15bb5",
-    "fee440",
-    "00bbf9",
-    "00f5d4",
-  ],
-});
+    connectionLinePath: [],
+    create: null,
+    colorsPalet: [
+      "8ecae6",
+      "219ebc",
+      "023047",
+      "cdb4db",
+      "ffc8dd",
+      "ffafcc",
+      "bde0fe",
+      "a2d2ff",
+      "ffbe0b",
+      "fb5607",
+      "ff006e",
+      "8338ec",
+      "3a86ff",
+      "9b5de5",
+      "f15bb5",
+      "fee440",
+      "00bbf9",
+      "00f5d4",
+    ],
+  });
 
 export const changeNode = createEvent<Node[]>();
 export const changeEdge = createEvent<Edge[]>();
@@ -130,6 +131,7 @@ const changeEdgesReducer = (
 ): IReactFlowSliceSchema => {
   return {
     ...state,
+    isMovementPlayground: true,
     edges: [...edges],
   };
 };
