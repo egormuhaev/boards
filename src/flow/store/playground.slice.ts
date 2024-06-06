@@ -1,4 +1,4 @@
-import { createStore, createEvent } from "effector";
+import { createStore, createEvent, Store, StoreWritable } from "effector";
 import { Edge, Node, XYPosition } from "reactflow";
 import {
   IReactFlowSliceSchema,
@@ -13,7 +13,7 @@ import Text from "@/components/nodes/Text";
 import { EdgeTypes } from "@/components/egdes";
 import { EditableEdge } from "@/components/egdes/EditableEdge";
 
-export const $boardPlayground = createStore<IReactFlowSliceSchema>({
+export const $boardPlayground: StoreWritable<IReactFlowSliceSchema> = createStore<IReactFlowSliceSchema>({
   nodes: [],
   edges: [],
   nodeTypes: {
@@ -25,6 +25,9 @@ export const $boardPlayground = createStore<IReactFlowSliceSchema>({
   edgeTypes: {
     [EdgeTypes.EditableEdgeFlowTypes]: EditableEdge,
   },
+
+  isMovementPlayground: false,
+
   connectionLinePath: [],
   create: null,
   colorsPalet: [
@@ -54,6 +57,17 @@ export const changeEdge = createEvent<Edge[]>();
 export const addNewNode = createEvent<Omit<Node, "id">>();
 export const setCreateBuffer = createEvent<ICreateNewNodeBuffer>();
 export const setConnectionLinePath = createEvent<XYPosition[]>();
+export const setIsMovementPlayground = createEvent<boolean>();
+
+const setIsMovementPlaygroundReducer = (
+  state: IReactFlowSliceSchema,
+  isMovementPlayground: boolean,
+): IReactFlowSliceSchema => {
+  return {
+    ...state,
+    isMovementPlayground: isMovementPlayground,
+  };
+};
 
 const setConnectionLinePathReducer = (
   state: IReactFlowSliceSchema,
@@ -125,3 +139,4 @@ $boardPlayground.on(changeEdge, changeEdgesReducer);
 $boardPlayground.on(addNewNode, addNewNodeReducer);
 $boardPlayground.on(setCreateBuffer, setCreateBufferReducer);
 $boardPlayground.on(setConnectionLinePath, setConnectionLinePathReducer);
+$boardPlayground.on(setIsMovementPlayground, setIsMovementPlaygroundReducer);

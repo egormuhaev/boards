@@ -12,12 +12,12 @@ import ReactFlow, {
   Connection,
   OnConnect,
   ConnectionMode,
-  Panel,
 } from "reactflow";
 import {
   $boardPlayground,
   changeNode,
   changeEdge,
+  setIsMovementPlayground,
   addNewNode,
 } from "./store/playground.slice";
 import { $flow } from "./store/flow.slice";
@@ -95,21 +95,6 @@ const FlowMonitor = () => {
       onContextMenu={(e: any) => {
         e.preventDefault();
       }}
-      onSelectionEnd={() => {
-        console.log("onSelectionEnd");
-      }}
-      onAuxClick={() => {
-        console.log("onAuxClick");
-      }}
-      onSelectionChange={() => {
-        console.log("onSelectionChange");
-      }}
-      onClickCapture={() => {
-        console.log("onClickCapture");
-      }}
-      onEdgeDoubleClick={() => {
-        console.log("onEdgeDoubleClick");
-      }}
       onClick={addNewItemPlaygroud}
       selectionOnDrag
       panOnScroll
@@ -122,6 +107,12 @@ const FlowMonitor = () => {
       edgeTypes={playgroundState.edgeTypes}
       connectionMode={ConnectionMode.Loose}
       maxZoom={200}
+      onMoveStart={() => {
+        setIsMovementPlayground(true);
+      }}
+      onMoveEnd={() => {
+        setIsMovementPlayground(false);
+      }}
       connectionLineComponent={ConnectionLine}
     >
       {playgroundState.create && <FlowHeadParamsNode />}

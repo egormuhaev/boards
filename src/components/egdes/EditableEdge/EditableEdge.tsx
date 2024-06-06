@@ -2,6 +2,7 @@ import { useRef } from "react";
 import {
   BaseEdge,
   getBezierPath,
+  useReactFlow,
   useStore,
   type Edge,
   type EdgeProps,
@@ -54,7 +55,6 @@ export function EditableEdge({
   markerEnd,
   markerStart,
   style,
-
   data = {
     algorithm: Algorithm.Linear,
     points: [],
@@ -66,8 +66,9 @@ export function EditableEdge({
   const sourceOrigin = { x: sourceX, y: sourceY } as XYPosition;
   const targetOrigin = { x: targetX, y: targetY } as XYPosition;
   const playgroundState = useUnit($boardPlayground);
+  const { getZoom } = useReactFlow();
 
-  const [, labelX, labelY] = getBezierPath({
+  const [, labelX, labelY, offsetX, offsetY] = getBezierPath({
     sourceX,
     sourceY,
     sourcePosition,
@@ -128,9 +129,11 @@ export function EditableEdge({
         }}
       />
 
-      {selected && (
+      {!playgroundState.isMovementPlayground && selected && (
         <EdgeToolbar
           settings={{
+            x1: labelX * getZoom(),
+            y1: labelY * getZoom(),
             lineColor: data.lineColor,
             lineWidth: data.lineWidth,
             algorithm: data.algorithm,

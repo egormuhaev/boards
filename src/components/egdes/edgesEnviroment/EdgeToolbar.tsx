@@ -1,7 +1,5 @@
 import { useUnit } from "effector-react";
 import { memo, useCallback, useState } from "react";
-import { IoAnalyticsOutline } from "react-icons/io5";
-import { TbVectorSpline } from "react-icons/tb";
 import { BlockPicker, ColorResult } from "react-color";
 import { Button } from "@/shadcn/ui/button";
 
@@ -9,6 +7,7 @@ import { $boardPlayground, changeEdge } from "@/flow/store/playground.slice";
 import { createPortal } from "react-dom";
 import { $flow } from "@/flow/store/flow.slice";
 import { Algorithm } from "../EditableEdge/constants";
+import { useReactFlow } from "reactflow";
 
 interface EdgeToolbarProps {
   id: string;
@@ -21,16 +20,14 @@ interface Settings {
   lineColor?: string;
   lineWidth?: number;
   algorithm?: Algorithm;
+  x1: number;
+  y1: number;
 }
 
-export default function EdgeToolbar({
-  labelX,
-  labelY,
-  id,
-  settings,
-}: EdgeToolbarProps) {
+export default function EdgeToolbar({ id, settings }: EdgeToolbarProps) {
   const playgroundState = useUnit($boardPlayground);
   const flowState = useUnit($flow);
+  const { flowToScreenPosition } = useReactFlow();
 
   const changeLineWidth = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -98,9 +95,15 @@ export default function EdgeToolbar({
     <div
       style={{
         position: "absolute",
-        transform: `translate(-50%, -50%) translate(${labelX}px,${labelY - 100}px)`,
-        top: 0,
-        left: 0,
+        // transform: `translate(-50%, -50%) translate(${labelX}px,${labelY - 100}px)`,
+        top: flowToScreenPosition({
+          x: settings.x1,
+          y: settings.y1,
+        }).y,
+        left: flowToScreenPosition({
+          x: settings.x1,
+          y: settings.y1,
+        }).x,
         padding: 10,
         borderRadius: 5,
         fontSize: 12,
