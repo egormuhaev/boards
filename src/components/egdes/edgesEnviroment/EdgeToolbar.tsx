@@ -23,7 +23,7 @@ interface Settings {
 }
 
 export default function EdgeToolbar({ id, settings }: EdgeToolbarProps) {
-  const { isMovementPlayground, edges } = useUnit($boardPlayground);
+  const { edges } = useUnit($boardPlayground);
   const flowState = useUnit($flow);
   const { flowToScreenPosition } = useReactFlow();
 
