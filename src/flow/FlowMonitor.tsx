@@ -163,7 +163,8 @@ const FlowMonitor = () => {
       nodeTypes={playgroundState.nodeTypes}
       edgeTypes={playgroundState.edgeTypes}
       connectionMode={ConnectionMode.Loose}
-      maxZoom={200}
+      minZoom={0.1}
+      maxZoom={500}
       onMoveStart={() => {
         setIsMovementPlayground(true);
       }}
