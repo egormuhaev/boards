@@ -116,6 +116,9 @@ const FlowMonitor = () => {
         case "png":
           type = NodeTypes.PictureNodeFlowTypes;
           break;
+        case "mov":
+          type = NodeTypes.VideoNodeFlowTypes;
+          break;
         case "mp4":
           type = NodeTypes.VideoNodeFlowTypes;
           break;

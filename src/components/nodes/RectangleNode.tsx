@@ -23,7 +23,7 @@ const handleStyles = {
 
 const RectangleNode = ({ selected, data, id }: NodeProps<Props>) => {
   const [editText, setEditText] = useState(false);
-  const [text, setText] = useState("");
+  const [text, setText] = useState(" ");
   const [rotation, setRotation] = useState(0);
 
   const textarea = useRef<HTMLDivElement>(null);
@@ -128,7 +128,7 @@ const RectangleNode = ({ selected, data, id }: NodeProps<Props>) => {
               textAlign: data.horizontalAlign,
               alignContent: data.verticalAlign,
               fontSize: data.fontSize + "px",
-              lineHeight: data.fontSize + "px",
+              lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
             }}
           >
             {text}
@@ -146,7 +146,7 @@ const RectangleNode = ({ selected, data, id }: NodeProps<Props>) => {
               textAlign: data.horizontalAlign,
               alignContent: data.verticalAlign,
               fontSize: data.fontSize + "px",
-              lineHeight: data.fontSize + "px",
+              lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
             }}
           >
             {text}
