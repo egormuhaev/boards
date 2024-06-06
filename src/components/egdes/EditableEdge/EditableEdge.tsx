@@ -1,7 +1,7 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   BaseEdge,
-  getBezierPath,
+  useReactFlow,
   useStore,
   type Edge,
   type EdgeProps,
@@ -18,6 +18,7 @@ const useIdsForInactiveControlPoints = (points: ControlPointData[]) => {
   const prevIds = useRef<string[]>([]);
 
   let newPoints: ControlPointData[] = [];
+
   if (prevIds.current.length === points.length) {
     newPoints = points.map((point, i) =>
       point.active ? point : { ...point, id: prevIds.current[i] },
@@ -54,7 +55,6 @@ export function EditableEdge({
   markerEnd,
   markerStart,
   style,
-
   data = {
     algorithm: Algorithm.Linear,
     points: [],
@@ -65,16 +65,14 @@ export function EditableEdge({
 }: EdgeProps<EditableEdgeData>) {
   const sourceOrigin = { x: sourceX, y: sourceY } as XYPosition;
   const targetOrigin = { x: targetX, y: targetY } as XYPosition;
-  const playgroundState = useUnit($boardPlayground);
+  const { isMovementPlayground, edges } = useUnit($boardPlayground);
+  const { getZoom } = useReactFlow();
 
-  const [, labelX, labelY] = getBezierPath({
-    sourceX,
-    sourceY,
-    sourcePosition,
-    targetX,
-    targetY,
-    targetPosition,
+  useEffect(() => {
+    console.log(getZoom());
   });
+
+  const conditionToolbarVisible = !isMovementPlayground && selected;
 
   const color = COLORS[data.algorithm ?? Algorithm.BezierCatmullRom];
 
@@ -88,7 +86,7 @@ export function EditableEdge({
   const setControlPoints = (
     update: (points: ControlPointData[]) => ControlPointData[],
   ) => {
-    const newEdges = playgroundState.edges.map((e) => {
+    const newEdges = edges.map((e) => {
       if (e.id !== id) return e;
       if (!isEditableEdge(e)) return e;
 
@@ -128,16 +126,16 @@ export function EditableEdge({
         }}
       />
 
-      {selected && (
+      {conditionToolbarVisible && (
         <EdgeToolbar
           settings={{
+            x1: (sourceX + targetX) / 2 + 100 * getZoom(),
+            y1: (sourceY + targetY) / 2 + 100 * getZoom(),
             lineColor: data.lineColor,
             lineWidth: data.lineWidth,
             algorithm: data.algorithm,
           }}
           id={id}
-          labelX={labelX}
-          labelY={labelY}
         />
       )}
 

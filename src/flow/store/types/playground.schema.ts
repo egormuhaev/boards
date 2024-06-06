@@ -21,4 +21,5 @@ export interface IReactFlowSliceSchema {
   create: ICreateNewNodeBuffer | null;
   colorsPalet: string[];
   connectionLinePath: XYPosition[];
+  isMovementPlayground: boolean;
 }

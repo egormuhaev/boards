@@ -8,7 +8,6 @@ import { getPath } from "./EditableEdge";
 import { Algorithm, COLORS, DEFAULT_ALGORITHM } from "./EditableEdge/constants";
 import { useUnit } from "effector-react";
 
-// The distance between points when free drawing
 const DISTANCE = DEFAULT_ALGORITHM === Algorithm.BezierCatmullRom ? 50 : 25;
 
 export function ConnectionLine({
@@ -24,8 +23,6 @@ export function ConnectionLine({
 
   const [freeDrawing, setFreeDrawing] = useState(false);
 
-  // Check how far the cursor is from the last point in the path
-  // and add a new point if it's far enough
   const prev = playgroundState.connectionLinePath[
     playgroundState.connectionLinePath.length - 1
   ] ?? {

@@ -1,4 +1,4 @@
-import { createStore, createEvent } from "effector";
+import { createStore, createEvent, StoreWritable } from "effector";
 import { Edge, Node, XYPosition } from "reactflow";
 import {
   IReactFlowSliceSchema,
@@ -16,49 +16,62 @@ import PictureNode from "@/components/nodes/PictureNode";
 import RectangleNode from "@/components/nodes/RectangleNode";
 import TextNode from "@/components/nodes/TextNode";
 
-export const $boardPlayground = createStore<IReactFlowSliceSchema>({
-  nodes: [],
-  edges: [],
-  nodeTypes: {
-    [NodeTypes.RectangleNodeFlowTypes]: RectangleNode,
-    [NodeTypes.TextNodeFlowTypes]: TextNode,
-    [NodeTypes.VideoNodeFlowTypes]: VideoNode,
-    [NodeTypes.FileNodeFlowTypes]: FileNode,
-    [NodeTypes.PictureNodeFlowTypes]: PictureNode,
-    [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
-  },
-  edgeTypes: {
-    [EdgeTypes.EditableEdgeFlowTypes]: EditableEdge,
-  },
-  connectionLinePath: [],
-  create: null,
-  colorsPalet: [
-    "8ecae6",
-    "219ebc",
-    "023047",
-    "cdb4db",
-    "ffc8dd",
-    "ffafcc",
-    "bde0fe",
-    "a2d2ff",
-    "ffbe0b",
-    "fb5607",
-    "ff006e",
-    "8338ec",
-    "3a86ff",
-    "9b5de5",
-    "f15bb5",
-    "fee440",
-    "00bbf9",
-    "00f5d4",
-  ],
-});
+export const $boardPlayground: StoreWritable<IReactFlowSliceSchema> =
+  createStore<IReactFlowSliceSchema>({
+    nodes: [],
+    edges: [],
+    nodeTypes: {
+      [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
+      [NodeTypes.RectTextNodeFlowTypes]: RectTextNode,
+      [NodeTypes.TextNodeFlowTypes]: Text,
+    },
+
+    edgeTypes: {
+      [EdgeTypes.EditableEdgeFlowTypes]: EditableEdge,
+    },
+
+    isMovementPlayground: false,
+
+    connectionLinePath: [],
+    create: null,
+    colorsPalet: [
+      "8ecae6",
+      "219ebc",
+      "023047",
+      "cdb4db",
+      "ffc8dd",
+      "ffafcc",
+      "bde0fe",
+      "a2d2ff",
+      "ffbe0b",
+      "fb5607",
+      "ff006e",
+      "8338ec",
+      "3a86ff",
+      "9b5de5",
+      "f15bb5",
+      "fee440",
+      "00bbf9",
+      "00f5d4",
+    ],
+  });
 
 export const changeNode = createEvent<Node[]>();
 export const changeEdge = createEvent<Edge[]>();
 export const addNewNode = createEvent<Omit<Node, "id">>();
 export const setCreateBuffer = createEvent<ICreateNewNodeBuffer>();
 export const setConnectionLinePath = createEvent<XYPosition[]>();
+export const setIsMovementPlayground = createEvent<boolean>();
+
+const setIsMovementPlaygroundReducer = (
+  state: IReactFlowSliceSchema,
+  isMovementPlayground: boolean
+): IReactFlowSliceSchema => {
+  return {
+    ...state,
+    isMovementPlayground: isMovementPlayground,
+  };
+};
 
 const setConnectionLinePathReducer = (
   state: IReactFlowSliceSchema,
@@ -122,6 +135,7 @@ const changeEdgesReducer = (
 ): IReactFlowSliceSchema => {
   return {
     ...state,
+    isMovementPlayground: true,
     edges: [...edges],
   };
 };
@@ -131,3 +145,4 @@ $boardPlayground.on(changeEdge, changeEdgesReducer);
 $boardPlayground.on(addNewNode, addNewNodeReducer);
 $boardPlayground.on(setCreateBuffer, setCreateBufferReducer);
 $boardPlayground.on(setConnectionLinePath, setConnectionLinePathReducer);
+$boardPlayground.on(setIsMovementPlayground, setIsMovementPlaygroundReducer);

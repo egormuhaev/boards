@@ -12,12 +12,12 @@ import ReactFlow, {
   Connection,
   OnConnect,
   ConnectionMode,
-  Panel,
 } from "reactflow";
 import {
   $boardPlayground,
   changeNode,
   changeEdge,
+  setIsMovementPlayground,
   addNewNode,
 } from "./store/playground.slice";
 import { $flow } from "./store/flow.slice";
@@ -161,6 +161,12 @@ const FlowMonitor = () => {
       edgeTypes={playgroundState.edgeTypes}
       connectionMode={ConnectionMode.Loose}
       maxZoom={200}
+      onMoveStart={() => {
+        setIsMovementPlayground(true);
+      }}
+      onMoveEnd={() => {
+        setIsMovementPlayground(false);
+      }}
       connectionLineComponent={ConnectionLine}
     >
       {playgroundState.create && <FlowHeadParamsNode />}
