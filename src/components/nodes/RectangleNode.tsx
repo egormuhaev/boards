@@ -62,7 +62,10 @@ const RectangleNode = ({ selected, data, id }: NodeProps<Props>) => {
   }, [editText]);
 
   return (
-    <div className="relative" style={{ transform: `rotate(${rotation}deg)` }}>
+    <div
+      className="w-full h-full"
+      style={{ transform: `rotate(${rotation}deg)` }}
+    >
       <NodeToolbar isVisible={selected} position={Position.Top} offset={40}>
         <ToolbarControlls
           id={id}
@@ -71,12 +74,7 @@ const RectangleNode = ({ selected, data, id }: NodeProps<Props>) => {
           }}
         />
       </NodeToolbar>
-      <NodeResizer
-        isVisible={selected}
-        minWidth={180}
-        minHeight={68}
-        keepAspectRatio
-      />
+      <NodeResizer isVisible={selected} minWidth={180} minHeight={68} />
       <Handle
         type="source"
         position={Position.Top}
