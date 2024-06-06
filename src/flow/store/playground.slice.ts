@@ -22,8 +22,11 @@ export const $boardPlayground: StoreWritable<IReactFlowSliceSchema> =
     edges: [],
     nodeTypes: {
       [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
-      [NodeTypes.RectTextNodeFlowTypes]: RectTextNode,
-      [NodeTypes.TextNodeFlowTypes]: Text,
+      [NodeTypes.RectangleNodeFlowTypes]: RectangleNode,
+      [NodeTypes.TextNodeFlowTypes]: TextNode,
+      [NodeTypes.VideoNodeFlowTypes]: VideoNode,
+      [NodeTypes.FileNodeFlowTypes]: FileNode,
+      [NodeTypes.PictureNodeFlowTypes]: PictureNode,
     },
 
     edgeTypes: {
