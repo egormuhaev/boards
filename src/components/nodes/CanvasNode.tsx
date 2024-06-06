@@ -3,7 +3,7 @@ import { Handle, Position, NodeResizer, NodeProps } from "reactflow";
 import { $flow } from "../../flow/store/flow.slice";
 import { useUnit } from "effector-react";
 
-const CanvasNode: React.FC<NodeProps> = ({ selected }) => {
+const CanvasNode = ({ selected }: NodeProps) => {
   const flowState = useUnit($flow);
   const id = useId();
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);

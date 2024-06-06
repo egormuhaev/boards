@@ -17,6 +17,8 @@
     "class-variance-authority": "^0.7.0",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
+    "d3-drag": "^3.0.0",
+    "d3-selection": "^3.0.0",
     "effector": "^23.2.2",
     "effector-react": "^23.2.1",
     "lucide-react": "^0.379.0",

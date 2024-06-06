@@ -30,7 +30,7 @@ const FlowHeadToolbar = () => {
       </Button>
 
       <Button
-        onClick={saveNewNodeDataInBuffer(NodeTypes.RectTextNodeFlowTypes)}
+        onClick={saveNewNodeDataInBuffer(NodeTypes.RectangleNodeFlowTypes)}
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Блок"
       >
@@ -63,7 +63,10 @@ const FlowHeadToolbar = () => {
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Медиа"
       >
-        <FaPhotoVideo className="h-full w-full" />
+        <FaPhotoVideo
+          onClick={saveNewNodeDataInBuffer(NodeTypes.VideoNodeFlowTypes)}
+          className="h-full w-full"
+        />
       </Button>
     </nav>
   );

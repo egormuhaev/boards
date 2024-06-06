@@ -16,7 +16,7 @@ const styles = {
     "flex-1 w-full resize-none text-left outline-none text-black overflow-y-auto align-middle break-words",
 };
 
-const Text: React.FC<NodeProps<Props>> = ({ selected, data, id }) => {
+const TextNode = ({ selected, data, id }: NodeProps<Props>) => {
   const [editText, setEditText] = useState(false);
   const [text, setText] = useState("Тут должен быть текст");
 
@@ -55,11 +55,9 @@ const Text: React.FC<NodeProps<Props>> = ({ selected, data, id }) => {
         onClick={() => setEditText(false)}
         className={cn(
           styles.wrapper,
+          "bg-transparent",
           editText ? "border border-solid-2 border-black" : ""
         )}
-        style={{
-          backgroundColor: "transparent",
-        }}
       >
         {editText ? (
           <textarea
@@ -68,10 +66,7 @@ const Text: React.FC<NodeProps<Props>> = ({ selected, data, id }) => {
             onChange={onEditText}
             onClick={(e) => e.stopPropagation()}
             onBlur={() => setEditText(false)}
-            className={cn(styles.textarea, "nodrag")}
-            style={{
-              backgroundColor: "transparent",
-            }}
+            className={cn(styles.textarea, "nodrag bg-transparent")}
           />
         ) : (
           <div
@@ -81,11 +76,8 @@ const Text: React.FC<NodeProps<Props>> = ({ selected, data, id }) => {
             }}
             className={cn(
               styles.textarea,
-              "inline text-ellipsis overflow-hidden"
+              "inline text-ellipsis overflow-hidden bg-transparent"
             )}
-            style={{
-              backgroundColor: "transparent",
-            }}
           >
             {text}
           </div>
@@ -97,4 +89,4 @@ const Text: React.FC<NodeProps<Props>> = ({ selected, data, id }) => {
 
 export const textNodeFlowTypes = "textNode";
 
-export default Text;
+export default TextNode;

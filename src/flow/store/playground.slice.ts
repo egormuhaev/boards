@@ -4,24 +4,29 @@ import {
   IReactFlowSliceSchema,
   ICreateNewNodeBuffer,
 } from "./types/playground.schema";
-import CanvasNode from "@/components/nodes/canvasNode";
-import RectTextNode from "@/components/nodes/RectTextNode";
+import CanvasNode from "@/components/nodes/CanvasNode";
 import { v4 } from "uuid";
 import { NodeTypes } from "@/components";
 import { randomColor } from "../utils/randomColor";
-import Text from "@/components/nodes/Text";
 import { EdgeTypes } from "@/components/egdes";
 import { EditableEdge } from "@/components/egdes/EditableEdge";
+import VideoNode from "@/components/nodes/VideoNode";
+import FileNode from "@/components/nodes/FileNode";
+import PictureNode from "@/components/nodes/PictureNode";
+import RectangleNode from "@/components/nodes/RectangleNode";
+import TextNode from "@/components/nodes/TextNode";
 
 export const $boardPlayground = createStore<IReactFlowSliceSchema>({
   nodes: [],
   edges: [],
   nodeTypes: {
+    [NodeTypes.RectangleNodeFlowTypes]: RectangleNode,
+    [NodeTypes.TextNodeFlowTypes]: TextNode,
+    [NodeTypes.VideoNodeFlowTypes]: VideoNode,
+    [NodeTypes.FileNodeFlowTypes]: FileNode,
+    [NodeTypes.PictureNodeFlowTypes]: PictureNode,
     [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
-    [NodeTypes.RectTextNodeFlowTypes]: RectTextNode,
-    [NodeTypes.TextNodeFlowTypes]: Text,
   },
-
   edgeTypes: {
     [EdgeTypes.EditableEdgeFlowTypes]: EditableEdge,
   },
@@ -57,7 +62,7 @@ export const setConnectionLinePath = createEvent<XYPosition[]>();
 
 const setConnectionLinePathReducer = (
   state: IReactFlowSliceSchema,
-  connectionLinePath: XYPosition[],
+  connectionLinePath: XYPosition[]
 ): IReactFlowSliceSchema => {
   return {
     ...state,
@@ -67,7 +72,7 @@ const setConnectionLinePathReducer = (
 
 const setCreateBufferReducer = (
   state: IReactFlowSliceSchema,
-  buffer: ICreateNewNodeBuffer,
+  buffer: ICreateNewNodeBuffer
 ): IReactFlowSliceSchema => {
   return {
     ...state,
@@ -78,13 +83,14 @@ const setCreateBufferReducer = (
       horizontalAlign: buffer.horizontalAlign ?? "center",
       verticalAlign: buffer.verticalAlign ?? "center",
       fontSize: buffer.fontSize ?? 14,
+      rotation: buffer.rotation ?? 0,
     },
   };
 };
 
 const addNewNodeReducer = (
   state: IReactFlowSliceSchema,
-  node: Omit<Node, "id">,
+  node: Omit<Node, "id">
 ): IReactFlowSliceSchema => {
   return {
     ...state,
@@ -93,7 +99,7 @@ const addNewNodeReducer = (
       {
         ...node,
         id: v4(),
-        data: state.create,
+        data: { ...state.create, ...node.data },
       },
     ],
     create: null,
@@ -102,7 +108,7 @@ const addNewNodeReducer = (
 
 const changeNodesReducer = (
   state: IReactFlowSliceSchema,
-  nodes: Node[],
+  nodes: Node[]
 ): IReactFlowSliceSchema => {
   return {
     ...state,
@@ -112,7 +118,7 @@ const changeNodesReducer = (
 
 const changeEdgesReducer = (
   state: IReactFlowSliceSchema,
-  edges: Edge[],
+  edges: Edge[]
 ): IReactFlowSliceSchema => {
   return {
     ...state,

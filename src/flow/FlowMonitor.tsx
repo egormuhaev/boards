@@ -28,7 +28,8 @@ import { ControlPointData } from "@/components/egdes/EditableEdge";
 import { DEFAULT_ALGORITHM } from "@/components/egdes/EditableEdge/constants";
 import { v4 } from "uuid";
 import { ConnectionLine } from "@/components/egdes/ConectionLine";
-import React from "react";
+import React, { DragEvent } from "react";
+import { NodeTypes } from "@/components";
 
 const FlowMonitor = () => {
   const playgroundState = useUnit($boardPlayground);
@@ -67,7 +68,7 @@ const FlowMonitor = () => {
               prev:
                 i === 0 ? undefined : playgroundState.connectionLinePath[i - 1],
               active: true,
-            }) as ControlPointData,
+            } as ControlPointData)
         ),
       },
     };
@@ -90,29 +91,67 @@ const FlowMonitor = () => {
     }
   };
 
+  const handleDragEvent = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    handleDragEvent(e);
+
+    const files = e.dataTransfer.files;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileExtension = file.name.slice(file.name.lastIndexOf(".") + 1);
+      let type: NodeTypes;
+
+      switch (fileExtension) {
+        case "jpeg":
+          type = NodeTypes.PictureNodeFlowTypes;
+          break;
+        case "jpg":
+          type = NodeTypes.PictureNodeFlowTypes;
+          break;
+        case "png":
+          type = NodeTypes.PictureNodeFlowTypes;
+          break;
+        case "mp4":
+          type = NodeTypes.VideoNodeFlowTypes;
+          break;
+        case "webm":
+          type = NodeTypes.VideoNodeFlowTypes;
+          break;
+        default:
+          type = NodeTypes.FileNodeFlowTypes;
+          break;
+      }
+
+      const position = screenToFlowPosition({
+        x: e.clientX,
+        y: e.clientY + i * 100,
+      });
+
+      addNewNode({
+        data: { file },
+        type,
+        position,
+      });
+    }
+  };
+
   return (
     <ReactFlow
-      onContextMenu={(e: any) => {
-        e.preventDefault();
-      }}
-      onSelectionEnd={() => {
-        console.log("onSelectionEnd");
-      }}
-      onAuxClick={() => {
-        console.log("onAuxClick");
-      }}
-      onSelectionChange={() => {
-        console.log("onSelectionChange");
-      }}
-      onClickCapture={() => {
-        console.log("onClickCapture");
-      }}
-      onEdgeDoubleClick={() => {
-        console.log("onEdgeDoubleClick");
-      }}
+      onContextMenu={(e) => e.preventDefault()}
       onClick={addNewItemPlaygroud}
+      //
+      onDrop={handleDrop}
+      onDragOver={handleDragEvent}
+      onDragEnter={handleDragEvent}
+      onDragLeave={handleDragEvent}
+      //
       selectionOnDrag
-      panOnScroll
+      // panOnScroll
       edges={playgroundState.edges}
       nodes={playgroundState.nodes}
       onConnect={onConnect}

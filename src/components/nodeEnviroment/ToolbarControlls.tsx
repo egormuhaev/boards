@@ -24,6 +24,7 @@ export type Settings = {
   textColor?: string;
   bgColor?: string;
   fontSize?: number;
+  rotation?: string;
 };
 
 interface Props {
@@ -31,10 +32,10 @@ interface Props {
   settings: Settings;
 }
 
-const ToolbarControlls: React.FC<Props> = ({
+const ToolbarControlls = ({
   id,
   settings: { horizontalAlign, verticalAlign, textColor, bgColor, fontSize },
-}) => {
+}: Props) => {
   const playgroundState = useUnit($boardPlayground);
   const flowState = useUnit($flow);
 
@@ -57,7 +58,7 @@ const ToolbarControlls: React.FC<Props> = ({
         changeNode([...newNodes]);
       }
     },
-    [bgColor, playgroundState.nodes],
+    [bgColor, playgroundState.nodes]
   );
 
   const changeTextThisNodeColor = useCallback(
@@ -79,7 +80,7 @@ const ToolbarControlls: React.FC<Props> = ({
         changeNode([...newNodes]);
       }
     },
-    [textColor, playgroundState.nodes],
+    [textColor, playgroundState.nodes]
   );
 
   const horizontalAlignText = useCallback(
@@ -99,7 +100,7 @@ const ToolbarControlls: React.FC<Props> = ({
 
       changeNode([...newNodes]);
     },
-    [horizontalAlign, playgroundState.nodes],
+    [horizontalAlign, playgroundState.nodes]
   );
 
   const verticalAlignText = useCallback(
@@ -119,7 +120,7 @@ const ToolbarControlls: React.FC<Props> = ({
 
       changeNode([...newNodes]);
     },
-    [verticalAlign, playgroundState.nodes],
+    [verticalAlign, playgroundState.nodes]
   );
 
   const changeFontSize = useCallback(
@@ -139,7 +140,7 @@ const ToolbarControlls: React.FC<Props> = ({
 
       changeNode([...newNodes]);
     },
-    [fontSize, playgroundState.nodes],
+    [fontSize, playgroundState.nodes]
   );
 
   return (
@@ -238,7 +239,7 @@ const FontSelect = memo(
         ))}
       </select>
     );
-  },
+  }
 );
 
 const VerticalAlignTextButton = memo(
@@ -269,7 +270,7 @@ const VerticalAlignTextButton = memo(
         )}
       </Button>
     );
-  },
+  }
 );
 
 const HorizontalAlignTextButton = memo(
@@ -300,7 +301,7 @@ const HorizontalAlignTextButton = memo(
         )}
       </Button>
     );
-  },
+  }
 );
 
 const ColorPickerButton = memo(
@@ -336,7 +337,7 @@ const ColorPickerButton = memo(
             <BlockPicker
               color={color}
               colors={playgroundState.colorsPalet.map(
-                (color: string) => "#" + color,
+                (color: string) => "#" + color
               )}
               onChangeComplete={(e) => {
                 pickHandler(e);
@@ -347,7 +348,7 @@ const ColorPickerButton = memo(
         )}
       </Button>
     );
-  },
+  }
 );
 
 export default memo(ToolbarControlls);

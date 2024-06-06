@@ -34,7 +34,12 @@ const DefaultNodeControlls = ({
         />
       </NodeToolbar>
 
-      <NodeResizer isVisible={isSelect} minWidth={180} minHeight={68} />
+      <NodeResizer
+        isVisible={isSelect}
+        minWidth={180}
+        minHeight={68}
+        keepAspectRatio
+      />
       <Handle type="source" position={Position.Top} id={"5"} />
       <Handle type="source" position={Position.Bottom} id={"6"} />
       <Handle type="source" position={Position.Left} id={"7"} />

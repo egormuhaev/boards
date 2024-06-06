@@ -10,6 +10,7 @@ export interface ICreateNewNodeBuffer {
   textColor?: string;
   horizontalAlign?: HorizontalAlign;
   verticalAlign?: VerticalAlign;
+  rotation?: number;
 }
 
 export interface IReactFlowSliceSchema {
