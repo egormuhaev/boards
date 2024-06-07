@@ -29,6 +29,7 @@ const VideoNode = ({ selected, data }: NodeProps<Props>) => {
         </p>
 
         <video controls width="250" className="w-full h-full cursor-grab">
+          {"Тут надо вставлять ссылку на файл"}
           <source src={data.file.name} />
         </video>
       </div>

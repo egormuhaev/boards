@@ -107,6 +107,9 @@ const FlowMonitor = () => {
       let type: NodeTypes;
 
       switch (fileExtension) {
+        case "pdf":
+          type = NodeTypes.PDFNodeFlowTypes;
+          break;
         case "jpeg":
           type = NodeTypes.PictureNodeFlowTypes;
           break;
@@ -134,6 +137,8 @@ const FlowMonitor = () => {
         x: e.clientX,
         y: e.clientY + i * 100,
       });
+
+      // Тут должна быть загрузка файла на сервер
 
       addNewNode({
         data: { file },

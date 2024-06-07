@@ -15,6 +15,7 @@ import FileNode from "@/components/nodes/FileNode";
 import PictureNode from "@/components/nodes/PictureNode";
 import RectangleNode from "@/components/nodes/RectangleNode";
 import TextNode from "@/components/nodes/TextNode";
+import PDFNode from "@/components/nodes/PDFNode";
 
 export const $boardPlayground: StoreWritable<IReactFlowSliceSchema> =
   createStore<IReactFlowSliceSchema>({
@@ -27,6 +28,7 @@ export const $boardPlayground: StoreWritable<IReactFlowSliceSchema> =
       [NodeTypes.VideoNodeFlowTypes]: VideoNode,
       [NodeTypes.FileNodeFlowTypes]: FileNode,
       [NodeTypes.PictureNodeFlowTypes]: PictureNode,
+      [NodeTypes.PDFNodeFlowTypes]: PDFNode,
     },
 
     edgeTypes: {

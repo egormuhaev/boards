@@ -4,6 +4,7 @@ import { textNodeFlowTypes } from "./nodes/TextNode";
 import { videoFlowTypes } from "./nodes/VideoNode";
 import { fileFlowTypes } from "./nodes/FileNode";
 import { pictureFlowTypes } from "./nodes/PictureNode";
+import { pdfFlowTypes } from "./nodes/PDFNode";
 
 export enum NodeTypes {
   RectangleNodeFlowTypes = rectangleNodeFlowTypes,
@@ -12,4 +13,5 @@ export enum NodeTypes {
   VideoNodeFlowTypes = videoFlowTypes,
   FileNodeFlowTypes = fileFlowTypes,
   PictureNodeFlowTypes = pictureFlowTypes,
+  PDFNodeFlowTypes = pdfFlowTypes,
 }
