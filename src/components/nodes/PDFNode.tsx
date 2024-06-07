@@ -20,7 +20,7 @@ const PDFNode = ({ data }: NodeProps<Props>) => {
       >
         <iframe
           id="pdf-js-viewer"
-          src={`/web/viewer.html?file=/public/${data.file.name}`}
+          src={`/src/web/viewer.html?file=/public/${data.file.name}`}
           title="webviewer"
           width="500"
           height="600"
