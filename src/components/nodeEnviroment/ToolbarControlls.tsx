@@ -1,9 +1,14 @@
 import { $flow } from "@/flow/store/flow.slice";
-import { $boardPlayground, changeNode } from "@/flow/store/playground.slice";
+import {
+  $boardPlayground,
+  changeNode,
+  deleteNode,
+} from "@/flow/store/playground.slice";
 import {
   HorizontalAlign,
   VerticalAlign,
 } from "@/flow/store/types/playground.schema";
+import useUndoRedo from "@/hooks/useUndoRedo";
 import { Button } from "@/shadcn/ui/button";
 import { useUnit } from "effector-react";
 import {
@@ -13,6 +18,7 @@ import {
   ArrowDownToLine,
   ArrowUpToLine,
   FoldVertical,
+  Trash2,
   Type,
 } from "lucide-react";
 import { ChangeEvent, memo, useCallback, useState } from "react";
@@ -38,6 +44,7 @@ const ToolbarControlls = ({
 }: Props) => {
   const playgroundState = useUnit($boardPlayground);
   const flowState = useUnit($flow);
+  const { takeSnapshot } = useUndoRedo();
 
   const changeBgThisNodeColor = useCallback(
     (color: ColorResult) => {
@@ -210,6 +217,20 @@ const ToolbarControlls = ({
       {fontSize && (
         <FontSelect fontSize={fontSize} clickHandler={changeFontSize} />
       )}
+
+      <Trash2
+        fontSize={fontSize}
+        color="red"
+        onClick={() => {
+          const node = playgroundState.nodes.find((nds) => nds.id !== id);
+          if (!node) return;
+
+          takeSnapshot();
+
+          deleteNode(node);
+          // changeNode(nodes);
+        }}
+      />
     </div>
   );
 };

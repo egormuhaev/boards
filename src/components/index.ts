@@ -5,9 +5,11 @@ import { videoFlowTypes } from "./nodes/VideoNode";
 import { fileFlowTypes } from "./nodes/FileNode";
 import { pictureFlowTypes } from "./nodes/PictureNode";
 import { pdfFlowTypes } from "./nodes/PDFNode";
+import { circleNodeFlowTypes } from "./nodes/CircleNode";
 
 export enum NodeTypes {
   RectangleNodeFlowTypes = rectangleNodeFlowTypes,
+  CircleNodeFlowTypes = circleNodeFlowTypes,
   TextNodeFlowTypes = textNodeFlowTypes,
   CanvasNodeFlowTypes = canvasNodeFlowTypes,
   VideoNodeFlowTypes = videoFlowTypes,

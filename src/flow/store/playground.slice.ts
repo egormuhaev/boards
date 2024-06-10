@@ -16,6 +16,7 @@ import PictureNode from "@/components/nodes/PictureNode";
 import RectangleNode from "@/components/nodes/RectangleNode";
 import TextNode from "@/components/nodes/TextNode";
 import PDFNode from "@/components/nodes/PDFNode";
+import CircleNode from "@/components/nodes/CircleNode";
 
 export const $boardPlayground: StoreWritable<IReactFlowSliceSchema> =
   createStore<IReactFlowSliceSchema>({
@@ -24,6 +25,7 @@ export const $boardPlayground: StoreWritable<IReactFlowSliceSchema> =
     nodeTypes: {
       [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
       [NodeTypes.RectangleNodeFlowTypes]: RectangleNode,
+      [NodeTypes.CircleNodeFlowTypes]: CircleNode,
       [NodeTypes.TextNodeFlowTypes]: TextNode,
       [NodeTypes.VideoNodeFlowTypes]: VideoNode,
       [NodeTypes.FileNodeFlowTypes]: FileNode,
@@ -64,6 +66,7 @@ export const $boardPlayground: StoreWritable<IReactFlowSliceSchema> =
 export const changeNode = createEvent<Node[]>();
 export const changeEdge = createEvent<Edge[]>();
 export const addNewNode = createEvent<Omit<Node, "id">>();
+export const deleteNode = createEvent<Node>();
 export const setCreateBuffer = createEvent<ICreateNewNodeBuffer>();
 export const setConnectionLinePath = createEvent<XYPosition[]>();
 export const setIsMovementPlayground = createEvent<boolean>();
@@ -124,6 +127,19 @@ const addNewNodeReducer = (
   };
 };
 
+const deleteNodeReducer = (
+  state: IReactFlowSliceSchema,
+  node: Node
+): IReactFlowSliceSchema => {
+  const newNodes = [...state.nodes].filter((nd) => nd.id !== node.id);
+  console.log(newNodes);
+  return {
+    ...state,
+    nodes: [...newNodes],
+    create: null,
+  };
+};
+
 const changeNodesReducer = (
   state: IReactFlowSliceSchema,
   nodes: Node[]
@@ -148,6 +164,7 @@ const changeEdgesReducer = (
 $boardPlayground.on(changeNode, changeNodesReducer);
 $boardPlayground.on(changeEdge, changeEdgesReducer);
 $boardPlayground.on(addNewNode, addNewNodeReducer);
+$boardPlayground.on(deleteNode, deleteNodeReducer);
 $boardPlayground.on(setCreateBuffer, setCreateBufferReducer);
 $boardPlayground.on(setConnectionLinePath, setConnectionLinePathReducer);
 $boardPlayground.on(setIsMovementPlayground, setIsMovementPlaygroundReducer);

@@ -4,7 +4,7 @@ import { $flow, changeDrawingMode } from "./store/flow.slice";
 import { setCreateBuffer } from "./store/playground.slice";
 import { BsMusicNoteBeamed } from "react-icons/bs";
 import { FaPhotoVideo, FaFile } from "react-icons/fa";
-import { LuRectangleHorizontal } from "react-icons/lu";
+import { LuCircle, LuRectangleHorizontal } from "react-icons/lu";
 import { NodeTypes } from "@/components";
 import { Pencil, Type } from "lucide-react";
 
@@ -35,6 +35,14 @@ const FlowHeadToolbar = () => {
         title="Блок"
       >
         <LuRectangleHorizontal className="h-full w-full" />
+      </Button>
+
+      <Button
+        onClick={saveNewNodeDataInBuffer(NodeTypes.CircleNodeFlowTypes)}
+        className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
+        title="Блок"
+      >
+        <LuCircle className="h-full w-full" />
       </Button>
 
       <Button
