@@ -7,14 +7,27 @@ import { FaPhotoVideo, FaFile } from "react-icons/fa";
 import { LuCircle, LuRectangleHorizontal } from "react-icons/lu";
 import { NodeTypes } from "@/components";
 import { Pencil, Type } from "lucide-react";
+import { DragEvent } from "react";
 
-const FlowHeadToolbar = () => {
+const FlowHeadToolbar = ({
+  setCreatingNodeType,
+}: {
+  setCreatingNodeType: (type: NodeTypes | NodeTypes[]) => void;
+}) => {
   const flowState = useUnit($flow);
 
   const saveNewNodeDataInBuffer = (type: string) => (_: React.MouseEvent) => {
     setCreateBuffer({
       type,
     });
+  };
+
+  const onDragStart = (
+    event: DragEvent<HTMLButtonElement>,
+    nodeType: NodeTypes
+  ) => {
+    event.dataTransfer.setData("application/reactflow", nodeType);
+    event.dataTransfer.effectAllowed = "move";
   };
 
   return (
@@ -30,23 +43,33 @@ const FlowHeadToolbar = () => {
       </Button>
 
       <Button
-        onClick={saveNewNodeDataInBuffer(NodeTypes.RectangleNodeFlowTypes)}
+        onClick={() => setCreatingNodeType(NodeTypes.RectangleNodeFlowTypes)}
+        onDragStart={(event) =>
+          onDragStart(event, NodeTypes.RectangleNodeFlowTypes)
+        }
+        draggable
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
-        title="Блок"
+        title="Прямоугольник"
       >
         <LuRectangleHorizontal className="h-full w-full" />
       </Button>
 
       <Button
-        onClick={saveNewNodeDataInBuffer(NodeTypes.CircleNodeFlowTypes)}
+        onClick={() => setCreatingNodeType(NodeTypes.CircleNodeFlowTypes)}
+        onDragStart={(event) =>
+          onDragStart(event, NodeTypes.CircleNodeFlowTypes)
+        }
+        draggable
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
-        title="Блок"
+        title="Круг"
       >
         <LuCircle className="h-full w-full" />
       </Button>
 
       <Button
-        onClick={saveNewNodeDataInBuffer(NodeTypes.TextNodeFlowTypes)}
+        onClick={() => setCreatingNodeType(NodeTypes.TextNodeFlowTypes)}
+        onDragStart={(event) => onDragStart(event, NodeTypes.TextNodeFlowTypes)}
+        draggable
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Текст"
       >
@@ -54,13 +77,23 @@ const FlowHeadToolbar = () => {
       </Button>
 
       <Button
+        onClick={() =>
+          setCreatingNodeType([
+            NodeTypes.FileNodeFlowTypes,
+            NodeTypes.VideoNodeFlowTypes,
+            NodeTypes.PictureNodeFlowTypes,
+            NodeTypes.PDFNodeFlowTypes,
+          ])
+        }
+        onDragStart={(event) => onDragStart(event, NodeTypes.FileNodeFlowTypes)}
+        draggable
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Файл"
       >
         <FaFile className="h-full w-full" />
       </Button>
 
-      <Button
+      {/* <Button
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Звук"
       >
@@ -75,7 +108,7 @@ const FlowHeadToolbar = () => {
           onClick={saveNewNodeDataInBuffer(NodeTypes.VideoNodeFlowTypes)}
           className="h-full w-full"
         />
-      </Button>
+      </Button> */}
     </nav>
   );
 };

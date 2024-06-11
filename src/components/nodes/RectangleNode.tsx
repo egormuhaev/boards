@@ -11,6 +11,7 @@ import ToolbarControlls, { Settings } from "../nodeEnviroment/ToolbarControlls";
 import { select } from "d3-selection";
 import { drag } from "d3-drag";
 import { RotateCw } from "lucide-react";
+import { Rectangle } from "./shape";
 
 interface Props extends Settings {
   id: string;
@@ -26,12 +27,17 @@ const RectangleNode = ({ selected, data, id }: NodeProps<Props>) => {
   const [text, setText] = useState(" ");
   const [rotation, setRotation] = useState(0);
 
+  useEffect(() => {
+    // console.log(rotation);
+  }, [rotation]);
+
   const textarea = useRef<HTMLDivElement>(null);
   const rotateControlRef = useRef(null);
   const updateNodeInternals = useUpdateNodeInternals();
 
   const onEditText = (e: React.ChangeEvent<HTMLDivElement>) => {
     const value = e.target.innerHTML;
+    console.log(value);
     setText(value);
   };
 
@@ -107,9 +113,8 @@ const RectangleNode = ({ selected, data, id }: NodeProps<Props>) => {
         <RotateCw size={16} />
       </div>
 
-      <div
+      <Rectangle
         onClick={() => setEditText(false)}
-        className="h-full w-full flex flex-col justify-center items-center rounded-md min-w-[180px] min-h-[68px] box-border p-2"
         style={{
           backgroundColor: data.bgColor,
         }}
@@ -152,7 +157,7 @@ const RectangleNode = ({ selected, data, id }: NodeProps<Props>) => {
             {text}
           </div>
         )}
-      </div>
+      </Rectangle>
     </div>
   );
 };

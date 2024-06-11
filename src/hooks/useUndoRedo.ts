@@ -36,7 +36,6 @@ export const useUndoRedo: UseUndoRedo = ({
 
   const takeSnapshot = useCallback(() => {
     // push the current graph to the past state
-    console.log(getNodes());
     setPast((past) => [
       ...past.slice(past.length - maxHistorySize + 1, past.length),
       { nodes: getNodes(), edges: getEdges() },

@@ -11,7 +11,7 @@ import ToolbarControlls, { Settings } from "../nodeEnviroment/ToolbarControlls";
 import { select } from "d3-selection";
 import { drag } from "d3-drag";
 import { RotateCw } from "lucide-react";
-import Circle from "./shape/Circle";
+import { Circle } from "./shape";
 
 interface Props extends Settings {
   id: string;
@@ -115,7 +115,6 @@ const CircleNode = ({ selected, data, id }: NodeProps<Props>) => {
 
       <Circle
         onClick={() => setEditText(false)}
-        className="h-full aspect-square flex flex-col justify-center items-center rounded-full min-w-[80px] min-h-[80px] box-border p-2"
         style={{
           backgroundColor: data.bgColor,
         }}

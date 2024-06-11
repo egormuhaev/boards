@@ -40,10 +40,12 @@ const DefaultNodeControlls = ({
         minHeight={68}
         keepAspectRatio
       />
-      <Handle type="source" position={Position.Top} id={"5"} />
-      <Handle type="source" position={Position.Bottom} id={"6"} />
-      <Handle type="source" position={Position.Left} id={"7"} />
-      <Handle type="source" position={Position.Right} id={"8"} />
+
+      <Handle type="source" position={Position.Top} id={"1"} />
+      <Handle type="source" position={Position.Bottom} id={"2"} />
+      <Handle type="source" position={Position.Left} id={"3"} />
+      <Handle type="source" position={Position.Right} id={"4"} />
+
       {children}
     </>
   );
