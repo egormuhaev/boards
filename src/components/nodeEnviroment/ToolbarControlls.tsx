@@ -218,19 +218,16 @@ const ToolbarControlls = ({
         <FontSelect fontSize={fontSize} clickHandler={changeFontSize} />
       )}
 
-      <Trash2
-        fontSize={fontSize}
-        color="red"
-        onClick={() => {
-          const node = playgroundState.nodes.find((nds) => nds.id !== id);
-          if (!node) return;
-
-          takeSnapshot();
-
-          deleteNode(node);
-          // changeNode(nodes);
-        }}
-      />
+      {
+        <TrashButton
+          clickHandler={() => {
+            const node = playgroundState.nodes.find((nds) => nds.id == id);
+            if (!node) return;
+            takeSnapshot();
+            deleteNode(node);
+          }}
+        />
+      }
     </div>
   );
 };
@@ -262,6 +259,17 @@ const FontSelect = memo(
     );
   }
 );
+
+const TrashButton = memo(({ clickHandler }: { clickHandler: () => void }) => {
+  return (
+    <Button
+      onClick={clickHandler}
+      className={`h-full aspect-square bg-white p-[1px] text-black hover:bg-black hover:text-white rounded-sm`}
+    >
+      <Trash2 size={18} />
+    </Button>
+  );
+});
 
 const VerticalAlignTextButton = memo(
   ({
