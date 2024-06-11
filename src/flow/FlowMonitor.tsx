@@ -48,6 +48,11 @@ const fileTypes: Record<string, NodeTypes> = {
 };
 
 const FlowMonitor = () => {
+  const proOptions = {
+    account: 'paid-pro',
+    hideAttribution: true,
+  };
+
   const playgroundState = useUnit($boardPlayground);
   const flowState = useUnit($flow);
   const { screenToFlowPosition } = useReactFlow();
@@ -193,7 +198,8 @@ const FlowMonitor = () => {
       connectionMode={ConnectionMode.Loose}
       minZoom={0.1}
       maxZoom={500}
-      connectionLineComponent={ConnectionLine}
+      connectionLineComponent={ConnectionLine}  
+      proOptions={proOptions}
     >
       <Panel
         position="bottom-center"
