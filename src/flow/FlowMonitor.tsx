@@ -14,7 +14,7 @@ import ReactFlow, {
 } from "reactflow";
 import {
   $boardPlayground,
-  setIsMovementPlayground,
+  // setIsMovementPlayground,
 } from "./store/playground.slice";
 import { useUnit } from "effector-react";
 import FlowHeadToolbar from "./FlowHeadToolbar";
@@ -46,7 +46,14 @@ const FlowMonitor = () => {
 
   const playgroundState = useUnit($boardPlayground);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState([
+    {
+      id: "custom-cunvas-node",
+      type: NodeTypes.SVGDrawerNodeTypes,
+      position: { x: 0, y: 0 },
+      data: {},
+    },
+  ]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const [creatingType, setCreatingType] = useState<NodeTypes | NodeTypes[]>();
@@ -117,7 +124,7 @@ const FlowMonitor = () => {
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [reactFlowInstance, takeSnapshot, setNodes]
+    [reactFlowInstance, takeSnapshot, setNodes],
   );
 
   const onDropFiles = useCallback(
@@ -151,7 +158,7 @@ const FlowMonitor = () => {
         setNodes((nds) => nds.concat(newNode));
       }
     },
-    [reactFlowInstance]
+    [reactFlowInstance],
   );
 
   //FIXME: при отмене выбора промис зависает, потому что не срабатывает функция onChange
@@ -199,7 +206,7 @@ const FlowMonitor = () => {
           for (let i = 0; i < files.length; i++) {
             const file = files[i];
             const fileExtension = file.name.slice(
-              file.name.lastIndexOf(".") + 1
+              file.name.lastIndexOf(".") + 1,
             );
 
             const type =
@@ -235,7 +242,7 @@ const FlowMonitor = () => {
         }
       }
     },
-    [creatingType, nodes]
+    [creatingType, nodes],
   );
 
   const onConnect = useCallback(
@@ -261,14 +268,14 @@ const FlowMonitor = () => {
                     ? undefined
                     : playgroundState.connectionLinePath[i - 1],
                 active: true,
-              } as ControlPointData)
+              }) as ControlPointData,
           ),
         },
       };
       takeSnapshot();
       setEdges((edges) => addEdge(edge, edges));
     },
-    [setEdges, takeSnapshot]
+    [setEdges, takeSnapshot],
   );
 
   const handleDragEvent = (e: DragEvent<HTMLDivElement>) => {
@@ -288,7 +295,7 @@ const FlowMonitor = () => {
         onDropNode(e);
       }
     },
-    [reactFlowInstance]
+    [reactFlowInstance],
   );
 
   return (
@@ -306,9 +313,6 @@ const FlowMonitor = () => {
         onDragLeave={handleDragEvent}
         onNodesChange={onCustomNodesChange}
         onEdgesChange={onCustomEdgesChange}
-        onMoveStart={() => setIsMovementPlayground(true)}
-        onMoveEnd={() => setIsMovementPlayground(false)}
-        selectionOnDrag
         edges={edges}
         nodes={nodes}
         nodeTypes={nodeTypes}

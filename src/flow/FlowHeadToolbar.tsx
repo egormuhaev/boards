@@ -1,9 +1,7 @@
 import { Button } from "@/shadcn/ui/button";
 import { useUnit } from "effector-react";
 import { $flow, changeDrawingMode } from "./store/flow.slice";
-import { setCreateBuffer } from "./store/playground.slice";
-import { BsMusicNoteBeamed } from "react-icons/bs";
-import { FaPhotoVideo, FaFile } from "react-icons/fa";
+import { FaFile } from "react-icons/fa";
 import { LuCircle, LuRectangleHorizontal } from "react-icons/lu";
 import { NodeTypes } from "@/components";
 import { Pencil, Type } from "lucide-react";
@@ -16,15 +14,15 @@ const FlowHeadToolbar = ({
 }) => {
   const flowState = useUnit($flow);
 
-  const saveNewNodeDataInBuffer = (type: string) => (_: React.MouseEvent) => {
-    setCreateBuffer({
-      type,
-    });
-  };
+  // const saveNewNodeDataInBuffer = (type: string) => (_: React.MouseEvent) => {
+  //   setCreateBuffer({
+  //     type,
+  //   });
+  // };
 
   const onDragStart = (
     event: DragEvent<HTMLButtonElement>,
-    nodeType: NodeTypes
+    nodeType: NodeTypes,
   ) => {
     event.dataTransfer.setData("application/reactflow", nodeType);
     event.dataTransfer.effectAllowed = "move";

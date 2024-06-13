@@ -11,6 +11,7 @@ import {
   RectangleNode,
   TextNode,
 } from "@/components/nodes";
+import SVGDrawerNode from "@/components/nodes/SVGDrawerNode";
 
 export const nodeTypes = {
   [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
@@ -21,6 +22,7 @@ export const nodeTypes = {
   [NodeTypes.FileNodeFlowTypes]: FileNode,
   [NodeTypes.PictureNodeFlowTypes]: PictureNode,
   [NodeTypes.PDFNodeFlowTypes]: PDFNode,
+  [NodeTypes.SVGDrawerNodeTypes]: SVGDrawerNode,
 };
 
 export const edgeTypes = {

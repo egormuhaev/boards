@@ -6,6 +6,7 @@ import { fileFlowTypes } from "./nodes/FileNode";
 import { pictureFlowTypes } from "./nodes/PictureNode";
 import { pdfFlowTypes } from "./nodes/PDFNode";
 import { circleNodeFlowTypes } from "./nodes/CircleNode";
+import { svgDrawerNodeTypes } from "./nodes/SVGDrawerNode";
 
 export enum NodeTypes {
   RectangleNodeFlowTypes = rectangleNodeFlowTypes,
@@ -16,4 +17,5 @@ export enum NodeTypes {
   FileNodeFlowTypes = fileFlowTypes,
   PictureNodeFlowTypes = pictureFlowTypes,
   PDFNodeFlowTypes = pdfFlowTypes,
+  SVGDrawerNodeTypes = svgDrawerNodeTypes,
 }

@@ -4,6 +4,9 @@ import path from "path";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default defineConfig({
+  server: {
+    host: true,
+  },
   plugins: [
     react(),
     viteStaticCopy({
