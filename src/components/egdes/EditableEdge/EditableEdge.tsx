@@ -1,13 +1,14 @@
 import { useEffect, useRef } from "react";
 import {
   BaseEdge,
+  useEdges,
   useReactFlow,
   useStore,
   type Edge,
   type EdgeProps,
   type XYPosition,
 } from "reactflow";
-import { $boardPlayground, changeEdge } from "@/flow/store/playground.slice";
+import { $boardPlayground } from "@/flow/store/playground.slice";
 import { ControlPoint, type ControlPointData } from "./ControlPoint";
 import { getPath, getControlPoints } from "./path";
 import { Algorithm, COLORS } from "./constants";
@@ -65,8 +66,9 @@ export function EditableEdge({
 }: EdgeProps<EditableEdgeData>) {
   const sourceOrigin = { x: sourceX, y: sourceY } as XYPosition;
   const targetOrigin = { x: targetX, y: targetY } as XYPosition;
-  const { isMovementPlayground, edges } = useUnit($boardPlayground);
-  const { getZoom } = useReactFlow();
+  const { isMovementPlayground } = useUnit($boardPlayground);
+  const edges = useEdges();
+  const { getZoom, setEdges } = useReactFlow();
 
   useEffect(() => {
     console.log(getZoom());
@@ -96,7 +98,7 @@ export function EditableEdge({
       return { ...e, data };
     });
 
-    changeEdge(newEdges);
+    setEdges(newEdges);
   };
 
   const pathPoints = [sourceOrigin, ...data.points, targetOrigin];
