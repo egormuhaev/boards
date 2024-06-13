@@ -21,7 +21,7 @@ import {
   Trash2,
   Type,
 } from "lucide-react";
-import { ChangeEvent, memo, useCallback, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { BlockPicker, ColorResult } from "react-color";
 import { useNodes, useReactFlow } from "reactflow";
 

@@ -18,10 +18,7 @@ import {
 } from "./store/playground.slice";
 import { useUnit } from "effector-react";
 import FlowHeadToolbar from "./FlowHeadToolbar";
-import {
-  ControlPointData,
-  EditableEdge,
-} from "@/components/egdes/EditableEdge";
+import { ControlPointData } from "@/components/egdes/EditableEdge";
 import { DEFAULT_ALGORITHM } from "@/components/egdes/EditableEdge/constants";
 import { v4 } from "uuid";
 import { ConnectionLine } from "@/components/egdes/ConectionLine";
@@ -30,77 +27,21 @@ import { NodeTypes } from "@/components";
 import { getHelperLines } from "@/lib/utils";
 import HelperLines from "@/components/HelperLines";
 import useCopyPaste from "@/hooks/useCopyPaste";
-import CanvasNode from "@/components/nodes/CanvasNode";
-import RectangleNode from "@/components/nodes/RectangleNode";
-import CircleNode from "@/components/nodes/CircleNode";
-import TextNode from "@/components/nodes/TextNode";
-import VideoNode from "@/components/nodes/VideoNode";
-import FileNode from "@/components/nodes/FileNode";
-import PictureNode from "@/components/nodes/PictureNode";
-import PDFNode from "@/components/nodes/PDFNode";
-import { EdgeTypes } from "@/components/egdes";
 import { randomColor } from "./utils/randomColor";
 import FlowUndoRedo from "./FlowUndoRedo";
 import useUndoRedo from "@/hooks/useUndoRedo";
-
-const nodeTypes = {
-  [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
-  [NodeTypes.RectangleNodeFlowTypes]: RectangleNode,
-  [NodeTypes.CircleNodeFlowTypes]: CircleNode,
-  [NodeTypes.TextNodeFlowTypes]: TextNode,
-  [NodeTypes.VideoNodeFlowTypes]: VideoNode,
-  [NodeTypes.FileNodeFlowTypes]: FileNode,
-  [NodeTypes.PictureNodeFlowTypes]: PictureNode,
-  [NodeTypes.PDFNodeFlowTypes]: PDFNode,
-};
-
-const edgeTypes = {
-  [EdgeTypes.EditableEdgeFlowTypes]: EditableEdge,
-};
-
-const fileTypes: Record<string, NodeTypes> = {
-  pdf: NodeTypes.PDFNodeFlowTypes,
-  jpeg: NodeTypes.PictureNodeFlowTypes,
-  jpg: NodeTypes.PictureNodeFlowTypes,
-  png: NodeTypes.PictureNodeFlowTypes,
-  mov: NodeTypes.VideoNodeFlowTypes,
-  mp4: NodeTypes.VideoNodeFlowTypes,
-  webm: NodeTypes.VideoNodeFlowTypes,
-};
-
-const defaultNodeData = {
-  horizontalAlign: "center",
-  verticalAlign: "center",
-  textColor: "black",
-  bgColor: "gray",
-  fontSize: 14,
-  rotation: 0,
-};
-
-const colorsPalet = [
-  "8ecae6",
-  "219ebc",
-  "023047",
-  "cdb4db",
-  "ffc8dd",
-  "ffafcc",
-  "bde0fe",
-  "a2d2ff",
-  "ffbe0b",
-  "fb5607",
-  "ff006e",
-  "8338ec",
-  "3a86ff",
-  "9b5de5",
-  "f15bb5",
-  "fee440",
-  "00bbf9",
-  "00f5d4",
-];
+import {
+  colorsPalet,
+  defaultNodeData,
+  edgeTypes,
+  fileTypes,
+  nodeTypes,
+} from "./data";
 
 //TODO: DnD файла
 
 const FlowMonitor = () => {
+  const { takeSnapshot } = useUndoRedo();
   useCopyPaste();
 
   const playgroundState = useUnit($boardPlayground);
@@ -108,7 +49,6 @@ const FlowMonitor = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  const { takeSnapshot } = useUndoRedo();
   const [creatingType, setCreatingType] = useState<NodeTypes | NodeTypes[]>();
   const [helperLineHorizontal, setHelperLineHorizontal] = useState<number>();
   const [helperLineVertical, setHelperLineVertical] = useState<number>();
@@ -381,7 +321,9 @@ const FlowMonitor = () => {
         <FlowUndoRedo />
 
         <FlowHeadToolbar setCreatingNodeType={setCreatingType} />
+
         <Background color="#ccc" variant={BackgroundVariant.Cross} size={1} />
+
         <Controls />
 
         <HelperLines

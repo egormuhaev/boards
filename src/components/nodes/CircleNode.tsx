@@ -6,7 +6,17 @@ import {
   Position,
   useUpdateNodeInternals,
 } from "reactflow";
-import { useEffect, useRef, useState } from "react";
+import React, {
+  CSSProperties,
+  MouseEvent,
+  MouseEventHandler,
+  Ref,
+  StyleHTMLAttributes,
+  forwardRef,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import ToolbarControlls, { Settings } from "../nodeEnviroment/ToolbarControlls";
 import { select } from "d3-selection";
 import { drag } from "d3-drag";
@@ -114,49 +124,25 @@ const CircleNode = ({ selected, data, id }: NodeProps<Props>) => {
       </div>
 
       <Circle
-        onClick={() => setEditText(false)}
         style={{
           backgroundColor: data.bgColor,
         }}
       >
-        {editText ? (
-          <div
-            contentEditable={editText}
-            ref={textarea}
-            onChange={onEditText}
-            onClick={(e) => e.stopPropagation()}
-            onBlur={() => setEditText(false)}
-            className="flex-1 w-full rounded-full resize-none outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none nodrag cursor-text"
-            style={{
-              backgroundColor: data.bgColor,
-              color: data.textColor,
-              textAlign: data.horizontalAlign,
-              alignContent: data.verticalAlign,
-              fontSize: data.fontSize + "px",
-              lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
-            }}
-          >
-            {text}
-          </div>
-        ) : (
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditText(true);
-            }}
-            className="flex-1 w-full resize-none rounded-full outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none"
-            style={{
-              backgroundColor: data.bgColor,
-              color: data.textColor,
-              textAlign: data.horizontalAlign,
-              alignContent: data.verticalAlign,
-              fontSize: data.fontSize + "px",
-              lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
-            }}
-          >
-            {text}
-          </div>
-        )}
+        <Editable
+          value={text}
+          active={editText}
+          ref={textarea}
+          onChange={onEditText}
+          changeActive={setEditText}
+          style={{
+            backgroundColor: data.bgColor,
+            color: data.textColor,
+            textAlign: data.horizontalAlign,
+            alignContent: data.verticalAlign,
+            fontSize: data.fontSize + "px",
+            lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
+          }}
+        />
       </Circle>
     </div>
   );
@@ -165,3 +151,40 @@ const CircleNode = ({ selected, data, id }: NodeProps<Props>) => {
 export const circleNodeFlowTypes = "circleNode";
 
 export default CircleNode;
+
+const Editable = forwardRef(
+  ({
+    active,
+    ref,
+    value,
+    onChange,
+    changeActive,
+    style,
+  }: {
+    active: boolean;
+    value: string;
+    ref: Ref<HTMLDivElement>;
+    onChange: (e: React.ChangeEvent<HTMLDivElement>) => void;
+    changeActive: (bool: boolean) => void;
+    style: CSSProperties;
+  }) => {
+    const onClick = (e: MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      if (!active) changeActive(true);
+    };
+
+    return (
+      <div
+        contentEditable={active}
+        ref={ref}
+        onChange={onChange}
+        onClick={onClick}
+        onBlur={() => changeActive(false)}
+        className="flex-1 w-full rounded-full resize-none outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none nodrag cursor-text"
+        style={style}
+      >
+        {value}
+      </div>
+    );
+  }
+);
