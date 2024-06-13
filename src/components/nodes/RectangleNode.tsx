@@ -7,7 +7,7 @@ import {
   useUpdateNodeInternals,
 } from "reactflow";
 import { useEffect, useRef, useState } from "react";
-import ToolbarControlls, { Settings } from "../nodeEnviroment/ToolbarControlls";
+import ToolbarControlls, { Settings } from "./nodeEnviroment/ToolbarControlls";
 import { select } from "d3-selection";
 import { drag } from "d3-drag";
 import { RotateCw } from "lucide-react";

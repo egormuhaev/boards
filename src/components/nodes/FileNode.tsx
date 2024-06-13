@@ -1,5 +1,5 @@
 import { Handle, NodeProps, Position } from "reactflow";
-import { Settings } from "../nodeEnviroment/ToolbarControlls";
+import { Settings } from "./nodeEnviroment/ToolbarControlls";
 import { FaFile } from "react-icons/fa";
 
 interface Props extends Settings {

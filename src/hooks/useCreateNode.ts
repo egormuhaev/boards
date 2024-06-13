@@ -3,10 +3,18 @@ import { useReactFlow, XYPosition } from "reactflow";
 import { setCreateBuffer } from "../flow/store/playground.slice";
 import { v4 } from "uuid";
 import { colorsPalet, defaultNodeData } from "../flow/data";
+import { clearInput, randomColor, selectFiles } from "@/flow/utils/randomColor";
 import { NodeTypes } from "@/components/nodes";
 
-import { fileTypes } from "@/flow/FlowMonitor";
-import { clearInput, randomColor, selectFiles } from "@/flow/utils/randomColor";
+export const fileTypes: Record<string, NodeTypes> = {
+  pdf: NodeTypes.PDFNodeFlowTypes,
+  jpeg: NodeTypes.PictureNodeFlowTypes,
+  jpg: NodeTypes.PictureNodeFlowTypes,
+  png: NodeTypes.PictureNodeFlowTypes,
+  mov: NodeTypes.VideoNodeFlowTypes,
+  mp4: NodeTypes.VideoNodeFlowTypes,
+  webm: NodeTypes.VideoNodeFlowTypes,
+};
 
 const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
   const { setNodes } = useReactFlow();

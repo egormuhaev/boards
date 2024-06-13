@@ -1,5 +1,5 @@
 import { Handle, NodeProps, NodeResizer, Position } from "reactflow";
-import { Settings } from "../nodeEnviroment/ToolbarControlls";
+import { Settings } from "./nodeEnviroment/ToolbarControlls";
 
 interface Props extends Settings {
   id: string;

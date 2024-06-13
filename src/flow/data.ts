@@ -1,10 +1,3 @@
-import { EdgeTypes } from "@/components/egdes";
-import { EditableEdge } from "@/components/egdes/EditableEdge";
-
-export const edgeTypes = {
-  [EdgeTypes.EditableEdgeFlowTypes]: EditableEdge,
-};
-
 export const defaultNodeData = {
   horizontalAlign: "center",
   verticalAlign: "center",
@@ -34,3 +27,8 @@ export const colorsPalet = [
   "00bbf9",
   "00f5d4",
 ];
+
+export const config = {
+  minZoom: 0.1,
+  maxZoom: 500,
+};

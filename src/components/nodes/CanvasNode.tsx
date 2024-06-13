@@ -1,121 +1,111 @@
-import { useEffect, useId, useRef, useState } from "react";
-import { Handle, Position, NodeResizer, NodeProps } from "reactflow";
-import { $flow } from "../../flow/store/flow.slice";
-import { useUnit } from "effector-react";
+import { Handle, NodeProps, Position, NodeResizer } from "reactflow";
+import { useState, useRef, useEffect } from "react";
+
+interface Point {
+  x: number;
+  y: number;
+}
 
 const CanvasNode = ({ selected }: NodeProps) => {
-  const flowState = useUnit($flow);
-  const id = useId();
-  const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const isDrawing = useRef(false);
-  const lastPosition = useRef<{ x: number; y: number } | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isDrawing, setIsDrawing] = useState<boolean>(false);
+  const [isDragComplete, setIsDragComplete] = useState<boolean>(true);
+  const [lines, setLines] = useState<Point[][]>([]);
+  const [canvasSize, setCanvasSize] = useState<{
+    width: number;
+    height: number;
+  }>({ width: 400, height: 400 });
+
+  const resizeCanvas = (x: number, y: number) => {
+    const threshold = 100;
+    const increment = 50;
+    const { width, height } = canvasSize;
+    let newWidth = width;
+    let newHeight = height;
+
+    if (x >= width - threshold) newWidth += increment;
+    if (x <= threshold) newWidth += increment;
+    if (y >= height - threshold) newHeight += increment;
+    if (y <= threshold) newHeight += increment;
+
+    if (newWidth !== width || newHeight !== height) {
+      setCanvasSize({ width: newWidth, height: newHeight });
+    }
+  };
+
+  const startDrawing = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const { offsetX, offsetY } = event.nativeEvent;
+    setIsDrawing(true);
+    setLines((prevLines) => [...prevLines, [{ x: offsetX, y: offsetY }]]);
+  };
+
+  const draw = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!isDrawing) return;
+    const { offsetX, offsetY } = event.nativeEvent;
+    setLines((prevLines) => {
+      const newLines = [...prevLines];
+      newLines[newLines.length - 1].push({ x: offsetX, y: offsetY });
+      return newLines;
+    });
+    resizeCanvas(offsetX, offsetY);
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+    setIsDragComplete(false);
+  };
 
   useEffect(() => {
-    if (canvasRef.current) {
-      const canvasContext = canvasRef.current.getContext("2d");
-      if (canvasContext) {
-        canvasContext.lineWidth = 2;
-        canvasContext.strokeStyle = "black";
-        setCtx(canvasContext);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    // Устанавливаем новый размер холста
+    canvas.width = canvasSize.width;
+    canvas.height = canvasSize.height;
+
+    // Очищаем холст
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Отрисовываем линии
+    lines.forEach((line) => {
+      context.beginPath();
+      for (let i = 0; i < line.length - 1; i++) {
+        const start = line[i];
+        const end = line[i + 1];
+        context.moveTo(start.x, start.y);
+        context.lineTo(end.x, end.y);
       }
-    }
-  }, []);
-
-  const onMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    adjustCanvasSize(event.nativeEvent.offsetX, event.nativeEvent.offsetY);
-    isDrawing.current = true;
-    lastPosition.current = {
-      x: event.nativeEvent.offsetX,
-      y: event.nativeEvent.offsetY,
-    };
-  };
-
-  const adjustCanvasSize = (x: number, y: number) => {
-    if (canvasRef.current) {
-      const canvas = canvasRef.current;
-      if (x > canvas.width) {
-        canvas.width = x + 10;
-      }
-      if (y > canvas.height) {
-        canvas.height = y + 10;
-      }
-    }
-  };
-
-  const onMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    if (isDrawing.current && ctx && flowState.isDrawingMode) {
-      const currentPosition = {
-        x: event.nativeEvent.offsetX,
-        y: event.nativeEvent.offsetY,
-      };
-
-      ctx.beginPath();
-      ctx.moveTo(lastPosition.current!.x, lastPosition.current!.y);
-      ctx.lineTo(currentPosition.x, currentPosition.y);
-      ctx.stroke();
-
-      lastPosition.current = currentPosition;
-
-      adjustCanvasSize(currentPosition.x, currentPosition.y);
-    }
-  };
-
-  const onMouseUp = () => {
-    isDrawing.current = false;
-    lastPosition.current = null;
-  };
+      context.stroke();
+    });
+  }, [lines, canvasSize]);
 
   return (
     <>
-      <Handle
-        hidden={flowState.isDrawingMode}
-        type="source"
-        position={Position.Top}
-        id="f"
-      />
-      <Handle
-        type="source"
-        hidden={flowState.isDrawingMode}
-        position={Position.Bottom}
-        id="a"
-      />
-      <Handle
-        hidden={flowState.isDrawingMode}
-        type="source"
-        position={Position.Left}
-        id="c"
-      />
-      <Handle
-        hidden={flowState.isDrawingMode}
-        type="source"
-        position={Position.Right}
-        id="d"
-      />
-
       <NodeResizer
-        isVisible={!flowState.isDrawingMode && selected && !isDrawing.current}
-        minWidth={100}
-        minHeight={58}
+        isVisible={selected}
+        minWidth={180}
+        minHeight={68}
+        keepAspectRatio
       />
-      <div
-        style={{
-          border: "1px solid black !important",
-        }}
-        className="h-[100vh] w-[100%]"
-        onContextMenu={(e: any) => {
-          e.preventDefault();
-        }}
-      >
-        <canvas
-          className="h-full w-full"
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
-          id={id}
-          ref={canvasRef}
-        ></canvas>
-      </div>
+      {selected && <Handle type="source" position={Position.Top} id={"0"} />}
+      {selected && <Handle type="source" position={Position.Bottom} id={"1"} />}
+      {selected && <Handle type="source" position={Position.Left} id={"2"} />}
+      {selected && <Handle type="source" position={Position.Right} id={"3"} />}
+      <canvas
+        ref={canvasRef}
+        width={canvasSize.width}
+        height={canvasSize.height}
+        onMouseDown={isDragComplete ? startDrawing : undefined}
+        onMouseMove={isDragComplete ? draw : undefined}
+        onMouseUp={isDragComplete ? stopDrawing : undefined}
+        onMouseLeave={isDragComplete ? stopDrawing : undefined}
+      />
     </>
   );
 };

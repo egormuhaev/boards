@@ -1,7 +1,7 @@
 import { NodeProps, NodeResizer, NodeToolbar, Position } from "reactflow";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import ToolbarControlls from "../nodeEnviroment/ToolbarControlls";
+import ToolbarControlls from "./nodeEnviroment/ToolbarControlls";
 
 interface Props {
   id: string;

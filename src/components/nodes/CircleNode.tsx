@@ -8,6 +8,7 @@ import {
 } from "reactflow";
 import React, {
   CSSProperties,
+  ChangeEvent,
   MouseEvent,
   Ref,
   forwardRef,
@@ -15,11 +16,12 @@ import React, {
   useRef,
   useState,
 } from "react";
-import ToolbarControlls, { Settings } from "../nodeEnviroment/ToolbarControlls";
+import ToolbarControlls, { Settings } from "./nodeEnviroment/ToolbarControlls";
 import { select } from "d3-selection";
 import { drag } from "d3-drag";
 import { RotateCw } from "lucide-react";
 import { Circle } from "./shape";
+import useUndoRedo from "@/hooks/useUndoRedo";
 
 interface Props extends Settings {
   id: string;
@@ -39,7 +41,7 @@ const CircleNode = ({ selected, data, id }: NodeProps<Props>) => {
   const rotateControlRef = useRef(null);
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const onEditText = (e: React.ChangeEvent<HTMLDivElement>) => {
+  const onEditText = (e: React.ChangeEvent<Element>) => {
     const value = e.target.innerHTML;
     setText(value);
   };
@@ -153,7 +155,7 @@ export default CircleNode;
 interface EditableProps {
   active: boolean;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLDivElement>) => void;
+  onChange: (e: React.ChangeEvent<Element>) => void;
   changeActive: (bool: boolean) => void;
   style: CSSProperties;
 }
@@ -165,11 +167,16 @@ export const Editable = forwardRef<HTMLDivElement, EditableProps>(
       if (!active) changeActive(true);
     };
 
+    const { takeSnapshot } = useUndoRedo();
+
     return (
       <div
         contentEditable={active}
         ref={ref}
-        onChange={onChange}
+        onChange={(e) => {
+          takeSnapshot();
+          onChange(e as unknown as ChangeEvent);
+        }}
         onClick={onClick}
         onBlur={() => changeActive(false)}
         className={`flex-1 w-full resize-none outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none ${

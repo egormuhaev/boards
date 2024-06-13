@@ -11,11 +11,13 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   NodeChange,
+  NodeDragHandler,
+  SelectionDragHandler,
+  OnNodesDelete,
+  OnEdgesDelete,
+  Panel,
 } from "reactflow";
-import {
-  $boardPlayground,
-  setIsMovementPlayground,
-} from "./store/playground.slice";
+import { $boardPlayground } from "./store/playground.slice";
 import { useUnit } from "effector-react";
 import FlowHeadToolbar from "./FlowHeadToolbar";
 import { ControlPointData } from "@/components/egdes/EditableEdge";
@@ -29,44 +31,16 @@ import useCopyPaste from "@/hooks/useCopyPaste";
 import { handleDragEvent } from "./utils/randomColor";
 import FlowUndoRedo from "./FlowUndoRedo";
 import useUndoRedo from "@/hooks/useUndoRedo";
-import { edgeTypes } from "./data";
-import { NodeTypes } from "@/components/nodes";
-import CanvasNode from "@/components/nodes/CanvasNode";
-import CircleNode from "@/components/nodes/CircleNode";
-import FileNode from "@/components/nodes/FileNode";
-import PDFNode from "@/components/nodes/PDFNode";
-import PictureNode from "@/components/nodes/PictureNode";
-import RectangleNode from "@/components/nodes/RectangleNode";
-import TextNode from "@/components/nodes/TextNode";
-import VideoNode from "@/components/nodes/VideoNode";
 import useCreateNode from "@/hooks/useCreateNode";
-
-//TODO: DnD файла
-
-export const nodeTypes = {
-  [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
-  [NodeTypes.RectangleNodeFlowTypes]: RectangleNode,
-  [NodeTypes.CircleNodeFlowTypes]: CircleNode,
-  [NodeTypes.TextNodeFlowTypes]: TextNode,
-  [NodeTypes.VideoNodeFlowTypes]: VideoNode,
-  [NodeTypes.FileNodeFlowTypes]: FileNode,
-  [NodeTypes.PictureNodeFlowTypes]: PictureNode,
-  [NodeTypes.PDFNodeFlowTypes]: PDFNode,
-};
-
-export const fileTypes: Record<string, NodeTypes> = {
-  pdf: NodeTypes.PDFNodeFlowTypes,
-  jpeg: NodeTypes.PictureNodeFlowTypes,
-  jpg: NodeTypes.PictureNodeFlowTypes,
-  png: NodeTypes.PictureNodeFlowTypes,
-  mov: NodeTypes.VideoNodeFlowTypes,
-  mp4: NodeTypes.VideoNodeFlowTypes,
-  webm: NodeTypes.VideoNodeFlowTypes,
-};
+import { edgeTypes } from "@/components/egdes";
+import { NodeTypes, nodeTypes } from "@/components/nodes";
+import { config } from "./data";
+import { Redo, Undo } from "lucide-react";
 
 const FlowMonitor = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
+
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -134,6 +108,7 @@ const FlowMonitor = () => {
           ),
         },
       };
+
       takeSnapshot();
       setEdges((edges) => addEdge(edge, edges));
     },
@@ -156,6 +131,8 @@ const FlowMonitor = () => {
 
       const files = e.dataTransfer.files;
 
+      takeSnapshot();
+
       if (type === NodeTypes.FileNodeFlowTypes) {
         addFileNode(position, files);
       } else {
@@ -166,13 +143,15 @@ const FlowMonitor = () => {
   );
 
   const onClick = useCallback(
-    async (e: MouseEvent<HTMLDivElement>) => {
+    async (e: MouseEvent<Element>) => {
       if (!buffer?.creatingType || !reactFlowInstance) return;
 
       const position = reactFlowInstance.screenToFlowPosition({
         x: e.clientX,
         y: e.clientY,
       });
+
+      takeSnapshot();
 
       if (buffer.creatingType === NodeTypes.FileNodeFlowTypes) {
         await addFileNode(position);
@@ -183,13 +162,30 @@ const FlowMonitor = () => {
     [buffer, nodes]
   );
 
+  const onNodeDragStart: NodeDragHandler = useCallback(() => {
+    takeSnapshot();
+    // 👉 you can place your event handlers here
+  }, [takeSnapshot]);
+
+  const onSelectionDragStart: SelectionDragHandler = useCallback(() => {
+    takeSnapshot();
+  }, [takeSnapshot]);
+
+  const onNodesDelete: OnNodesDelete = useCallback(() => {
+    takeSnapshot();
+  }, [takeSnapshot]);
+
+  const onEdgesDelete: OnEdgesDelete = useCallback(() => {
+    takeSnapshot();
+  }, [takeSnapshot]);
+
   return (
     <>
       {/* Инпут находится снаружи, чтобы искусственный клик по нему не вызывал заново функцию onClick */}
       <input type="file" ref={inputFileRef} hidden />
       <ReactFlow
         onInit={setReactFlowInstance}
-        onClick={onClick}
+        onPaneClick={onClick}
         onContextMenu={(e) => e.preventDefault()}
         onDrop={onDrop}
         onConnect={onConnect}
@@ -198,17 +194,18 @@ const FlowMonitor = () => {
         onDragLeave={handleDragEvent}
         onNodesChange={onCustomNodesChange}
         onEdgesChange={onCustomEdgesChange}
-        onMoveStart={() => setIsMovementPlayground(true)}
-        onMoveEnd={() => setIsMovementPlayground(false)}
-        selectionOnDrag
         edges={edges}
         nodes={nodes}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         connectionMode={ConnectionMode.Loose}
-        minZoom={0.1}
-        maxZoom={500}
+        minZoom={config.minZoom}
+        maxZoom={config.maxZoom}
         connectionLineComponent={ConnectionLine}
+        onNodeDragStart={onNodeDragStart}
+        onSelectionDragStart={onSelectionDragStart}
+        onNodesDelete={onNodesDelete}
+        onEdgesDelete={onEdgesDelete}
       >
         <FlowUndoRedo />
 
