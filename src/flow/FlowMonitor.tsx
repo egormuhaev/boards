@@ -11,13 +11,9 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   NodeChange,
-  XYPosition,
-  useNodes,
-  useReactFlow,
 } from "reactflow";
 import {
   $boardPlayground,
-  setCreateBuffer,
   setIsMovementPlayground,
 } from "./store/playground.slice";
 import { useUnit } from "effector-react";
@@ -30,15 +26,10 @@ import { DragEvent, MouseEvent, useCallback, useRef, useState } from "react";
 import { getHelperLines } from "@/lib/utils";
 import HelperLines from "@/components/HelperLines";
 import useCopyPaste from "@/hooks/useCopyPaste";
-import {
-  clearInput,
-  handleDragEvent,
-  randomColor,
-  selectFiles,
-} from "./utils/randomColor";
+import { handleDragEvent } from "./utils/randomColor";
 import FlowUndoRedo from "./FlowUndoRedo";
 import useUndoRedo from "@/hooks/useUndoRedo";
-import { colorsPalet, defaultNodeData, edgeTypes } from "./data";
+import { edgeTypes } from "./data";
 import { NodeTypes } from "@/components/nodes";
 import CanvasNode from "@/components/nodes/CanvasNode";
 import CircleNode from "@/components/nodes/CircleNode";

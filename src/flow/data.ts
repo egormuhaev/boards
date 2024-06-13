@@ -1,6 +1,5 @@
 import { EdgeTypes } from "@/components/egdes";
 import { EditableEdge } from "@/components/egdes/EditableEdge";
-import { DragEvent, Ref, RefObject } from "react";
 
 export const edgeTypes = {
   [EdgeTypes.EditableEdgeFlowTypes]: EditableEdge,
