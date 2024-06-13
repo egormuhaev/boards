@@ -37,11 +37,22 @@ import { NodeTypes, nodeTypes } from "@/components/nodes";
 import { config } from "./data";
 import { Redo, Undo } from "lucide-react";
 
+const initNodesWithSwgDrawer = [
+  {
+    id: "svg-drawer-test",
+    type: NodeTypes.SVGDrawingNodeTypes,
+    position: { x: 0, y: 0 },
+    data: {},
+  },
+];
+
 const FlowMonitor = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    initNodesWithSwgDrawer,
+  );
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const inputFileRef = useRef<HTMLInputElement>(null);
@@ -104,7 +115,7 @@ const FlowMonitor = () => {
                 id: v4(),
                 prev: i === 0 ? undefined : connectionLinePath[i - 1],
                 active: true,
-              } as ControlPointData)
+              }) as ControlPointData,
           ),
         },
       };
@@ -112,7 +123,7 @@ const FlowMonitor = () => {
       takeSnapshot();
       setEdges((edges) => addEdge(edge, edges));
     },
-    [setEdges, takeSnapshot]
+    [setEdges, takeSnapshot],
   );
 
   const onDrop = useCallback(
@@ -139,7 +150,7 @@ const FlowMonitor = () => {
         addNode(type as NodeTypes, position);
       }
     },
-    [reactFlowInstance, takeSnapshot, setNodes]
+    [reactFlowInstance, takeSnapshot, setNodes],
   );
 
   const onClick = useCallback(
@@ -159,7 +170,7 @@ const FlowMonitor = () => {
         addNode(buffer.creatingType, position);
       }
     },
-    [buffer, nodes]
+    [buffer, nodes],
   );
 
   const onNodeDragStart: NodeDragHandler = useCallback(() => {
