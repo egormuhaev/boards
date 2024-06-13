@@ -12,6 +12,7 @@ import { select } from "d3-selection";
 import { drag } from "d3-drag";
 import { RotateCw } from "lucide-react";
 import { Rectangle } from "./shape";
+import { Editable } from "./CircleNode";
 
 interface Props extends Settings {
   id: string;
@@ -119,44 +120,21 @@ const RectangleNode = ({ selected, data, id }: NodeProps<Props>) => {
           backgroundColor: data.bgColor,
         }}
       >
-        {editText ? (
-          <div
-            contentEditable={editText}
-            ref={textarea}
-            onChange={onEditText}
-            onClick={(e) => e.stopPropagation()}
-            onBlur={() => setEditText(false)}
-            className="flex-1 w-full resize-none outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none nodrag cursor-text"
-            style={{
-              backgroundColor: data.bgColor,
-              color: data.textColor,
-              textAlign: data.horizontalAlign,
-              alignContent: data.verticalAlign,
-              fontSize: data.fontSize + "px",
-              lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
-            }}
-          >
-            {text}
-          </div>
-        ) : (
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditText(true);
-            }}
-            className="flex-1 w-full resize-none outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none"
-            style={{
-              backgroundColor: data.bgColor,
-              color: data.textColor,
-              textAlign: data.horizontalAlign,
-              alignContent: data.verticalAlign,
-              fontSize: data.fontSize + "px",
-              lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
-            }}
-          >
-            {text}
-          </div>
-        )}
+        <Editable
+          value={text}
+          active={editText}
+          ref={textarea}
+          onChange={onEditText}
+          changeActive={setEditText}
+          style={{
+            backgroundColor: data.bgColor,
+            color: data.textColor,
+            textAlign: data.horizontalAlign,
+            alignContent: data.verticalAlign,
+            fontSize: data.fontSize + "px",
+            lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
+          }}
+        />
       </Rectangle>
     </div>
   );

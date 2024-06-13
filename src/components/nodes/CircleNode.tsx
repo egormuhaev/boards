@@ -9,9 +9,7 @@ import {
 import React, {
   CSSProperties,
   MouseEvent,
-  MouseEventHandler,
   Ref,
-  StyleHTMLAttributes,
   forwardRef,
   useEffect,
   useRef,
@@ -152,22 +150,16 @@ export const circleNodeFlowTypes = "circleNode";
 
 export default CircleNode;
 
-const Editable = forwardRef(
-  ({
-    active,
-    ref,
-    value,
-    onChange,
-    changeActive,
-    style,
-  }: {
-    active: boolean;
-    value: string;
-    ref: Ref<HTMLDivElement>;
-    onChange: (e: React.ChangeEvent<HTMLDivElement>) => void;
-    changeActive: (bool: boolean) => void;
-    style: CSSProperties;
-  }) => {
+interface EditableProps {
+  active: boolean;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLDivElement>) => void;
+  changeActive: (bool: boolean) => void;
+  style: CSSProperties;
+}
+
+export const Editable = forwardRef<HTMLDivElement, EditableProps>(
+  ({ active, value, onChange, changeActive, style }, ref) => {
     const onClick = (e: MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
       if (!active) changeActive(true);
@@ -180,7 +172,9 @@ const Editable = forwardRef(
         onChange={onChange}
         onClick={onClick}
         onBlur={() => changeActive(false)}
-        className="flex-1 w-full rounded-full resize-none outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none nodrag cursor-text"
+        className={`flex-1 w-full rounded-full resize-none outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none ${
+          active ? "nodrag cursor-text" : ""
+        }`}
         style={style}
       >
         {value}

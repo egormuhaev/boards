@@ -11,9 +11,13 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   NodeChange,
+  XYPosition,
+  useNodes,
+  useReactFlow,
 } from "reactflow";
 import {
   $boardPlayground,
+  setCreateBuffer,
   setIsMovementPlayground,
 } from "./store/playground.slice";
 import { useUnit } from "effector-react";
@@ -23,39 +27,69 @@ import { DEFAULT_ALGORITHM } from "@/components/egdes/EditableEdge/constants";
 import { v4 } from "uuid";
 import { ConnectionLine } from "@/components/egdes/ConectionLine";
 import { DragEvent, MouseEvent, useCallback, useRef, useState } from "react";
-import { NodeTypes } from "@/components";
 import { getHelperLines } from "@/lib/utils";
 import HelperLines from "@/components/HelperLines";
 import useCopyPaste from "@/hooks/useCopyPaste";
-import { randomColor } from "./utils/randomColor";
+import {
+  clearInput,
+  handleDragEvent,
+  randomColor,
+  selectFiles,
+} from "./utils/randomColor";
 import FlowUndoRedo from "./FlowUndoRedo";
 import useUndoRedo from "@/hooks/useUndoRedo";
-import {
-  colorsPalet,
-  defaultNodeData,
-  edgeTypes,
-  fileTypes,
-  nodeTypes,
-} from "./data";
+import { colorsPalet, defaultNodeData, edgeTypes } from "./data";
+import { NodeTypes } from "@/components/nodes";
+import CanvasNode from "@/components/nodes/CanvasNode";
+import CircleNode from "@/components/nodes/CircleNode";
+import FileNode from "@/components/nodes/FileNode";
+import PDFNode from "@/components/nodes/PDFNode";
+import PictureNode from "@/components/nodes/PictureNode";
+import RectangleNode from "@/components/nodes/RectangleNode";
+import TextNode from "@/components/nodes/TextNode";
+import VideoNode from "@/components/nodes/VideoNode";
+import useCreateNode from "@/hooks/useCreateNode";
 
 //TODO: DnD файла
 
+export const nodeTypes = {
+  [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
+  [NodeTypes.RectangleNodeFlowTypes]: RectangleNode,
+  [NodeTypes.CircleNodeFlowTypes]: CircleNode,
+  [NodeTypes.TextNodeFlowTypes]: TextNode,
+  [NodeTypes.VideoNodeFlowTypes]: VideoNode,
+  [NodeTypes.FileNodeFlowTypes]: FileNode,
+  [NodeTypes.PictureNodeFlowTypes]: PictureNode,
+  [NodeTypes.PDFNodeFlowTypes]: PDFNode,
+};
+
+export const fileTypes: Record<string, NodeTypes> = {
+  pdf: NodeTypes.PDFNodeFlowTypes,
+  jpeg: NodeTypes.PictureNodeFlowTypes,
+  jpg: NodeTypes.PictureNodeFlowTypes,
+  png: NodeTypes.PictureNodeFlowTypes,
+  mov: NodeTypes.VideoNodeFlowTypes,
+  mp4: NodeTypes.VideoNodeFlowTypes,
+  webm: NodeTypes.VideoNodeFlowTypes,
+};
+
 const FlowMonitor = () => {
-  const { takeSnapshot } = useUndoRedo();
-  useCopyPaste();
-
-  const playgroundState = useUnit($boardPlayground);
-
+  const [reactFlowInstance, setReactFlowInstance] =
+    useState<ReactFlowInstance | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  const [creatingType, setCreatingType] = useState<NodeTypes | NodeTypes[]>();
+  const inputFileRef = useRef<HTMLInputElement>(null);
+
+  const { addFileNode, addNode } = useCreateNode(inputFileRef);
+
+  const { connectionLinePath } = useUnit($boardPlayground);
+  const { buffer } = useUnit($boardPlayground);
+  const { takeSnapshot } = useUndoRedo();
+  useCopyPaste();
+
   const [helperLineHorizontal, setHelperLineHorizontal] = useState<number>();
   const [helperLineVertical, setHelperLineVertical] = useState<number>();
-  const [reactFlowInstance, setReactFlowInstance] =
-    useState<ReactFlowInstance | null>(null);
-
-  const inputFileRef = useRef<HTMLInputElement>(null);
 
   const onCustomNodesChange = (changes: NodeChange[]) => {
     setHelperLineHorizontal(undefined);
@@ -85,159 +119,6 @@ const FlowMonitor = () => {
     onEdgesChange(changes);
   };
 
-  const onDropNode = useCallback(
-    (e: DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-
-      if (!reactFlowInstance) return;
-
-      const type = e.dataTransfer.getData("application/reactflow");
-
-      if (typeof type === "undefined" || !type) {
-        return;
-      }
-
-      const position = reactFlowInstance.screenToFlowPosition({
-        x: e.clientX,
-        y: e.clientY,
-      });
-
-      const newNode = {
-        id: v4(),
-        type,
-        position,
-        data: {
-          ...defaultNodeData,
-          bgColor: randomColor(colorsPalet),
-          textColor: randomColor(colorsPalet),
-        },
-      };
-
-      takeSnapshot();
-
-      setNodes((nds) => nds.concat(newNode));
-    },
-    [reactFlowInstance, takeSnapshot, setNodes]
-  );
-
-  const onDropFiles = useCallback(
-    (e: DragEvent<HTMLDivElement>) => {
-      handleDragEvent(e);
-
-      if (!reactFlowInstance) return;
-
-      const files = e.dataTransfer.files;
-      if (!files.length) return;
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const fileExtension = file.name.slice(file.name.lastIndexOf(".") + 1);
-
-        const type: NodeTypes =
-          fileTypes[fileExtension] ?? NodeTypes.FileNodeFlowTypes;
-
-        const position = reactFlowInstance.screenToFlowPosition({
-          x: e.clientX,
-          y: e.clientY + i * 100,
-        });
-
-        const newNode = {
-          id: v4(),
-          data: { file },
-          type,
-          position,
-        };
-
-        setNodes((nds) => nds.concat(newNode));
-      }
-    },
-    [reactFlowInstance]
-  );
-
-  //FIXME: при отмене выбора промис зависает, потому что не срабатывает функция onChange
-  const selectFiles = (): Promise<FileList | null> => {
-    return new Promise((resolve) => {
-      if (inputFileRef.current) {
-        inputFileRef.current.onchange = (event) => {
-          const files = (event.target as HTMLInputElement).files;
-
-          resolve(files);
-        };
-        inputFileRef.current.click();
-      } else {
-        resolve(null);
-      }
-    });
-  };
-
-  const onClickAddNode = useCallback(
-    async (e: MouseEvent<HTMLDivElement>) => {
-      // Нажатие кнопки в тулбаре задает тип добавляемой ноды, если типа нет, то ничего не происходит (обычный клик),
-      // если тип есть, то происходит проверка является ли тип массивом типов, в случае успеха происходит выбор файла,
-      // по расширению которого определяется тип ноды, если такое расширение не учтено, то добавится FileNode
-
-      if (creatingType) {
-        if (!reactFlowInstance) return;
-
-        if (typeof creatingType === "undefined" || !creatingType) {
-          return;
-        }
-
-        const position = reactFlowInstance.screenToFlowPosition({
-          x: e.clientX,
-          y: e.clientY,
-        });
-
-        if (Array.isArray(creatingType)) {
-          const files = await selectFiles();
-
-          if (!files?.length) {
-            setCreatingType(undefined);
-            return;
-          }
-
-          for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const fileExtension = file.name.slice(
-              file.name.lastIndexOf(".") + 1
-            );
-
-            const type =
-              creatingType.find((t) => t === fileTypes[fileExtension]) ??
-              NodeTypes.FileNodeFlowTypes;
-
-            const newNode = {
-              id: v4(),
-              data: { file },
-              type,
-              position,
-            };
-
-            setNodes((nds) => nds.concat(newNode));
-            setCreatingType(undefined);
-            // Очищаем инпут, чтобы при выборе того же файла второй раз подряд вызывалось событие onChange
-            if (inputFileRef.current) inputFileRef.current.value = "";
-          }
-        } else {
-          const newNode = {
-            id: v4(),
-            type: creatingType,
-            position,
-            data: {
-              ...defaultNodeData,
-              bgColor: randomColor(colorsPalet),
-              textColor: randomColor(colorsPalet),
-            },
-          };
-
-          setNodes((nds) => nds.concat(newNode));
-          setCreatingType(undefined);
-        }
-      }
-    },
-    [creatingType, nodes]
-  );
-
   const onConnect = useCallback(
     (connection: Connection) => {
       const edge = {
@@ -247,7 +128,7 @@ const FlowMonitor = () => {
         selected: true,
         data: {
           algorithm: DEFAULT_ALGORITHM,
-          points: playgroundState.connectionLinePath.map(
+          points: connectionLinePath.map(
             (point, i) =>
               ({
                 ...point,
@@ -256,10 +137,7 @@ const FlowMonitor = () => {
                   lineWidth: 2,
                 },
                 id: v4(),
-                prev:
-                  i === 0
-                    ? undefined
-                    : playgroundState.connectionLinePath[i - 1],
+                prev: i === 0 ? undefined : connectionLinePath[i - 1],
                 active: true,
               } as ControlPointData)
           ),
@@ -271,24 +149,47 @@ const FlowMonitor = () => {
     [setEdges, takeSnapshot]
   );
 
-  const handleDragEvent = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const onCustomDrop = useCallback(
+  const onDrop = useCallback(
     (e: DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
+      handleDragEvent(e);
+
+      if (!reactFlowInstance) return;
+
+      const type = e.dataTransfer.getData("application/reactflow");
+      if (!type) return;
+
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: e.clientX,
+        y: e.clientY,
+      });
 
       const files = e.dataTransfer.files;
 
-      if (files.length) {
-        onDropFiles(e);
+      if (type === NodeTypes.FileNodeFlowTypes) {
+        addFileNode(position, files);
       } else {
-        onDropNode(e);
+        addNode(type as NodeTypes, position);
       }
     },
-    [reactFlowInstance]
+    [reactFlowInstance, takeSnapshot, setNodes]
+  );
+
+  const onClick = useCallback(
+    async (e: MouseEvent<HTMLDivElement>) => {
+      if (!buffer?.creatingType || !reactFlowInstance) return;
+
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: e.clientX,
+        y: e.clientY,
+      });
+
+      if (buffer.creatingType === NodeTypes.FileNodeFlowTypes) {
+        await addFileNode(position);
+      } else {
+        addNode(buffer.creatingType, position);
+      }
+    },
+    [buffer, nodes]
   );
 
   return (
@@ -297,9 +198,9 @@ const FlowMonitor = () => {
       <input type="file" ref={inputFileRef} hidden />
       <ReactFlow
         onInit={setReactFlowInstance}
-        onClick={onClickAddNode}
+        onClick={onClick}
         onContextMenu={(e) => e.preventDefault()}
-        onDrop={onCustomDrop}
+        onDrop={onDrop}
         onConnect={onConnect}
         onDragOver={handleDragEvent}
         onDragEnter={handleDragEvent}
@@ -320,7 +221,7 @@ const FlowMonitor = () => {
       >
         <FlowUndoRedo />
 
-        <FlowHeadToolbar setCreatingNodeType={setCreatingType} />
+        <FlowHeadToolbar />
 
         <Background color="#ccc" variant={BackgroundVariant.Cross} size={1} />
 

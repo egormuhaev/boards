@@ -1,19 +1,19 @@
-import CanvasNode from "./CanvasNode";
-import CircleNode from "./CircleNode";
-import FileNode from "./FileNode";
-import PDFNode from "./PDFNode";
-import PictureNode from "./PictureNode";
-import RectangleNode from "./RectangleNode";
-import TextNode from "./TextNode";
-import VideoNode from "./VideoNode";
+import { rectangleNodeFlowTypes } from "./RectangleNode";
+import { canvasNodeFlowTypes } from "./CanvasNode";
+import { textNodeFlowTypes } from "./TextNode";
+import { videoFlowTypes } from "./VideoNode";
+import { fileFlowTypes } from "./FileNode";
+import { pictureFlowTypes } from "./PictureNode";
+import { pdfFlowTypes } from "./PDFNode";
+import { circleNodeFlowTypes } from "./CircleNode";
 
-export {
-  CanvasNode,
-  CircleNode,
-  FileNode,
-  PDFNode,
-  PictureNode,
-  RectangleNode,
-  TextNode,
-  VideoNode,
-};
+export enum NodeTypes {
+  RectangleNodeFlowTypes = rectangleNodeFlowTypes,
+  CircleNodeFlowTypes = circleNodeFlowTypes,
+  TextNodeFlowTypes = textNodeFlowTypes,
+  CanvasNodeFlowTypes = canvasNodeFlowTypes,
+  VideoNodeFlowTypes = videoFlowTypes,
+  FileNodeFlowTypes = fileFlowTypes,
+  PictureNodeFlowTypes = pictureFlowTypes,
+  PDFNodeFlowTypes = pdfFlowTypes,
+}

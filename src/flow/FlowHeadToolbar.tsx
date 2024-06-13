@@ -2,23 +2,18 @@ import { Button } from "@/shadcn/ui/button";
 import { useUnit } from "effector-react";
 import { $flow, changeDrawingMode } from "./store/flow.slice";
 import { setCreateBuffer } from "./store/playground.slice";
-import { BsMusicNoteBeamed } from "react-icons/bs";
-import { FaPhotoVideo, FaFile } from "react-icons/fa";
+import { FaFile } from "react-icons/fa";
 import { LuCircle, LuRectangleHorizontal } from "react-icons/lu";
-import { NodeTypes } from "@/components";
 import { Pencil, Type } from "lucide-react";
 import { DragEvent } from "react";
+import { NodeTypes } from "@/components/nodes";
 
-const FlowHeadToolbar = ({
-  setCreatingNodeType,
-}: {
-  setCreatingNodeType: (type: NodeTypes | NodeTypes[]) => void;
-}) => {
+const FlowHeadToolbar = ({}) => {
   const flowState = useUnit($flow);
 
-  const saveNewNodeDataInBuffer = (type: string) => (_: React.MouseEvent) => {
+  const saveCreatingTypeInBuffer = (type: NodeTypes) => {
     setCreateBuffer({
-      type,
+      creatingType: type,
     });
   };
 
@@ -43,7 +38,9 @@ const FlowHeadToolbar = ({
       </Button>
 
       <Button
-        onClick={() => setCreatingNodeType(NodeTypes.RectangleNodeFlowTypes)}
+        onClick={() =>
+          saveCreatingTypeInBuffer(NodeTypes.RectangleNodeFlowTypes)
+        }
         onDragStart={(event) =>
           onDragStart(event, NodeTypes.RectangleNodeFlowTypes)
         }
@@ -55,7 +52,7 @@ const FlowHeadToolbar = ({
       </Button>
 
       <Button
-        onClick={() => setCreatingNodeType(NodeTypes.CircleNodeFlowTypes)}
+        onClick={() => saveCreatingTypeInBuffer(NodeTypes.CircleNodeFlowTypes)}
         onDragStart={(event) =>
           onDragStart(event, NodeTypes.CircleNodeFlowTypes)
         }
@@ -67,7 +64,7 @@ const FlowHeadToolbar = ({
       </Button>
 
       <Button
-        onClick={() => setCreatingNodeType(NodeTypes.TextNodeFlowTypes)}
+        onClick={() => saveCreatingTypeInBuffer(NodeTypes.TextNodeFlowTypes)}
         onDragStart={(event) => onDragStart(event, NodeTypes.TextNodeFlowTypes)}
         draggable
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
@@ -77,14 +74,7 @@ const FlowHeadToolbar = ({
       </Button>
 
       <Button
-        onClick={() =>
-          setCreatingNodeType([
-            NodeTypes.FileNodeFlowTypes,
-            NodeTypes.VideoNodeFlowTypes,
-            NodeTypes.PictureNodeFlowTypes,
-            NodeTypes.PDFNodeFlowTypes,
-          ])
-        }
+        onClick={() => saveCreatingTypeInBuffer(NodeTypes.FileNodeFlowTypes)}
         onDragStart={(event) => onDragStart(event, NodeTypes.FileNodeFlowTypes)}
         draggable
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"

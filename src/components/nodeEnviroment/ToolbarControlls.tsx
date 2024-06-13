@@ -1,16 +1,10 @@
-import { $flow } from "@/flow/store/flow.slice";
-import {
-  $boardPlayground,
-  changeNode,
-  deleteNode,
-} from "@/flow/store/playground.slice";
+import { colorsPalet } from "@/flow/data";
 import {
   HorizontalAlign,
   VerticalAlign,
 } from "@/flow/store/types/playground.schema";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import { Button } from "@/shadcn/ui/button";
-import { useUnit } from "effector-react";
 import {
   AlignCenter,
   AlignLeft,
@@ -335,7 +329,6 @@ const ColorPickerButton = memo(
     pickHandler: (color: ColorResult) => void;
     icon?: JSX.Element;
   }) => {
-    const playgroundState = useUnit($boardPlayground);
     const [visibleColorPicker, setVisibleColorPicker] = useState(false);
 
     return (
@@ -353,9 +346,7 @@ const ColorPickerButton = memo(
           <div className="absolute h-auto w-auto top-0 translate-y-7 ">
             <BlockPicker
               color={color}
-              colors={playgroundState.colorsPalet.map(
-                (color: string) => "#" + color
-              )}
+              colors={colorsPalet.map((color: string) => "#" + color)}
               onChangeComplete={(e) => {
                 pickHandler(e);
                 setVisibleColorPicker(false);

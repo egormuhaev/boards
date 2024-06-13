@@ -1,40 +1,9 @@
-import { NodeTypes } from "@/components";
 import { EdgeTypes } from "@/components/egdes";
 import { EditableEdge } from "@/components/egdes/EditableEdge";
-import {
-  VideoNode,
-  CanvasNode,
-  CircleNode,
-  FileNode,
-  PDFNode,
-  PictureNode,
-  RectangleNode,
-  TextNode,
-} from "@/components/nodes";
-
-export const nodeTypes = {
-  [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
-  [NodeTypes.RectangleNodeFlowTypes]: RectangleNode,
-  [NodeTypes.CircleNodeFlowTypes]: CircleNode,
-  [NodeTypes.TextNodeFlowTypes]: TextNode,
-  [NodeTypes.VideoNodeFlowTypes]: VideoNode,
-  [NodeTypes.FileNodeFlowTypes]: FileNode,
-  [NodeTypes.PictureNodeFlowTypes]: PictureNode,
-  [NodeTypes.PDFNodeFlowTypes]: PDFNode,
-};
+import { DragEvent, Ref, RefObject } from "react";
 
 export const edgeTypes = {
   [EdgeTypes.EditableEdgeFlowTypes]: EditableEdge,
-};
-
-export const fileTypes: Record<string, NodeTypes> = {
-  pdf: NodeTypes.PDFNodeFlowTypes,
-  jpeg: NodeTypes.PictureNodeFlowTypes,
-  jpg: NodeTypes.PictureNodeFlowTypes,
-  png: NodeTypes.PictureNodeFlowTypes,
-  mov: NodeTypes.VideoNodeFlowTypes,
-  mp4: NodeTypes.VideoNodeFlowTypes,
-  webm: NodeTypes.VideoNodeFlowTypes,
 };
 
 export const defaultNodeData = {

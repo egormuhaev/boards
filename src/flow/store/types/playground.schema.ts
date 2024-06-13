@@ -1,25 +1,20 @@
-import { Node, Edge, XYPosition } from "reactflow";
+import { NodeTypes } from "@/components/nodes";
+import { Edge, XYPosition } from "reactflow";
 
 export type HorizontalAlign = "center" | "left" | "right";
 export type VerticalAlign = "start" | "center" | "end";
 
 export interface ICreateNewNodeBuffer {
-  type: string | null;
-  fontSize?: number;
-  bgColor?: string;
-  textColor?: string;
-  horizontalAlign?: HorizontalAlign;
-  verticalAlign?: VerticalAlign;
-  rotation?: number;
+  creatingType: NodeTypes | undefined;
 }
 
 export interface IReactFlowSliceSchema {
-  nodes: Node[];
+  // nodes: Node[];
   edges: Edge[];
-  nodeTypes: Record<string, React.FC<any>>;
-  edgeTypes: Record<string, React.FC<any>>;
-  create: ICreateNewNodeBuffer | null;
-  colorsPalet: string[];
+  // nodeTypes: Record<string, React.FC<any>>;
+  // edgeTypes: Record<string, React.FC<any>>;
+  buffer: ICreateNewNodeBuffer | null;
+  // colorsPalet: string[];
   connectionLinePath: XYPosition[];
   isMovementPlayground: boolean;
 }

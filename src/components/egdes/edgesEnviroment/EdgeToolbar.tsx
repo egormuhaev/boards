@@ -8,6 +8,7 @@ import { createPortal } from "react-dom";
 import { $flow } from "@/flow/store/flow.slice";
 import { Algorithm } from "../EditableEdge/constants";
 import { useReactFlow } from "reactflow";
+import { colorsPalet } from "@/flow/data";
 
 interface EdgeToolbarProps {
   id: string;
@@ -44,7 +45,7 @@ export default function EdgeToolbar({ id, settings }: EdgeToolbarProps) {
 
       changeEdge([...newEdges]);
     },
-    [settings.lineWidth, edges],
+    [settings.lineWidth, edges]
   );
 
   const changeLineType = useCallback(
@@ -64,7 +65,7 @@ export default function EdgeToolbar({ id, settings }: EdgeToolbarProps) {
 
       changeEdge([...newEdges]);
     },
-    [settings.lineWidth, edges],
+    [settings.lineWidth, edges]
   );
 
   const changeEdgeColor = useCallback(
@@ -86,7 +87,7 @@ export default function EdgeToolbar({ id, settings }: EdgeToolbarProps) {
         changeEdge([...newEdges]);
       }
     },
-    [edges, settings.lineColor],
+    [edges, settings.lineColor]
   );
 
   return createPortal(
@@ -124,7 +125,7 @@ export default function EdgeToolbar({ id, settings }: EdgeToolbarProps) {
         algorithmHandler={changeLineType}
       />
     </div>,
-    document.body,
+    document.body
   );
 }
 
@@ -155,7 +156,7 @@ const LineTypeSelect = memo(
         })}
       </select>
     );
-  },
+  }
 );
 
 const LineWidthSelect = memo(
@@ -183,7 +184,7 @@ const LineWidthSelect = memo(
         ))}
       </select>
     );
-  },
+  }
 );
 
 const ColorPickerButton = memo(
@@ -218,9 +219,7 @@ const ColorPickerButton = memo(
           <div className="absolute h-auto w-auto top-0 translate-y-7 ">
             <BlockPicker
               color={color}
-              colors={playgroundState.colorsPalet.map(
-                (color: string) => "#" + color,
-              )}
+              colors={colorsPalet.map((color: string) => "#" + color)}
               onChangeComplete={(e) => {
                 pickHandler(e);
                 setVisibleColorPicker(false);
@@ -230,5 +229,5 @@ const ColorPickerButton = memo(
         )}
       </Button>
     );
-  },
+  }
 );
