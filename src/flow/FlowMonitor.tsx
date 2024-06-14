@@ -16,7 +16,6 @@ import ReactFlow, {
   SelectionDragHandler,
   OnNodesDelete,
   OnEdgesDelete,
-  Panel,
 } from "reactflow";
 import { $boardPlayground } from "./store/playground.slice";
 import { useUnit } from "effector-react";
@@ -37,6 +36,7 @@ import { edgeTypes } from "@/components/egdes";
 import { NodeTypes, nodeTypes } from "@/components/nodes";
 import { config } from "./data";
 import { Redo, Undo } from "lucide-react";
+import { useControlBoards } from "@/hooks/useControlBoards";
 
 const initNodesWithSwgDrawer: Node[] = [
   {
@@ -50,12 +50,11 @@ const initNodesWithSwgDrawer: Node[] = [
 const FlowMonitor = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
-
   const [nodes, setNodes, onNodesChange] = useNodesState(
     initNodesWithSwgDrawer,
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
+  useControlBoards();
   const inputFileRef = useRef<HTMLInputElement>(null);
 
   const { addFileNode, addNode } = useCreateNode(inputFileRef);
@@ -218,13 +217,12 @@ const FlowMonitor = () => {
         onSelectionDragStart={onSelectionDragStart}
         onNodesDelete={onNodesDelete}
         onEdgesDelete={onEdgesDelete}
-        fitViewOptions={{
-          includeHiddenNodes: false,
-        }}
-        // Выключение автоматического повышения z-index элемента при его выделении
-        elevateNodesOnSelect={false}
-        // Оптимизация: Скрытие элементов вне поле зрения
-        onlyRenderVisibleElements
+        // НАСТРОЙКИ
+        nodesDraggable={false}
+        panOnDrag={false}
+        zoomOnScroll
+        elevateNodesOnSelect={false} // Выключение автоматического повышения z-index элемента при его выделении
+        onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне поле зрения
       >
         <FlowUndoRedo />
 
