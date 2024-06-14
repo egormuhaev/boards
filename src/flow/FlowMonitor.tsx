@@ -1,5 +1,6 @@
 import ReactFlow, {
   addEdge,
+  Node,
   Background,
   Controls,
   MiniMap,
@@ -35,8 +36,9 @@ import { edgeTypes } from "@/components/egdes";
 import { NodeTypes, nodeTypes } from "@/components/nodes";
 import { config } from "./data";
 import Theme from "@/components/Theme";
+import { useControlBoards } from "@/hooks/useControlBoards";
 
-const initNodesWithSwgDrawer = [
+const initNodesWithSwgDrawer: Node[] = [
   {
     id: "svg-drawer-test",
     type: NodeTypes.SVGDrawingNodeTypes,
@@ -48,12 +50,11 @@ const initNodesWithSwgDrawer = [
 const FlowMonitor = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
-
   const [nodes, setNodes, onNodesChange] = useNodesState(
     initNodesWithSwgDrawer
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
+  useControlBoards();
   const inputFileRef = useRef<HTMLInputElement>(null);
 
   const { addFileNode, addNode } = useCreateNode(inputFileRef);
@@ -217,6 +218,12 @@ const FlowMonitor = () => {
         onNodesDelete={onNodesDelete}
         onEdgesDelete={onEdgesDelete}
         className={theme}
+        // НАСТРОЙКИ
+        nodesDraggable={true}
+        panOnDrag={true}
+        zoomOnScroll
+        elevateNodesOnSelect={false} // Выключение автоматического повышения z-index элемента при его выделении
+        onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне поле зрения
       >
         <Theme />
 

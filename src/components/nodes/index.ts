@@ -8,6 +8,7 @@ import CircleNode, { circleNodeFlowTypes } from "./CircleNode";
 import SVGDrawerNode, {
   svgDrawingNodeTypes,
 } from "./svgDrawingNode/SvgDrawingNode";
+import CanvasDrawingNode, { canvasDrawingNodeTypes } from "./CanvasDrawingNode";
 
 export {
   RectangleNode,
@@ -28,6 +29,7 @@ export enum NodeTypes {
   PictureNodeFlowTypes = pictureFlowTypes,
   PDFNodeFlowTypes = pdfFlowTypes,
   SVGDrawingNodeTypes = svgDrawingNodeTypes,
+  CanvasDrawingNodeTypes = canvasDrawingNodeTypes,
 }
 
 export const nodeTypes = {
@@ -39,4 +41,5 @@ export const nodeTypes = {
   [NodeTypes.PictureNodeFlowTypes]: PictureNode,
   [NodeTypes.PDFNodeFlowTypes]: PDFNode,
   [NodeTypes.SVGDrawingNodeTypes]: SVGDrawerNode,
+  [NodeTypes.CanvasDrawingNodeTypes]: CanvasDrawingNode,
 };
