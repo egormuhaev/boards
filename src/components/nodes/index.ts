@@ -7,7 +7,7 @@ import PDFNode, { pdfFlowTypes } from "./PDFNode";
 import CircleNode, { circleNodeFlowTypes } from "./CircleNode";
 import SVGDrawerNode, {
   svgDrawingNodeTypes,
-} from "./svgDrawingNode/SVGDrawingNode";
+} from "./svgDrawingNode/SvgDrawingNode";
 
 export {
   RectangleNode,

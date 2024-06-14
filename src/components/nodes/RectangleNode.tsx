@@ -4,6 +4,7 @@ import {
   NodeResizer,
   NodeToolbar,
   Position,
+  useKeyPress,
   useUpdateNodeInternals,
 } from "reactflow";
 import { useEffect, useRef, useState } from "react";
@@ -25,20 +26,16 @@ const handleStyles = {
 
 const RectangleNode = ({ selected, data, id }: NodeProps<Props>) => {
   const [editText, setEditText] = useState(false);
-  const [text, setText] = useState(" ");
+  const [text, setText] = useState("");
   const [rotation, setRotation] = useState(0);
-
-  useEffect(() => {
-    // console.log(rotation);
-  }, [rotation]);
 
   const textarea = useRef<HTMLDivElement>(null);
   const rotateControlRef = useRef(null);
   const updateNodeInternals = useUpdateNodeInternals();
+  const shiftKeyPressed = useKeyPress("Shift");
 
-  const onEditText = (e: React.ChangeEvent<HTMLDivElement>) => {
+  const onEditText = (e: React.ChangeEvent<Element>) => {
     const value = e.target.innerHTML;
-    console.log(value);
     setText(value);
   };
 
@@ -81,7 +78,15 @@ const RectangleNode = ({ selected, data, id }: NodeProps<Props>) => {
           }}
         />
       </NodeToolbar>
-      <NodeResizer isVisible={selected} minWidth={180} minHeight={68} />
+      <NodeResizer
+        isVisible={selected}
+        keepAspectRatio={shiftKeyPressed}
+        minWidth={180}
+        minHeight={180}
+        lineStyle={{
+          padding: "3px",
+        }}
+      />
       <Handle
         type="source"
         position={Position.Top}
@@ -109,7 +114,9 @@ const RectangleNode = ({ selected, data, id }: NodeProps<Props>) => {
 
       <div
         ref={rotateControlRef}
-        className={`absolute block top-[-30px] left-1/2 -translate-x-1/2 nodrag w-5 h-5`}
+        className={`${
+          !selected && "hidden"
+        } absolute block top-[-30px] left-1/2 -translate-x-1/2 nodrag w-5 h-5`}
       >
         <RotateCw size={16} />
       </div>
@@ -127,7 +134,6 @@ const RectangleNode = ({ selected, data, id }: NodeProps<Props>) => {
           onChange={onEditText}
           changeActive={setEditText}
           style={{
-            backgroundColor: data.bgColor,
             color: data.textColor,
             textAlign: data.horizontalAlign,
             alignContent: data.verticalAlign,

@@ -9,12 +9,9 @@ export interface ICreateNewNodeBuffer {
 }
 
 export interface IReactFlowSliceSchema {
-  // nodes: Node[];
   edges: Edge[];
-  // nodeTypes: Record<string, React.FC<any>>;
-  // edgeTypes: Record<string, React.FC<any>>;
   buffer: ICreateNewNodeBuffer | null;
-  // colorsPalet: string[];
   connectionLinePath: XYPosition[];
   isMovementPlayground: boolean;
+  theme: string;
 }

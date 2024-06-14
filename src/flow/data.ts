@@ -29,6 +29,6 @@ export const colorsPalet = [
 ];
 
 export const config = {
-  minZoom: 0.1,
+  minZoom: 1,
   maxZoom: 500,
 };

@@ -11,8 +11,10 @@ export const $boardPlayground: StoreWritable<IReactFlowSliceSchema> =
     buffer: null,
     isMovementPlayground: false,
     connectionLinePath: [],
+    theme: localStorage.getItem("theme") || "light",
   });
 
+export const changeTheme = createEvent<string>();
 export const changeEdge = createEvent<Edge[]>();
 export const setCreateBuffer = createEvent<ICreateNewNodeBuffer>();
 export const setConnectionLinePath = createEvent<XYPosition[]>();
@@ -24,7 +26,16 @@ const setIsMovementPlaygroundReducer = (
 ): IReactFlowSliceSchema => {
   return {
     ...state,
-    isMovementPlayground: isMovementPlayground,
+    isMovementPlayground,
+  };
+};
+
+const setTheme = (state: IReactFlowSliceSchema, theme: string) => {
+  localStorage.setItem("theme", theme);
+
+  return {
+    ...state,
+    theme,
   };
 };
 
@@ -34,7 +45,7 @@ const setConnectionLinePathReducer = (
 ): IReactFlowSliceSchema => {
   return {
     ...state,
-    connectionLinePath: connectionLinePath,
+    connectionLinePath,
   };
 };
 
@@ -59,6 +70,7 @@ const changeEdgesReducer = (
   };
 };
 
+$boardPlayground.on(changeTheme, setTheme);
 $boardPlayground.on(changeEdge, changeEdgesReducer);
 $boardPlayground.on(setCreateBuffer, setCreateBufferReducer);
 $boardPlayground.on(setConnectionLinePath, setConnectionLinePathReducer);

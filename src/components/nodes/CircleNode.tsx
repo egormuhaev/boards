@@ -179,12 +179,12 @@ export const Editable = forwardRef<HTMLDivElement, EditableProps>(
         }}
         onClick={onClick}
         onBlur={() => changeActive(false)}
-        className={`flex-1 w-full resize-none outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none ${
+        className={`flex-1 w-full resize-none bg-transparent outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none ${
           active ? "nodrag cursor-text" : ""
         }`}
         style={style}
       >
-        {value}
+        {value || <br />}
       </div>
     );
   }

@@ -8,7 +8,7 @@ const Rectangle: React.FC<HTMLAttributes<HTMLDivElement>> = ({
   return (
     <div
       onClick={onClick}
-      className="h-full w-full flex flex-col justify-center items-center rounded-md min-w-[160px] min-h-[80px] box-border p-2"
+      className="h-full w-full flex flex-col justify-center items-center min-w-[180px] min-h-[180px] box-border p-2 shadow-[0px_9px_26px_-3px_rgba(0,0,0,0.52)]"
       style={style}
     >
       {children}

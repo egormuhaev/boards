@@ -15,7 +15,6 @@ import ReactFlow, {
   SelectionDragHandler,
   OnNodesDelete,
   OnEdgesDelete,
-  Panel,
 } from "reactflow";
 import { $boardPlayground } from "./store/playground.slice";
 import { useUnit } from "effector-react";
@@ -35,7 +34,7 @@ import useCreateNode from "@/hooks/useCreateNode";
 import { edgeTypes } from "@/components/egdes";
 import { NodeTypes, nodeTypes } from "@/components/nodes";
 import { config } from "./data";
-import { Redo, Undo } from "lucide-react";
+import Theme from "@/components/Theme";
 
 const initNodesWithSwgDrawer = [
   {
@@ -51,7 +50,7 @@ const FlowMonitor = () => {
     useState<ReactFlowInstance | null>(null);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    initNodesWithSwgDrawer,
+    initNodesWithSwgDrawer
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -60,7 +59,7 @@ const FlowMonitor = () => {
   const { addFileNode, addNode } = useCreateNode(inputFileRef);
 
   const { connectionLinePath } = useUnit($boardPlayground);
-  const { buffer } = useUnit($boardPlayground);
+  const { buffer, theme } = useUnit($boardPlayground);
   const { takeSnapshot } = useUndoRedo();
   useCopyPaste();
 
@@ -115,7 +114,7 @@ const FlowMonitor = () => {
                 id: v4(),
                 prev: i === 0 ? undefined : connectionLinePath[i - 1],
                 active: true,
-              }) as ControlPointData,
+              } as ControlPointData)
           ),
         },
       };
@@ -123,7 +122,7 @@ const FlowMonitor = () => {
       takeSnapshot();
       setEdges((edges) => addEdge(edge, edges));
     },
-    [setEdges, takeSnapshot],
+    [setEdges, takeSnapshot]
   );
 
   const onDrop = useCallback(
@@ -150,7 +149,7 @@ const FlowMonitor = () => {
         addNode(type as NodeTypes, position);
       }
     },
-    [reactFlowInstance, takeSnapshot, setNodes],
+    [reactFlowInstance, takeSnapshot, setNodes]
   );
 
   const onClick = useCallback(
@@ -170,7 +169,7 @@ const FlowMonitor = () => {
         addNode(buffer.creatingType, position);
       }
     },
-    [buffer, nodes],
+    [buffer, nodes]
   );
 
   const onNodeDragStart: NodeDragHandler = useCallback(() => {
@@ -217,14 +216,17 @@ const FlowMonitor = () => {
         onSelectionDragStart={onSelectionDragStart}
         onNodesDelete={onNodesDelete}
         onEdgesDelete={onEdgesDelete}
+        className={theme}
       >
+        <Theme />
+
         <FlowUndoRedo />
 
         <FlowHeadToolbar />
 
-        <Background color="#ccc" variant={BackgroundVariant.Cross} size={1} />
+        <Background color="#ccc" variant={BackgroundVariant.Cross} size={2} />
 
-        <Controls />
+        <Controls showZoom showFitView showInteractive className="text-black" />
 
         <HelperLines
           horizontal={helperLineHorizontal}
