@@ -1,5 +1,6 @@
 import ReactFlow, {
   addEdge,
+  Node,
   Background,
   Controls,
   MiniMap,
@@ -28,7 +29,7 @@ import { DragEvent, MouseEvent, useCallback, useRef, useState } from "react";
 import { getHelperLines } from "@/lib/utils";
 import HelperLines from "@/components/HelperLines";
 import useCopyPaste from "@/hooks/useCopyPaste";
-import { handleDragEvent } from "./utils/randomColor";
+import { handleDragEvent, randomColor } from "./utils/randomColor";
 import FlowUndoRedo from "./FlowUndoRedo";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import useCreateNode from "@/hooks/useCreateNode";
@@ -37,7 +38,7 @@ import { NodeTypes, nodeTypes } from "@/components/nodes";
 import { config } from "./data";
 import { Redo, Undo } from "lucide-react";
 
-const initNodesWithSwgDrawer = [
+const initNodesWithSwgDrawer: Node[] = [
   {
     id: "svg-drawer-test",
     type: NodeTypes.SVGDrawingNodeTypes,
@@ -217,6 +218,13 @@ const FlowMonitor = () => {
         onSelectionDragStart={onSelectionDragStart}
         onNodesDelete={onNodesDelete}
         onEdgesDelete={onEdgesDelete}
+        fitViewOptions={{
+          includeHiddenNodes: false,
+        }}
+        // Выключение автоматического повышения z-index элемента при его выделении
+        elevateNodesOnSelect={false}
+        // Оптимизация: Скрытие элементов вне поле зрения
+        onlyRenderVisibleElements
       >
         <FlowUndoRedo />
 
