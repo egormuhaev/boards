@@ -34,7 +34,7 @@ const handleStyles = {
 
 const CircleNode = ({ selected, data, id }: NodeProps<Props>) => {
   const [editText, setEditText] = useState(false);
-  const [text, setText] = useState(" ");
+  const [text, setText] = useState("");
   const [rotation, setRotation] = useState(0);
 
   const textarea = useRef<HTMLDivElement>(null);
@@ -87,8 +87,8 @@ const CircleNode = ({ selected, data, id }: NodeProps<Props>) => {
       </NodeToolbar>
       <NodeResizer
         isVisible={selected}
-        minWidth={80}
-        minHeight={80}
+        minWidth={180}
+        minHeight={180}
         keepAspectRatio
       />
       <Handle
@@ -118,7 +118,9 @@ const CircleNode = ({ selected, data, id }: NodeProps<Props>) => {
 
       <div
         ref={rotateControlRef}
-        className={`absolute block top-[-30px] left-1/2 -translate-x-1/2 nodrag w-5 h-5`}
+        className={`${
+          !selected && "hidden"
+        } absolute block top-[-30px] left-1/2 -translate-x-1/2 nodrag w-5 h-5`}
       >
         <RotateCw size={16} />
       </div>
@@ -128,21 +130,28 @@ const CircleNode = ({ selected, data, id }: NodeProps<Props>) => {
           backgroundColor: data.bgColor,
         }}
       >
-        <Editable
-          value={text}
-          active={editText}
-          ref={textarea}
-          onChange={onEditText}
-          changeActive={setEditText}
+        <div
           style={{
-            backgroundColor: data.bgColor,
-            color: data.textColor,
-            textAlign: data.horizontalAlign,
-            alignContent: data.verticalAlign,
-            fontSize: data.fontSize + "px",
-            lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
+            width: "calc(100% / sqrt(2))",
+            height: "calc(100% / sqrt(2))",
           }}
-        />
+        >
+          <Editable
+            value={text}
+            active={editText}
+            ref={textarea}
+            onChange={onEditText}
+            changeActive={setEditText}
+            style={{
+              backgroundColor: data.bgColor,
+              color: data.textColor,
+              textAlign: data.horizontalAlign,
+              alignContent: data.verticalAlign,
+              fontSize: data.fontSize + "px",
+              lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
+            }}
+          />
+        </div>
       </Circle>
     </div>
   );
@@ -179,7 +188,7 @@ export const Editable = forwardRef<HTMLDivElement, EditableProps>(
         }}
         onClick={onClick}
         onBlur={() => changeActive(false)}
-        className={`flex-1 w-full resize-none bg-transparent outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none ${
+        className={`flex-1 w-full h-full resize-none bg-transparent outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none ${
           active ? "nodrag cursor-text" : ""
         }`}
         style={style}

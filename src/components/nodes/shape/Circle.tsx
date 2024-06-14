@@ -8,7 +8,7 @@ const Circle: React.FC<HTMLAttributes<HTMLDivElement>> = ({
   return (
     <div
       onClick={onClick}
-      className="h-full aspect-square flex flex-col justify-center items-center rounded-full min-w-[80px] min-h-[80px] box-border p-2"
+      className="aspect-square flex flex-col justify-center items-center rounded-full min-w-[180px] min-h-[180px] box-border p-2"
       style={style}
     >
       {children}
