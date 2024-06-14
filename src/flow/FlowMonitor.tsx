@@ -33,17 +33,46 @@ import FlowUndoRedo from "./FlowUndoRedo";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import useCreateNode from "@/hooks/useCreateNode";
 import { edgeTypes } from "@/components/egdes";
-import { NodeTypes, nodeTypes } from "@/components/nodes";
+import { nodeTypes } from "@/components/nodes";
 import { config } from "./data";
 import Theme from "@/components/Theme";
 import { useControlBoards } from "@/hooks/useControlBoards";
+import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 
 const initNodesWithSwgDrawer: Node[] = [
   {
-    id: "svg-drawer-test",
-    type: NodeTypes.SVGDrawingNodeTypes,
-    position: { x: 0, y: 0 },
-    data: {},
+    id: "3",
+    type: "shape",
+    position: { x: 160, y: 130 },
+    style: { width: 180, height: 180 },
+    data: {
+      type: "circle",
+      color: "#438D57",
+      horizontalAlign: "center",
+      verticalAlign: "center",
+      textColor: "black",
+      bgColor: "blue",
+      fontSize: 14,
+      rotation: 0,
+      text: "text",
+    },
+  },
+  {
+    id: "4",
+    type: "shape",
+    position: { x: 260, y: 500 },
+    style: { width: 180, height: 180 },
+    data: {
+      type: "rectangle",
+      color: "#438D57",
+      horizontalAlign: "center",
+      verticalAlign: "center",
+      textColor: "black",
+      bgColor: "red",
+      fontSize: 14,
+      rotation: 0,
+      text: "text",
+    },
   },
 ];
 
@@ -132,8 +161,10 @@ const FlowMonitor = () => {
 
       if (!reactFlowInstance) return;
 
-      const type = e.dataTransfer.getData("application/reactflow");
-      if (!type) return;
+      const nodeType = e.dataTransfer.getData("nodeType");
+      if (!nodeType) return;
+
+      const subType = e.dataTransfer.getData("subType");
 
       const position = reactFlowInstance.screenToFlowPosition({
         x: e.clientX,
@@ -144,10 +175,16 @@ const FlowMonitor = () => {
 
       takeSnapshot();
 
-      if (type === NodeTypes.FileNodeFlowTypes) {
+      if (nodeType === "file") {
         addFileNode(position, files);
       } else {
-        addNode(type as NodeTypes, position);
+        addNode(
+          { nodeType, subType } as {
+            nodeType: keyof typeof nodeTypes;
+            subType?: keyof typeof ShapeComponents;
+          },
+          position
+        );
       }
     },
     [reactFlowInstance, takeSnapshot, setNodes]
@@ -155,7 +192,7 @@ const FlowMonitor = () => {
 
   const onClick = useCallback(
     async (e: MouseEvent<Element>) => {
-      if (!buffer?.creatingType || !reactFlowInstance) return;
+      if (!buffer?.nodeType || !reactFlowInstance) return;
 
       const position = reactFlowInstance.screenToFlowPosition({
         x: e.clientX,
@@ -164,10 +201,14 @@ const FlowMonitor = () => {
 
       takeSnapshot();
 
-      if (buffer.creatingType === NodeTypes.FileNodeFlowTypes) {
+      // TODO: заменить file на тип
+      if (buffer.nodeType === "file") {
         await addFileNode(position);
       } else {
-        addNode(buffer.creatingType, position);
+        addNode(
+          { nodeType: buffer.nodeType, subType: buffer.subType },
+          position
+        );
       }
     },
     [buffer, nodes]

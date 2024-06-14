@@ -1,11 +1,13 @@
-import { NodeTypes } from "@/components/nodes";
+import { nodeTypes } from "@/components/nodes";
+import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 import { Edge, XYPosition } from "reactflow";
 
 export type HorizontalAlign = "center" | "left" | "right";
 export type VerticalAlign = "start" | "center" | "end";
 
 export interface ICreateNewNodeBuffer {
-  creatingType: NodeTypes | undefined;
+  nodeType?: keyof typeof nodeTypes;
+  subType?: keyof typeof ShapeComponents;
 }
 
 export interface IReactFlowSliceSchema {

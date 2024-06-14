@@ -15,7 +15,7 @@ export function useControlBoards() {
   const spacePressed = useKeyPress("Space");
 
   const viewportOnStart: UseOnViewportChangeOptions["onStart"] = (
-    viewport: Viewport,
+    viewport: Viewport
   ) => {
     setViewportOnLastValue(viewport);
   };
@@ -25,7 +25,7 @@ export function useControlBoards() {
   };
 
   const viewportOnChange: UseOnViewportChangeOptions["onChange"] = (
-    _: Viewport,
+    _: Viewport
   ) => {
     // const conditions =
     //   !viewportOnLastValue ||
