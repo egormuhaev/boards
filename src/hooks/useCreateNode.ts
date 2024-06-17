@@ -59,6 +59,17 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
     }
   };
 
+  const addDrawingNode = (position: XYPosition) => {
+    const newNode = {
+      id: v4(),
+      position,
+      type: "drawing",
+      style: { width: 180, height: 180 },
+      data: {},
+    };
+    setNodes((nds) => nds.concat(newNode));
+  };
+
   const addNode = (
     types: {
       nodeType: keyof typeof nodeTypes;
@@ -71,23 +82,18 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       position,
       type: types.nodeType,
       style: { width: 180, height: 180 },
-      data: flowState.isDrawingMode
-        ? {
-            ...defaultNodeData,
-            type: types.subType,
-            backgroundColor: randomColor(colorsPalet),
-            color: randomColor(colorsPalet),
-          }
-        : undefined,
+      data: {
+        ...defaultNodeData,
+        type: types.subType,
+        backgroundColor: randomColor(colorsPalet),
+        color: randomColor(colorsPalet),
+      },
     };
 
     setNodes((nds) => nds.concat(newNode));
-    if (!flowState.isDrawingMode) {
-      clearBufferCreatingType();
-    }
   };
 
-  return { addFileNode, addNode };
+  return { addFileNode, addNode, addDrawingNode };
 };
 
 export default useCreateNode;

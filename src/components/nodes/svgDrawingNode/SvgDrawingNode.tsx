@@ -205,7 +205,6 @@ export default function SvgDrawingNode({
         onTouchMove={onTouchMove as any}
         onTouchEnd={onTouchEnd as any}
         style={{
-          background: "green",
           zIndex: 1000,
           width: plotSize.width,
           height: plotSize.height,

@@ -50,7 +50,7 @@ const FlowMonitor = () => {
   useControlBoards();
   const inputFileRef = useRef<HTMLInputElement>(null);
 
-  const { addFileNode, addNode } = useCreateNode(inputFileRef);
+  const { addFileNode, addNode, addDrawingNode } = useCreateNode(inputFileRef);
 
   const { connectionLinePath } = useUnit($boardPlayground);
   const { buffer, theme } = useUnit($boardPlayground);
@@ -157,31 +157,23 @@ const FlowMonitor = () => {
   const onClick = useCallback(
     async (e: MouseEvent<Element>) => {
       if (!buffer?.nodeType || !reactFlowInstance) return;
-
       const position = reactFlowInstance.screenToFlowPosition({
         x: e.clientX,
         y: e.clientY,
       });
-
       takeSnapshot();
-
       if (buffer.nodeType === "file") {
         await addFileNode(position);
+      } else if (flowState.isDrawingMode) {
+        addDrawingNode({
+          x: position.x - window.screen.width,
+          y: position.y - window.screen.height,
+        });
       } else {
-        if (flowState.isDrawingMode) {
-          addNode(
-            { nodeType: "drawing" },
-            {
-              x: position.x - window.screen.width / 2,
-              y: position.y - window.screen.height / 2,
-            },
-          );
-        } else {
-          addNode(
-            { nodeType: buffer.nodeType, subType: buffer.subType },
-            position,
-          );
-        }
+        addNode(
+          { nodeType: buffer.nodeType, subType: buffer.subType },
+          position,
+        );
       }
     },
     [buffer, nodes],
