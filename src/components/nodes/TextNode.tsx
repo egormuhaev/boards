@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import ToolbarControlls from "./nodeEnviroment/ToolbarControlls";
 
 interface Props {
+  type: "text";
   id: string;
   bgColor?: string;
   textColor?: string;
@@ -42,13 +43,6 @@ const TextNode = ({ selected, data, id }: NodeProps<Props>) => {
 
   return (
     <>
-      <NodeToolbar isVisible={selected} position={Position.Top}>
-        <ToolbarControlls
-          id={id}
-          settings={{ bgColor: data.bgColor, textColor: data.textColor }}
-        />
-      </NodeToolbar>
-
       <NodeResizer isVisible={selected} minWidth={180} minHeight={68} />
 
       <div

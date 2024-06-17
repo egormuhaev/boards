@@ -4,47 +4,97 @@ import {
   ChangeEvent,
   FormEvent,
   MouseEvent,
-  forwardRef,
+  useEffect,
+  useRef,
+  useState,
 } from "react";
 
 interface ContentProps {
-  active: boolean;
-  value: string;
+  value: string | undefined;
   onChange: (e: React.ChangeEvent<Element>) => void;
-  changeActive: (bool: boolean) => void;
   style: CSSProperties;
 }
 
-const Content = forwardRef<HTMLDivElement, ContentProps>(
-  ({ active, value, onChange, changeActive, style }, ref) => {
-    const { takeSnapshot } = useUndoRedo();
+function getCaret(el: HTMLDivElement | null) {
+  if (!el) return;
 
-    const clickHandler = (e: MouseEvent<HTMLDivElement>) => {
-      e.stopPropagation();
-      if (!active) changeActive(true);
-    };
+  let caretAt = 0;
+  const sel = window.getSelection();
+  if (!sel) return;
 
-    const changeHandler = (e: FormEvent) => {
-      takeSnapshot();
-      onChange(e as unknown as ChangeEvent);
-    };
+  if (sel.rangeCount == 0) {
+    return caretAt;
+  }
 
-    return (
+  const range = sel.getRangeAt(0);
+  const preRange = range.cloneRange();
+  preRange.selectNodeContents(el);
+  preRange.setEnd(range.endContainer, range.endOffset);
+  caretAt = preRange.toString().length;
+
+  return caretAt;
+}
+
+function setCaret(el: HTMLDivElement | null, offset?: number) {
+  if (!el || !offset) return;
+
+  let sel = window.getSelection();
+  if (!sel) return;
+
+  let range = document.createRange();
+
+  range.setStart(el.childNodes[0], offset);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+const Content = ({ value, onChange, style }: ContentProps) => {
+  const { takeSnapshot } = useUndoRedo();
+
+  const [active, setActive] = useState(false);
+
+  const contentRef = useRef<HTMLDivElement>(null);
+  const caretPos = useRef<number>();
+
+  const clickHandler = (e: MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    if (!active) setActive(true);
+  };
+
+  const changeHandler = (e: FormEvent) => {
+    takeSnapshot();
+
+    caretPos.current = getCaret(contentRef.current);
+    onChange(e as unknown as ChangeEvent);
+  };
+
+  useEffect(() => {
+    setCaret(contentRef.current, caretPos.current);
+    contentRef.current?.focus();
+  }, [value]);
+ 
+  return (
+    <div
+      className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-full h-full flex p-5"
+      style={{ alignItems: style.alignContent, justifyContent: "center" }}
+    >
       <div
-        contentEditable={active}
-        ref={ref}
-        onChange={changeHandler}
+        ref={contentRef}
         onClick={clickHandler}
-        onBlur={() => changeActive(false)}
-        className={`absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 flex-1 w-full h-full resize-none bg-transparent outline-none break-words text-ellipsis overflow-hidden box-border p-0 m-0 border-none ${
+        onInput={changeHandler}
+        onBlur={() => setActive(false)}
+        contentEditable={active}
+        className={`h-min w-full resize-none bg-transparent outline-none break-words text-ellipsis overflow-hidden box-border border-none ${
           active ? "nodrag cursor-text" : ""
         }`}
         style={style}
+        suppressContentEditableWarning
       >
-        {value || <br />}
+        {value}
       </div>
-    );
-  }
-);
+    </div>
+  );
+};
 
 export default Content;

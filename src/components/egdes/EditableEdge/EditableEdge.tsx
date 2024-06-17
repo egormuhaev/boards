@@ -22,7 +22,7 @@ const useIdsForInactiveControlPoints = (points: ControlPointData[]) => {
 
   if (prevIds.current.length === points.length) {
     newPoints = points.map((point, i) =>
-      point.active ? point : { ...point, id: prevIds.current[i] },
+      point.active ? point : { ...point, id: prevIds.current[i] }
     );
   } else {
     newPoints = points.map((prevPoint, i) => {
@@ -70,9 +70,9 @@ export function EditableEdge({
   const edges = useEdges();
   const { getZoom, setEdges } = useReactFlow();
 
-  useEffect(() => {
-    console.log(getZoom());
-  });
+  // useEffect(() => {
+  // console.log(getZoom());
+  // });
 
   const conditionToolbarVisible = !isMovementPlayground && selected;
 
@@ -86,7 +86,7 @@ export function EditableEdge({
   });
 
   const setControlPoints = (
-    update: (points: ControlPointData[]) => ControlPointData[],
+    update: (points: ControlPointData[]) => ControlPointData[]
   ) => {
     const newEdges = edges.map((e) => {
       if (e.id !== id) return e;
