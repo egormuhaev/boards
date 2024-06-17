@@ -40,6 +40,7 @@ export default function SvgDrawingNode({
   },
 }: NodeProps<Props>) {
   const flowState = useUnit($flow);
+
   const nodes = useNodes<Props>();
   const { setNodes } = useReactFlow();
   const svgContainerRef = useRef<HTMLDivElement>(null);
@@ -176,8 +177,6 @@ export default function SvgDrawingNode({
         isVisible={selected}
         minWidth={plotSize.width}
         minHeight={plotSize.height}
-        maxWidth={plotSize.width}
-        maxHeight={plotSize.height}
       />
       <SvgDrawingNodeHandle visible={!flowState.isDrawingMode || selected} />
       <div
@@ -206,10 +205,10 @@ export default function SvgDrawingNode({
         onTouchMove={onTouchMove as any}
         onTouchEnd={onTouchEnd as any}
         style={{
+          background: "green",
           zIndex: 1000,
           width: plotSize.width,
           height: plotSize.height,
-          //  backgroundColor: "green",
         }}
       >
         <SvgPolyline
@@ -221,4 +220,4 @@ export default function SvgDrawingNode({
   );
 }
 
-export const svgDrawingNodeTypes = "SVGDrawingNode";
+export const svgDrawingNodeTypes = "drawing";
