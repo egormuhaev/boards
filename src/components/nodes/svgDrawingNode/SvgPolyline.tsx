@@ -14,13 +14,15 @@ export function SvgPolyline({ points, isCompletedDrawing }: SvgPolylineProps) {
       className="h-full w-full"
     >
       <polyline
-        className="bg-opacity-90"
-        opacity={0.1}
+        cx={10}
+        cy={10}
+        className="black"
+        opacity={1}
         pointerEvents="all"
         points={pointsAsString}
         fill="none"
         stroke="blue"
-        strokeWidth="10"
+        strokeWidth="2"
       />
     </svg>
   );

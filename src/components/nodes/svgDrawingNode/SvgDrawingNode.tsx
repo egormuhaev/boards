@@ -1,30 +1,126 @@
-import { useEffect, useState } from "react";
-import { NodeProps, NodeResizer } from "reactflow";
-import { Point, PlotSize } from "./types";
+import {
+  NodeProps,
+  NodeResizer,
+  XYPosition,
+  useNodes,
+  useReactFlow,
+} from "reactflow";
+import { PlotSize, Point, Props } from "./types";
 import calculateNaturalSizeOfDrawing from "./utils/calculateNaturalSizeOfDrawing";
 import { SvgPolyline } from "./SvgPolyline";
 import { SvgDrawingNodeHandle } from "./SvgDrawingNodeHandle";
+import { useUnit } from "effector-react";
+import { $flow } from "@/flow/store/flow.slice";
+import { useRef } from "react";
 
 const defaultSvgPlotSize: PlotSize = {
-  width: 400,
-  height: 400,
+  width: window.screen.availWidth * 2,
+  height: window.screen.availHeight * 2,
 };
 
-export default function SvgDrawingNode({ selected }: NodeProps) {
-  const [points, setPoints] = useState<Point[]>([]);
-  const [isDrawing, setIsDrawing] = useState<boolean>(false);
-  const [isCompletedDrawing, setIsCompletedDrawing] = useState(true);
-  const [plotSize, setPlotSize] = useState<PlotSize>(defaultSvgPlotSize);
+const normalizationSvg = (minX: number, minY: number, points: Point[]) => {
+  return points.map((point: Point) => {
+    return {
+      x: point.x - minX,
+      y: point.y - minY,
+    };
+  });
+};
 
-  useEffect(() => {
-    if (points.length === 0) {
-      setPlotSize({ height: 200, width: 200 });
+export default function SvgDrawingNode({
+  selected,
+  id,
+  xPos,
+  yPos,
+  data: {
+    isCompletedDrawing = false,
+    isDrawing = false,
+    plotSize = defaultSvgPlotSize,
+    points = [],
+  },
+}: NodeProps<Props>) {
+  const flowState = useUnit($flow);
+  const nodes = useNodes<Props>();
+  const { setNodes } = useReactFlow();
+  const svgContainerRef = useRef<HTMLDivElement>(null);
+
+  const getNativeTouchScreenCoordinate = (e: TouchEvent) => {
+    if (svgContainerRef.current) {
+      const rect = svgContainerRef.current.getBoundingClientRect();
+      const touch = e.touches[0];
+
+      return {
+        x: touch.clientX - rect.x,
+        y: touch.clientY - rect.y,
+      };
     }
-  }, [points]);
+
+    return [0, 0];
+  };
+
+  const setNodesCustom = (args: Props, position?: XYPosition) => {
+    setNodes(
+      nodes.map((node) => {
+        if (node.id === id) {
+          return {
+            ...node,
+            position: position ?? node.position,
+            data: {
+              ...node.data,
+              ...args,
+            },
+          };
+        }
+        return node;
+      }),
+    );
+  };
+
+  const onStartDrawing = (offsetX: number, offsetY: number) => {
+    setNodesCustom({
+      points: [{ x: offsetX, y: offsetY }],
+      isDrawing: true,
+    });
+  };
+
+  const onDrawing = (offsetX: number, offsetY: number) => {
+    setNodesCustom({
+      points: [...points, { x: offsetX, y: offsetY }],
+      isDrawing: true,
+    });
+  };
+
+  const onEndDrawing = () => {
+    const [maxX, maxY, minX, minY] = calculateNaturalSizeOfDrawing(
+      points.slice(1, points.length),
+    );
+    const currentNormalPoints = normalizationSvg(
+      minX,
+      minY,
+      points.slice(1, points.length),
+    );
+
+    setNodesCustom(
+      {
+        plotSize: {
+          width: maxX - minX,
+          height: maxY - minY,
+        },
+        isDrawing: false,
+        isCompletedDrawing: true,
+        points: [...currentNormalPoints],
+      },
+
+      {
+        x: xPos + minX,
+        y: yPos + minY,
+      },
+    );
+  };
 
   const resizeSVGContainer = (x: number, y: number) => {
     const threshold = 300;
-    const increment = 100;
+    const increment = 500;
     const { width, height } = plotSize;
     let newWidth = width;
     let newHeight = height;
@@ -35,28 +131,43 @@ export default function SvgDrawingNode({ selected }: NodeProps) {
     if (y <= threshold) newHeight += increment;
 
     if (newWidth !== width || newHeight !== height) {
-      setPlotSize({ width: newWidth, height: newHeight });
+      setNodesCustom({ plotSize: { width: newWidth, height: newHeight } });
     }
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.preventDefault();
     const { offsetX, offsetY } = e.nativeEvent;
-    setPoints([{ x: offsetX, y: offsetY }]);
-    setIsDrawing(true);
+    onStartDrawing(offsetX, offsetY);
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.preventDefault();
     if (!isDrawing) return;
     const { offsetX, offsetY } = e.nativeEvent;
-    setPoints((prevPoints) => [...prevPoints, { x: offsetX, y: offsetY }]);
+    onDrawing(offsetX, offsetY);
     resizeSVGContainer(offsetX, offsetY);
   };
 
-  const handleMouseUp = (_: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    setIsDrawing(false);
-    setIsCompletedDrawing(false);
-    const [x, y] = calculateNaturalSizeOfDrawing(points);
-    setPlotSize({ width: x + 10, height: y + 10 });
+  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.preventDefault();
+    onEndDrawing();
+  };
+
+  const onTouchDown = (e: TouchEvent) => {
+    const { x, y } = getNativeTouchScreenCoordinate(e);
+    onStartDrawing(x, y);
+  };
+
+  const onTouchMove = (e: TouchEvent) => {
+    const { x, y } = getNativeTouchScreenCoordinate(e);
+    onDrawing(x, y);
+    resizeSVGContainer(x, y);
+  };
+
+  const onTouchEnd = (e: TouchEvent) => {
+    e.preventDefault();
+    onEndDrawing();
   };
 
   return (
@@ -65,20 +176,46 @@ export default function SvgDrawingNode({ selected }: NodeProps) {
         isVisible={selected}
         minWidth={plotSize.width}
         minHeight={plotSize.height}
-        keepAspectRatio
+        maxWidth={plotSize.width}
+        maxHeight={plotSize.height}
       />
-      <SvgDrawingNodeHandle visible={selected} />
+      <SvgDrawingNodeHandle visible={!flowState.isDrawingMode || selected} />
       <div
-        onMouseDown={isCompletedDrawing ? handleMouseDown : undefined}
-        onMouseMove={isCompletedDrawing ? handleMouseMove : undefined}
-        onMouseUp={isCompletedDrawing ? handleMouseUp : undefined}
+        ref={svgContainerRef}
+        onMouseEnter={
+          !isCompletedDrawing && flowState.isDrawingMode
+            ? handleMouseDown
+            : undefined
+        }
+        onMouseDown={
+          !isCompletedDrawing && flowState.isDrawingMode
+            ? handleMouseDown
+            : undefined
+        }
+        onMouseMove={
+          !isCompletedDrawing && flowState.isDrawingMode
+            ? handleMouseMove
+            : undefined
+        }
+        onMouseUp={
+          !isCompletedDrawing && flowState.isDrawingMode
+            ? handleMouseUp
+            : undefined
+        }
+        onTouchStart={onTouchDown as any}
+        onTouchMove={onTouchMove as any}
+        onTouchEnd={onTouchEnd as any}
         style={{
+          zIndex: 1000,
           width: plotSize.width,
           height: plotSize.height,
-          pointerEvents: !isCompletedDrawing ? "none" : undefined,
+          //  backgroundColor: "green",
         }}
       >
-        <SvgPolyline points={points} isCompletedDrawing={isCompletedDrawing} />
+        <SvgPolyline
+          points={points.slice(1, points.length)}
+          isCompletedDrawing={isCompletedDrawing}
+        />
       </div>
     </>
   );

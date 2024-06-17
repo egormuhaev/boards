@@ -6,6 +6,8 @@ export default function calculateNaturalSizeOfDrawing(points: Point[]) {
 
   const maxX = Math.max(...arrayX);
   const maxY = Math.max(...arrayY);
+  const minX = Math.min(...arrayX);
+  const minY = Math.min(...arrayY);
 
-  return [maxX, maxY];
+  return [maxX, maxY, minX, minY];
 }
