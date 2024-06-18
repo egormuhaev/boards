@@ -47,6 +47,14 @@ const FlowHeadToolbar = ({}) => {
     func();
   };
 
+  const disabledDrawingMode = () => {
+    if (flowState.isDrawingMode) {
+      changeDrawingMode(false);
+      clearBufferCreatingType();
+      cleaningEmptyCanvasesAfterDrawing();
+    }
+  };
+
   return (
     <nav className="w-[50px] fixed top-1/2 left-5 -translate-y-1/2 flex flex-col z-50 gap-5 p-2 bg-white rounded-lg border border-solid-1 border-slate-300">
       <Button
@@ -74,7 +82,7 @@ const FlowHeadToolbar = ({}) => {
       <Button
         onClick={(e) =>
           clickHandler(e, () => {
-            changeDrawingMode(false);
+            disabledDrawingMode();
             if (
               buffer?.nodeType === "shape" &&
               buffer.subType === "rectangle"
@@ -102,7 +110,7 @@ const FlowHeadToolbar = ({}) => {
       <Button
         onClick={(e) =>
           clickHandler(e, () => {
-            changeDrawingMode(false);
+            disabledDrawingMode();
             if (buffer?.nodeType === "shape" && buffer.subType === "circle") {
               clearBufferCreatingType();
             } else {
@@ -127,7 +135,7 @@ const FlowHeadToolbar = ({}) => {
       <Button
         onClick={(e) =>
           clickHandler(e, () => {
-            changeDrawingMode(false);
+            disabledDrawingMode();
             if (buffer?.nodeType === "text") {
               clearBufferCreatingType();
             } else {
@@ -149,7 +157,7 @@ const FlowHeadToolbar = ({}) => {
       <Button
         onClick={(e) =>
           clickHandler(e, () => {
-            changeDrawingMode(false);
+            disabledDrawingMode();
             if (buffer?.nodeType === "file") {
               clearBufferCreatingType();
             } else {

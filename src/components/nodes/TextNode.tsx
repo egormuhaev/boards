@@ -33,7 +33,7 @@ const TextNode = ({ selected, data, id }: NodeProps<Props>) => {
       textarea.current?.focus();
       textarea.current?.setSelectionRange(
         textarea.current.value.length,
-        textarea.current.value.length
+        textarea.current.value.length,
       );
     } else {
       textarea.current?.setSelectionRange(0, 0);
@@ -50,7 +50,7 @@ const TextNode = ({ selected, data, id }: NodeProps<Props>) => {
         className={cn(
           styles.wrapper,
           "bg-transparent",
-          editText ? "border border-solid-2 border-black" : ""
+          editText ? "border border-solid-2 border-black" : "",
         )}
       >
         {editText ? (
@@ -70,7 +70,7 @@ const TextNode = ({ selected, data, id }: NodeProps<Props>) => {
             }}
             className={cn(
               styles.textarea,
-              "inline text-ellipsis overflow-hidden bg-transparent"
+              "inline text-ellipsis overflow-hidden bg-transparent",
             )}
           >
             {text}

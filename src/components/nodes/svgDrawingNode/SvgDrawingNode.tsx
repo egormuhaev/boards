@@ -35,7 +35,6 @@ export default function SvgDrawingNode({
   },
 }: NodeProps<Props>) {
   const flowState = useUnit($flow);
-
   const nodes = useNodes<Props>();
   const { setNodes } = useReactFlow();
   const svgContainerRef = useRef<HTMLDivElement>(null);
@@ -47,15 +46,21 @@ export default function SvgDrawingNode({
   const getNativeTouchScreenCoordinate = (e: TouchEvent) => {
     if (svgContainerRef.current) {
       const rect = svgContainerRef.current.getBoundingClientRect();
-      const touch = e.touches[0];
+      const touch = {
+        x: e.changedTouches[0].clientX!,
+        y: e.changedTouches[0].clientY!,
+      };
 
       return {
-        x: touch.clientX - rect.x,
-        y: touch.clientY - rect.y,
+        x: touch.x - rect.x,
+        y: touch.y - rect.y,
       };
     }
 
-    return [0, 0];
+    return {
+      x: 0,
+      y: 0,
+    };
   };
 
   const setNodesCustom = (args: Props, position?: XYPosition) => {
@@ -167,14 +172,6 @@ export default function SvgDrawingNode({
 
   return (
     <>
-      <NodeResizer
-        isVisible={conditionVizibleHandeTools}
-        minWidth={plotSize.width}
-        minHeight={plotSize.height}
-        maxWidth={plotSize.width}
-        maxHeight={plotSize.height}
-      />
-      <SvgDrawingNodeHandle visible={conditionVizibleHandeTools} />
       <div
         ref={svgContainerRef}
         onMouseEnter={conditionActionsDrawEnable ? handleMouseDown : undefined}
@@ -185,14 +182,22 @@ export default function SvgDrawingNode({
         onTouchMove={onTouchMove as any}
         onTouchEnd={onTouchEnd as any}
         style={{
-          zIndex: 1000,
+          zIndex: !isCompletedDrawing ? 1000 : 10,
           width: plotSize.width,
           height: plotSize.height,
         }}
       >
+        <NodeResizer
+          nodeId={id}
+          isVisible={conditionVizibleHandeTools}
+          minWidth={plotSize.width}
+          minHeight={plotSize.height}
+          maxWidth={plotSize.width}
+          maxHeight={plotSize.height}
+        />
+        <SvgDrawingNodeHandle visible={conditionVizibleHandeTools} />
         {isCompletedDrawing && (
           <SvgPath
-            // path={smoothPolyline(points.slice(1, points.length))}
             path={smoothPolyline(points)}
             isCompletedDrawing={isCompletedDrawing}
           />
@@ -208,4 +213,4 @@ export default function SvgDrawingNode({
   );
 }
 
-export const svgDrawingNodeTypes = "svgDrawingNodeTypes";
+export const svgDrawingNodeTypes = "drawing";

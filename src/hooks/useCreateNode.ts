@@ -99,7 +99,6 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       id: v4(),
       position: pos,
       type: "drawing",
-      style: { width: 180, height: 180 },
       data: {
         plotSize: size,
       },
