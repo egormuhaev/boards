@@ -115,7 +115,7 @@ const FlowMonitor = () => {
                 id: v4(),
                 prev: i === 0 ? undefined : connectionLinePath[i - 1],
                 active: true,
-              } as ControlPointData)
+              }) as ControlPointData,
           ),
         },
       };
@@ -123,7 +123,7 @@ const FlowMonitor = () => {
       takeSnapshot();
       setEdges((edges) => addEdge(edge, edges));
     },
-    [setEdges, takeSnapshot]
+    [setEdges, takeSnapshot],
   );
 
   const onDrop = useCallback(
@@ -154,11 +154,11 @@ const FlowMonitor = () => {
             nodeType: keyof typeof nodeTypes;
             subType?: keyof typeof ShapeComponents;
           },
-          position
+          position,
         );
       }
     },
-    [reactFlowInstance, takeSnapshot, setNodes]
+    [reactFlowInstance, takeSnapshot, setNodes],
   );
 
   const clearBufferCreatingType = () =>
@@ -183,12 +183,12 @@ const FlowMonitor = () => {
       } else {
         addNode(
           { nodeType: buffer.nodeType, subType: buffer.subType },
-          position
+          position,
         );
         clearBufferCreatingType();
       }
     },
-    [buffer, nodes]
+    [buffer, nodes],
   );
 
   const onMobileClick = useCallback(
@@ -203,11 +203,11 @@ const FlowMonitor = () => {
           {
             x: position.x - window.screen.width / 2,
             y: position.y - window.screen.height / 2,
-          }
+          },
         );
       }
     },
-    [buffer, nodes]
+    [buffer, nodes],
   );
 
   const onNodeDragStart: NodeDragHandler = useCallback(() => {
@@ -266,7 +266,7 @@ const FlowMonitor = () => {
         className={theme}
         // НАСТРОЙКИ
         zoomOnDoubleClick={!flowState.isDrawingMode}
-        // nodesDraggable={!flowState.isDrawingMode}
+        nodesDraggable={!flowState.isDrawingMode}
         panOnDrag={!flowState.isDrawingMode}
         zoomOnScroll
         //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне поле зрения
