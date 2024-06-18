@@ -12,11 +12,33 @@ import { SvgDrawingNodeHandle } from "./SvgDrawingNodeHandle";
 import { useUnit } from "effector-react";
 import { $flow } from "@/flow/store/flow.slice";
 import { useRef } from "react";
+import { SvgPath } from "./SvgPath";
 
 const defaultSvgPlotSize: PlotSize = {
-  width: window.screen.availWidth * 2,
-  height: window.screen.availHeight * 2,
+  width: window.screen.height * 2,
+  height: window.screen.width * 2,
 };
+
+function smoothPolyline(points: Point[]): string {
+  const pathData: string[] = [];
+  pathData.push(`M ${points[0].x},${points[0].y}`);
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i];
+    const p1 = points[i + 1];
+
+    const controlPointX = (p0.x + p1.x) / 2;
+    const controlPointY = (p0.y + p1.y) / 2;
+
+    pathData.push(`Q ${p0.x},${p0.y} ${controlPointX},${controlPointY}`);
+  }
+
+  pathData.push(
+    `T ${points[points.length - 1].x},${points[points.length - 1].y}`,
+  );
+
+  return pathData.join(" ");
+}
 
 const normalizationSvg = (minX: number, minY: number, points: Point[]) => {
   return points.map((point: Point) => {
@@ -95,6 +117,7 @@ export default function SvgDrawingNode({
     const [maxX, maxY, minX, minY] = calculateNaturalSizeOfDrawing(
       points.slice(1, points.length),
     );
+
     const currentNormalPoints = normalizationSvg(
       minX,
       minY,
@@ -111,7 +134,6 @@ export default function SvgDrawingNode({
         isCompletedDrawing: true,
         points: [...currentNormalPoints],
       },
-
       {
         x: xPos + minX,
         y: yPos + minY,
@@ -177,6 +199,8 @@ export default function SvgDrawingNode({
         isVisible={selected}
         minWidth={plotSize.width}
         minHeight={plotSize.height}
+        maxWidth={plotSize.width}
+        maxHeight={plotSize.height}
       />
       <SvgDrawingNodeHandle visible={!flowState.isDrawingMode || selected} />
       <div
@@ -210,13 +234,21 @@ export default function SvgDrawingNode({
           height: plotSize.height,
         }}
       >
-        <SvgPolyline
-          points={points.slice(1, points.length)}
-          isCompletedDrawing={isCompletedDrawing}
-        />
+        {isCompletedDrawing && (
+          <SvgPath
+            path={smoothPolyline(points.slice(1, points.length))}
+            isCompletedDrawing={isCompletedDrawing}
+          />
+        )}
+        {!isCompletedDrawing && (
+          <SvgPolyline
+            points={points.slice(1, points.length)}
+            isCompletedDrawing={isCompletedDrawing}
+          />
+        )}
       </div>
     </>
   );
 }
 
-export const svgDrawingNodeTypes = "drawing";
+export const svgDrawingNodeTypes = "svgDrawingNodeTypes";
