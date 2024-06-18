@@ -7,6 +7,12 @@ interface Props extends Settings {
   file: File;
 }
 
+export const FileComponents = {
+  video: <div></div>,
+  pdf: <div></div>,
+  img: <div></div>,
+};
+
 const FileNode = ({ data }: NodeProps<Props>) => {
   return (
     <>

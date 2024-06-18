@@ -42,7 +42,7 @@ import { v4 } from "uuid";
 import FlowHeadToolbar from "./FlowHeadToolbar";
 import FlowUndoRedo from "./FlowUndoRedo";
 import { config } from "./data";
-import { $boardPlayground } from "./store/playground.slice";
+import { $boardPlayground, setCreateBuffer } from "./store/playground.slice";
 import { handleDragEvent } from "./utils/randomColor";
 import { $flow } from "./store/flow.slice";
 
@@ -161,6 +161,9 @@ const FlowMonitor = () => {
     [reactFlowInstance, takeSnapshot, setNodes]
   );
 
+  const clearBufferCreatingType = () =>
+    setCreateBuffer({ nodeType: undefined, subType: undefined });
+
   const onClick = useCallback(
     async (e: MouseEvent<Element>) => {
       if (!buffer?.nodeType || !reactFlowInstance) return;
@@ -171,6 +174,7 @@ const FlowMonitor = () => {
       takeSnapshot();
       if (buffer.nodeType === "file") {
         await addFileNode(position);
+        clearBufferCreatingType();
       } else if (flowState.isDrawingMode) {
         addDrawingNode({
           x: position.x - window.screen.width,
@@ -181,6 +185,7 @@ const FlowMonitor = () => {
           { nodeType: buffer.nodeType, subType: buffer.subType },
           position
         );
+        clearBufferCreatingType();
       }
     },
     [buffer, nodes]
@@ -224,7 +229,7 @@ const FlowMonitor = () => {
   return (
     <>
       {/* Инпут находится снаружи, чтобы искусственный клик по нему не вызывал заново функцию onClick */}
-      {/* <input type="file" ref={inputFileRef} hidden /> */}
+      <input multiple type="file" ref={inputFileRef} hidden />
       <ReactFlow
         onInit={setReactFlowInstance}
         onPaneClick={!flowState.isDrawingMode ? onClick : undefined}
