@@ -66,7 +66,7 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
   const shiftKeyPressed = useKeyPress("Shift");
   const { setNodes } = useReactFlow();
 
-  const [rotation, setRotation] = useState(data.rotation || 0);
+  const [rotation, setRotation] = useState(0);
 
   const handleStyle = { backgroundColor: data.backgroundColor };
 
@@ -106,6 +106,7 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
         const deg = rad * (180 / Math.PI);
 
         setRotation(180 - deg);
+        updateNodeInternals(id);
       })
       .on("end", (evt) => {
         const dx = evt.x - 100;
@@ -114,88 +115,89 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
         const deg = rad * (180 / Math.PI);
 
         updateNode({ rotation: 180 - deg });
-        updateNodeInternals(id);
       });
 
     selection.call(dragHandler);
   }, [id, updateNodeInternals]);
 
   return (
-    <div
-      style={{
-        transform: `rotate(${rotation}deg)`,
-      }}
-    >
-      <NodeToolbar isVisible={selected} position={Position.Top} offset={40}>
-        <ToolbarControlls id={id} data={data} />
-      </NodeToolbar>
-      <NodeResizer
-        keepAspectRatio={shiftKeyPressed}
-        isVisible={selected}
-        handleStyle={{
-          height: "5px",
-          width: "5px",
-          borderColor: "grey",
-          backgroundColor: "grey",
-          borderRadius: 0,
-        }}
-        lineStyle={{
-          borderWidth: "2px",
-          borderColor: "grey",
-        }}
-      />
-      <Shape
-        type={data.type}
-        width={width}
-        height={height}
-        fill={data.backgroundColor}
-        strokeWidth={2}
-        stroke={data.borderColor}
-      />
-      <Handle
-        style={handleStyle}
-        id="top"
-        type="source"
-        position={Position.Top}
-      />
-      <Handle
-        style={handleStyle}
-        id="right"
-        type="source"
-        position={Position.Right}
-      />
-      <Handle
-        style={handleStyle}
-        id="bottom"
-        type="source"
-        position={Position.Bottom}
-      />
-      <Handle
-        style={handleStyle}
-        id="left"
-        type="source"
-        position={Position.Left}
-      />
+    <>
       <div
-        ref={rotateControlRef}
-        className={`${
-          !selected && "hidden"
-        } absolute block top-[-30px] left-1/2 -translate-x-1/2 nodrag w-5 h-5`}
+      // style={{
+      //   transform: `rotate(${rotation}deg)`,
+      // }}
       >
-        <RotateCw size={16} />
+        <NodeToolbar isVisible={selected} position={Position.Top} offset={40}>
+          <ToolbarControlls id={id} data={data} />
+        </NodeToolbar>
+        <NodeResizer
+          keepAspectRatio={shiftKeyPressed}
+          isVisible={selected}
+          handleStyle={{
+            height: "5px",
+            width: "5px",
+            borderColor: "grey",
+            backgroundColor: "grey",
+            borderRadius: 0,
+          }}
+          lineStyle={{
+            borderWidth: "2px",
+            borderColor: "grey",
+          }}
+        />
+        <Shape
+          type={data.type}
+          width={width}
+          height={height}
+          fill={data.backgroundColor}
+          strokeWidth={2}
+          stroke={data.borderColor}
+        />
+        <Handle
+          style={handleStyle}
+          id="top"
+          type="source"
+          position={Position.Top}
+        />
+        <Handle
+          style={handleStyle}
+          id="right"
+          type="source"
+          position={Position.Right}
+        />
+        <Handle
+          style={handleStyle}
+          id="bottom"
+          type="source"
+          position={Position.Bottom}
+        />
+        <Handle
+          style={handleStyle}
+          id="left"
+          type="source"
+          position={Position.Left}
+        />
+        <div
+          ref={rotateControlRef}
+          className={`${
+            !selected && "hidden"
+          } absolute block top-[-30px] left-1/2 -translate-x-1/2 nodrag w-5 h-5`}
+        >
+          <RotateCw size={16} />
+        </div>
+        <Content
+          value={data.text}
+          onChange={onEditText}
+          style={{
+            ...data,
+            width: contentCssFormules[data.type].width,
+            // height: contentCssFormules[data.type].height,
+            fontSize: data.fontSize + "px",
+            lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
+          }}
+        />
       </div>
-      <Content
-        value={data.text}
-        onChange={onEditText}
-        style={{
-          ...data,
-          width: contentCssFormules[data.type].width,
-          // height: contentCssFormules[data.type].height,
-          fontSize: data.fontSize + "px",
-          lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
-        }}
-      />
-    </div>
+    </>
   );
 }
 

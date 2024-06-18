@@ -20,6 +20,9 @@ export const setCreateBuffer = createEvent<ICreateNewNodeBuffer>();
 export const setConnectionLinePath = createEvent<XYPosition[]>();
 export const setIsMovementPlayground = createEvent<boolean>();
 
+export const clearBufferCreatingType = () =>
+  setCreateBuffer({ nodeType: undefined, subType: undefined });
+
 const setIsMovementPlaygroundReducer = (
   state: IReactFlowSliceSchema,
   isMovementPlayground: boolean

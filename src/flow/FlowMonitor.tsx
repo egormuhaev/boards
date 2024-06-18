@@ -17,6 +17,7 @@ import {
   MouseEvent,
   TouchEvent,
   useCallback,
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -37,24 +38,37 @@ import ReactFlow, {
   addEdge,
   useEdgesState,
   useNodesState,
+  useReactFlow,
 } from "reactflow";
 import { v4 } from "uuid";
 import FlowHeadToolbar from "./FlowHeadToolbar";
 import FlowUndoRedo from "./FlowUndoRedo";
 import { config } from "./data";
-import { $boardPlayground, setCreateBuffer } from "./store/playground.slice";
+import {
+  $boardPlayground,
+  clearBufferCreatingType,
+  setCreateBuffer,
+} from "./store/playground.slice";
 import { handleDragEvent } from "./utils/randomColor";
 import { $flow } from "./store/flow.slice";
 
 // TODO: перенести стили из data в style
 
+const flowKey = "example-flow";
+
 const FlowMonitor = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+
   const flowState = useUnit($flow);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   useControlBoards();
+
+  const { setViewport } = useReactFlow();
+
   const inputFileRef = useRef<HTMLInputElement>(null);
 
   const { addFileNode, addNode, addDrawingNode } = useCreateNode(inputFileRef);
@@ -66,6 +80,27 @@ const FlowMonitor = () => {
 
   const [helperLineHorizontal, setHelperLineHorizontal] = useState<number>();
   const [helperLineVertical, setHelperLineVertical] = useState<number>();
+
+  const saveFlow = useCallback(() => {
+    if (reactFlowInstance) {
+      const flow = reactFlowInstance.toObject();
+      localStorage.setItem(flowKey, JSON.stringify(flow));
+    }
+  }, [reactFlowInstance]);
+
+  useEffect(() => {
+    const ls = localStorage.getItem(flowKey);
+    if (!ls) return;
+
+    const flow = JSON.parse(ls);
+
+    if (flow) {
+      const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+      setNodes(flow.nodes || []);
+      setEdges(flow.edges || []);
+      setViewport({ x, y, zoom });
+    }
+  }, []);
 
   const onCustomNodesChange = (changes: NodeChange[]) => {
     setHelperLineHorizontal(undefined);
@@ -94,6 +129,10 @@ const FlowMonitor = () => {
   const onCustomEdgesChange = (changes: EdgeChange[]) => {
     onEdgesChange(changes);
   };
+
+  useEffect(() => {
+    saveFlow();
+  }, [nodes, edges]);
 
   const onConnect = useCallback(
     (connection: Connection) => {
@@ -154,9 +193,6 @@ const FlowMonitor = () => {
     },
     [reactFlowInstance, takeSnapshot, setNodes]
   );
-
-  const clearBufferCreatingType = () =>
-    setCreateBuffer({ nodeType: undefined, subType: undefined });
 
   const onClick = useCallback(
     async (e: MouseEvent<Element>) => {

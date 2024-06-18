@@ -1,10 +1,14 @@
 import { Button } from "@/shadcn/ui/button";
 import { useUnit } from "effector-react";
 import { $flow, changeDrawingMode } from "./store/flow.slice";
-import { setCreateBuffer } from "./store/playground.slice";
+import {
+  $boardPlayground,
+  clearBufferCreatingType,
+  setCreateBuffer,
+} from "./store/playground.slice";
 import { LuCircle, LuRectangleHorizontal } from "react-icons/lu";
 import { Pencil, Type } from "lucide-react";
-import { DragEvent } from "react";
+import { DragEvent, MouseEvent } from "react";
 import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 import { nodeTypes } from "@/components/nodes";
 import { FaFile } from "react-icons/fa";
@@ -12,12 +16,13 @@ import { useCleaningEmptyCanvasesAfterDrawing } from "@/hooks/useCleaningEmptyCa
 
 const FlowHeadToolbar = ({}) => {
   const flowState = useUnit($flow);
+  const { buffer } = useUnit($boardPlayground);
   const cleaningEmptyCanvasesAfterDrawing =
     useCleaningEmptyCanvasesAfterDrawing();
 
   const saveCreatingTypeInBuffer = (
     nodeType: keyof typeof nodeTypes,
-    subType?: keyof typeof ShapeComponents,
+    subType?: keyof typeof ShapeComponents
   ) => {
     setCreateBuffer({
       nodeType,
@@ -28,11 +33,18 @@ const FlowHeadToolbar = ({}) => {
   const onDragStart = (
     event: DragEvent<HTMLButtonElement>,
     nodeType: keyof typeof nodeTypes,
-    subType?: keyof typeof ShapeComponents,
+    subType?: keyof typeof ShapeComponents
   ) => {
     event.dataTransfer.setData("nodeType", nodeType);
     if (subType) event.dataTransfer.setData("subType", subType);
     event.dataTransfer.effectAllowed = "move";
+  };
+
+  const clickHandler = (e: MouseEvent<HTMLButtonElement>, func: Function) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    func();
   };
 
   return (
@@ -58,41 +70,94 @@ const FlowHeadToolbar = ({}) => {
       </Button>
 
       <Button
-        onClick={() => saveCreatingTypeInBuffer("shape", "rectangle")}
+        onClick={(e) =>
+          clickHandler(e, () => {
+            if (
+              buffer?.nodeType === "shape" &&
+              buffer.subType === "rectangle"
+            ) {
+              clearBufferCreatingType();
+            } else {
+              saveCreatingTypeInBuffer("shape", "rectangle");
+            }
+          })
+        }
         onDragStart={(event) => onDragStart(event, "shape", "rectangle")}
         draggable
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Прямоугольник"
+        style={{
+          background:
+            buffer?.nodeType === "shape" && buffer.subType === "rectangle"
+              ? "yellow"
+              : undefined,
+        }}
       >
         <LuRectangleHorizontal className="h-full w-full" />
       </Button>
 
       <Button
-        onClick={() => saveCreatingTypeInBuffer("shape", "circle")}
+        onClick={(e) =>
+          clickHandler(e, () => {
+            if (buffer?.nodeType === "shape" && buffer.subType === "circle") {
+              clearBufferCreatingType();
+            } else {
+              saveCreatingTypeInBuffer("shape", "circle");
+            }
+          })
+        }
         onDragStart={(event) => onDragStart(event, "shape", "circle")}
         draggable
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Круг"
+        style={{
+          background:
+            buffer?.nodeType === "shape" && buffer.subType === "circle"
+              ? "yellow"
+              : undefined,
+        }}
       >
         <LuCircle className="h-full w-full" />
       </Button>
 
       <Button
-        onClick={() => saveCreatingTypeInBuffer("text")}
+        onClick={(e) =>
+          clickHandler(e, () => {
+            if (buffer?.nodeType === "text") {
+              clearBufferCreatingType();
+            } else {
+              saveCreatingTypeInBuffer("text");
+            }
+          })
+        }
         onDragStart={(event) => onDragStart(event, "text")}
         draggable
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Текст"
+        style={{
+          background: buffer?.nodeType === "text" ? "yellow" : undefined,
+        }}
       >
         <Type className="h-full w-full" />
       </Button>
 
       <Button
-        onClick={() => saveCreatingTypeInBuffer("file")}
+        onClick={(e) =>
+          clickHandler(e, () => {
+            if (buffer?.nodeType === "file") {
+              clearBufferCreatingType();
+            } else {
+              saveCreatingTypeInBuffer("file");
+            }
+          })
+        }
         onDragStart={(event) => onDragStart(event, "file")}
         draggable
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Файл"
+        style={{
+          background: buffer?.nodeType === "file" ? "yellow" : undefined,
+        }}
       >
         <FaFile className="h-full w-full" />
       </Button>
