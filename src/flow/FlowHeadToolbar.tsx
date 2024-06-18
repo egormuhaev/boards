@@ -22,7 +22,7 @@ const FlowHeadToolbar = ({}) => {
 
   const saveCreatingTypeInBuffer = (
     nodeType: keyof typeof nodeTypes,
-    subType?: keyof typeof ShapeComponents
+    subType?: keyof typeof ShapeComponents,
   ) => {
     setCreateBuffer({
       nodeType,
@@ -33,7 +33,7 @@ const FlowHeadToolbar = ({}) => {
   const onDragStart = (
     event: DragEvent<HTMLButtonElement>,
     nodeType: keyof typeof nodeTypes,
-    subType?: keyof typeof ShapeComponents
+    subType?: keyof typeof ShapeComponents,
   ) => {
     event.dataTransfer.setData("nodeType", nodeType);
     if (subType) event.dataTransfer.setData("subType", subType);
@@ -74,6 +74,7 @@ const FlowHeadToolbar = ({}) => {
       <Button
         onClick={(e) =>
           clickHandler(e, () => {
+            changeDrawingMode(false);
             if (
               buffer?.nodeType === "shape" &&
               buffer.subType === "rectangle"
@@ -101,6 +102,7 @@ const FlowHeadToolbar = ({}) => {
       <Button
         onClick={(e) =>
           clickHandler(e, () => {
+            changeDrawingMode(false);
             if (buffer?.nodeType === "shape" && buffer.subType === "circle") {
               clearBufferCreatingType();
             } else {
@@ -125,6 +127,7 @@ const FlowHeadToolbar = ({}) => {
       <Button
         onClick={(e) =>
           clickHandler(e, () => {
+            changeDrawingMode(false);
             if (buffer?.nodeType === "text") {
               clearBufferCreatingType();
             } else {
@@ -146,6 +149,7 @@ const FlowHeadToolbar = ({}) => {
       <Button
         onClick={(e) =>
           clickHandler(e, () => {
+            changeDrawingMode(false);
             if (buffer?.nodeType === "file") {
               clearBufferCreatingType();
             } else {

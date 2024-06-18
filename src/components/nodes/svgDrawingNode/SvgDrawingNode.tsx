@@ -130,7 +130,7 @@ export default function SvgDrawingNode({
     const { offsetX, offsetY } = e.nativeEvent;
     onDrawing(offsetX, offsetY);
 
-    const newSize = resizeSVGContainer(x, y, plotSize);
+    const newSize = resizeSVGContainer(offsetX, offsetY, plotSize);
     if (newSize !== null) {
       setNodesCustom({
         plotSize: { width: newSize.width, height: newSize.height },
@@ -192,7 +192,8 @@ export default function SvgDrawingNode({
       >
         {isCompletedDrawing && (
           <SvgPath
-            path={smoothPolyline(points.slice(1, points.length))}
+            // path={smoothPolyline(points.slice(1, points.length))}
+            path={smoothPolyline(points)}
             isCompletedDrawing={isCompletedDrawing}
           />
         )}
