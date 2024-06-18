@@ -8,12 +8,17 @@ export interface PlotSize {
   height: number;
 }
 
-export interface SvgPolylineProps {
+export interface BaseLineProps {
+  lineWidth: number;
+  lineColor: string;
+}
+
+export interface SvgPolylineProps extends BaseLineProps {
   points: Point[];
   isCompletedDrawing: boolean;
 }
 
-export interface SvgPathProps {
+export interface SvgPathProps extends BaseLineProps {
   path: string;
   isCompletedDrawing: boolean;
 }
@@ -23,4 +28,6 @@ export interface Props {
   points?: Point[];
   isCompletedDrawing?: boolean;
   isDrawing?: boolean;
+  lineWidth?: number;
+  lineColor?: string;
 }

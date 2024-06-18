@@ -32,6 +32,8 @@ export default function SvgDrawingNode({
     isDrawing = false,
     plotSize = defaultSvgPlotSize,
     points = [],
+    lineColor = "#000",
+    lineWidth = 2,
   },
 }: NodeProps<Props>) {
   const flowState = useUnit($flow);
@@ -198,12 +200,16 @@ export default function SvgDrawingNode({
         <SvgDrawingNodeHandle visible={conditionVizibleHandeTools} />
         {isCompletedDrawing && (
           <SvgPath
+            lineColor={lineColor}
+            lineWidth={lineWidth}
             path={smoothPolyline(points)}
             isCompletedDrawing={isCompletedDrawing}
           />
         )}
         {!isCompletedDrawing && (
           <SvgPolyline
+            lineColor={lineColor}
+            lineWidth={lineWidth}
             points={points.slice(1, points.length)}
             isCompletedDrawing={isCompletedDrawing}
           />

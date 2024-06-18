@@ -5,8 +5,6 @@ import { ConnectionLine } from "@/components/egdes/ConectionLine";
 import { ControlPointData } from "@/components/egdes/EditableEdge";
 import { DEFAULT_ALGORITHM } from "@/components/egdes/EditableEdge/constants";
 import { nodeTypes } from "@/components/nodes";
-// import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
-// import { useControlBoards } from "@/hooks/useControlBoards";
 import useCopyPaste from "@/hooks/useCopyPaste";
 import useCreateNode, { ShapeNodeTypes } from "@/hooks/useCreateNode";
 import useUndoRedo from "@/hooks/useUndoRedo";

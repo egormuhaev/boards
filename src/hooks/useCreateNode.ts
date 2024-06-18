@@ -7,6 +7,8 @@ import { v4 } from "uuid";
 import { colorsPalet, defaultNodeData } from "../flow/data";
 import { FileComponents } from "@/components/nodes/FileNode";
 import { PlotSize } from "@/components/nodes/svgDrawingNode/types";
+import { useUnit } from "effector-react";
+import { $draw } from "@/flow/store/draw.slice";
 
 // TODO: заменить Function на нужный тип
 // Заменить везде file на тип
@@ -47,6 +49,7 @@ function getCurrentParamsDrawingPlot(
 
 const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
   const { setNodes, getZoom } = useReactFlow();
+  const drawState = useUnit($draw);
 
   const addNode = (types: ShapeNodeTypes, position: XYPosition) => {
     const newNode = {
@@ -101,6 +104,8 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       type: "drawing",
       data: {
         plotSize: size,
+        lineColor: drawState.color,
+        lineWidth: drawState.width,
       },
     };
     setNodes((nds) => nds.concat(newNode));
