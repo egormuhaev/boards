@@ -6,6 +6,7 @@ import { Node, XYPosition, useReactFlow } from "reactflow";
 import { v4 } from "uuid";
 import { colorsPalet, defaultNodeData } from "../flow/data";
 import { FileComponents } from "@/components/nodes/FileNode";
+import { PlotSize } from "@/components/nodes/svgDrawingNode/types";
 
 // TODO: заменить Function на нужный тип
 // Заменить везде file на тип
@@ -27,8 +28,25 @@ export interface ShapeNodeTypes {
   subType?: keyof typeof ShapeComponents;
 }
 
+function getCurrentParamsDrawingPlot(
+  zoom: number,
+  position: XYPosition,
+): [XYPosition, PlotSize] {
+  const zoomScale = zoom < 1 ? zoom * 100 : zoom;
+
+  const plotSizeWidth = window.screen.width * zoomScale * 2;
+  const plotSizeHeight = window.screen.width * zoomScale * 2;
+
+  const positionCurrent: XYPosition = {
+    x: position.x - window.screen.width * zoomScale,
+    y: position.y - window.screen.height * zoomScale,
+  };
+
+  return [positionCurrent, { width: plotSizeWidth, height: plotSizeHeight }];
+}
+
 const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
-  const { setNodes } = useReactFlow();
+  const { setNodes, getZoom } = useReactFlow();
 
   const addNode = (types: ShapeNodeTypes, position: XYPosition) => {
     const newNode = {
@@ -75,12 +93,16 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
   };
 
   const addDrawingNode = (position: XYPosition) => {
+    const [pos, size] = getCurrentParamsDrawingPlot(getZoom(), position);
+
     const newNode = {
       id: v4(),
-      position,
+      position: pos,
       type: "drawing",
       style: { width: 180, height: 180 },
-      data: {},
+      data: {
+        plotSize: size,
+      },
     };
     setNodes((nds) => nds.concat(newNode));
   };

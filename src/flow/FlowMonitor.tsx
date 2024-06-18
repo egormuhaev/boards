@@ -154,7 +154,7 @@ const FlowMonitor = () => {
                 id: v4(),
                 prev: i === 0 ? undefined : connectionLinePath[i - 1],
                 active: true,
-              } as ControlPointData)
+              }) as ControlPointData,
           ),
         },
       };
@@ -162,7 +162,7 @@ const FlowMonitor = () => {
       takeSnapshot();
       setEdges((edges) => addEdge(edge, edges));
     },
-    [setEdges, takeSnapshot]
+    [setEdges, takeSnapshot],
   );
 
   const onDrop = useCallback(
@@ -191,7 +191,7 @@ const FlowMonitor = () => {
         addNode({ nodeType, subType } as ShapeNodeTypes, position);
       }
     },
-    [reactFlowInstance, takeSnapshot, setNodes]
+    [reactFlowInstance, takeSnapshot, setNodes],
   );
 
   const onClick = useCallback(
@@ -206,19 +206,16 @@ const FlowMonitor = () => {
         await addFileNode(position);
         clearBufferCreatingType();
       } else if (flowState.isDrawingMode) {
-        addDrawingNode({
-          x: position.x - window.screen.width,
-          y: position.y - window.screen.height,
-        });
+        addDrawingNode(position);
       } else {
         addNode(
           { nodeType: buffer.nodeType, subType: buffer.subType },
-          position
+          position,
         );
         clearBufferCreatingType();
       }
     },
-    [buffer, nodes]
+    [buffer, nodes],
   );
 
   const onMobileClick = useCallback(
@@ -233,11 +230,11 @@ const FlowMonitor = () => {
           {
             x: position.x - window.screen.width / 2,
             y: position.y - window.screen.height / 2,
-          }
+          },
         );
       }
     },
-    [buffer, nodes]
+    [buffer, nodes],
   );
 
   const onNodeDragStart: NodeDragHandler = useCallback(() => {
