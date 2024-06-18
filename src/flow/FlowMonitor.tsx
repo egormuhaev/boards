@@ -8,7 +8,7 @@ import { nodeTypes } from "@/components/nodes";
 import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 import { useControlBoards } from "@/hooks/useControlBoards";
 import useCopyPaste from "@/hooks/useCopyPaste";
-import useCreateNode from "@/hooks/useCreateNode";
+import useCreateNode, { ShapeNodeTypes } from "@/hooks/useCreateNode";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import { getHelperLines } from "@/lib/utils";
 import { useUnit } from "effector-react";
@@ -149,13 +149,7 @@ const FlowMonitor = () => {
       if (nodeType === "file") {
         addFileNode(position, files);
       } else {
-        addNode(
-          { nodeType, subType } as {
-            nodeType: keyof typeof nodeTypes;
-            subType?: keyof typeof ShapeComponents;
-          },
-          position
-        );
+        addNode({ nodeType, subType } as ShapeNodeTypes, position);
       }
     },
     [reactFlowInstance, takeSnapshot, setNodes]

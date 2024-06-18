@@ -22,7 +22,7 @@ export const fileSubTypes: Record<string, keyof typeof FileComponents> = {
   webm: "video",
 };
 
-interface ShapeNodeTypes {
+export interface ShapeNodeTypes {
   nodeType: keyof typeof nodeTypes;
   subType?: keyof typeof ShapeComponents;
 }

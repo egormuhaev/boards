@@ -94,9 +94,7 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
     );
 
   useEffect(() => {
-    if (!rotateControlRef.current) {
-      return;
-    }
+    if (!rotateControlRef.current) return;
 
     const selection = select(rotateControlRef.current);
 
