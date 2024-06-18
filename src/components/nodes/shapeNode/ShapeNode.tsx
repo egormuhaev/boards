@@ -186,12 +186,12 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
           <RotateCw size={16} />
         </div>
         <Content
-          value={data.text}
+          value={data.text || ""}
           onChange={onEditText}
           style={{
             ...data,
             width: contentCssFormules[data.type].width,
-            // height: contentCssFormules[data.type].height,
+            maxHeight: contentCssFormules[data.type].height,
             fontSize: data.fontSize + "px",
             lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
           }}

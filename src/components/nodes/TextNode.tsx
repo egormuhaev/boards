@@ -43,7 +43,7 @@ const TextNode = ({ selected, data, id }: NodeProps<Props>) => {
 
   return (
     <>
-      <NodeResizer isVisible={selected} minWidth={180} minHeight={68} />
+      <NodeResizer isVisible={selected} minWidth={180} minHeight={30} />
 
       <div
         onClick={() => setEditText(false)}

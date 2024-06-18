@@ -1,3 +1,4 @@
+import useOnClickOutside from "@/hooks/useOnClickOutside";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import {
   CSSProperties,
@@ -8,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useReactFlow } from "reactflow";
 
 interface ContentProps {
   value: string | undefined;
@@ -50,21 +52,24 @@ function setCaret(el: HTMLDivElement | null, offset?: number) {
 }
 
 const Content = ({ value, onChange, style }: ContentProps) => {
-  const { takeSnapshot } = useUndoRedo();
+  // const { takeSnapshot } = useUndoRedo();
 
   const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    console.log("active: ", active);
+  }, [active]);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const caretPos = useRef<number>();
 
-  const clickHandler = (e: MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-    if (!active) setActive(true);
-  };
+  useOnClickOutside(contentRef, (e) => {
+    console.log("outside");
+    setActive(false);
+  });
 
-  const changeHandler = (e: FormEvent) => {
-    takeSnapshot();
-
+  const inputHandler = (e: FormEvent) => {
+    // takeSnapshot();
     caretPos.current = getCaret(contentRef.current);
     onChange(e as unknown as ChangeEvent);
   };
@@ -73,22 +78,40 @@ const Content = ({ value, onChange, style }: ContentProps) => {
     setCaret(contentRef.current, caretPos.current);
     contentRef.current?.focus();
   }, [value]);
- 
+
+  const focus = (e: MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+
+    if (!active) {
+      setActive(true);
+    } else {
+      contentRef.current?.focus();
+    }
+  };
+
+  const { width, maxHeight, fontSize, alignContent, ...otherStyles } = style;
+
   return (
     <div
-      className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-full h-full flex p-5"
-      style={{ alignItems: style.alignContent, justifyContent: "center" }}
+      onClick={focus}
+      className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 flex bg-transparent overflow-y-scroll"
+      style={{
+        maxHeight,
+        width,
+        height: maxHeight,
+        alignItems: alignContent,
+        justifyContent: "center",
+      }}
     >
       <div
         ref={contentRef}
-        onClick={clickHandler}
-        onInput={changeHandler}
+        onInput={inputHandler}
         onBlur={() => setActive(false)}
         contentEditable={active}
-        className={`h-min w-full resize-none bg-transparent outline-none break-words text-ellipsis overflow-hidden box-border border-none ${
+        className={`w-full resize-none bg-transparent outline-none break-words text-ellipsis overflow-hidden box-border border-none ${
           active ? "nodrag cursor-text" : ""
         }`}
-        style={style}
+        style={{ ...otherStyles, minHeight: fontSize }}
         suppressContentEditableWarning
       >
         {value}

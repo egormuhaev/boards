@@ -47,7 +47,6 @@ import { config } from "./data";
 import {
   $boardPlayground,
   clearBufferCreatingType,
-  setCreateBuffer,
 } from "./store/playground.slice";
 import { handleDragEvent } from "./utils/randomColor";
 import { $flow } from "./store/flow.slice";
