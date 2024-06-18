@@ -89,8 +89,8 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
                 ...nodePart,
               },
             }
-          : node
-      )
+          : node,
+      ),
     );
 
   useEffect(() => {

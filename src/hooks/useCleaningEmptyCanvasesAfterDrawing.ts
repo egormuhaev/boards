@@ -8,8 +8,7 @@ export function useCleaningEmptyCanvasesAfterDrawing() {
       return nodes.filter(
         (node: Node) =>
           node.type !== "drawing" ||
-          (node.type === "drawing" &&
-            (node.data.points || node.data.points?.length > 2)),
+          (node.type === "drawing" && node.data.points?.length > 3),
       );
     });
   };
