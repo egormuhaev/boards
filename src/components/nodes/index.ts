@@ -3,13 +3,14 @@ import VideoNode from "./VideoNode";
 import FileNode from "./FileNode";
 import PictureNode from "./PictureNode";
 import PDFNode from "./PDFNode";
-
 import ShapeNode from "./shapeNode/ShapeNode";
+import SvgDrawingNode from "./svgDrawingNode/SvgDrawingNode";
 
-export { TextNode, VideoNode, FileNode, PictureNode, PDFNode };
+export { TextNode, VideoNode, FileNode, PictureNode, PDFNode, SvgDrawingNode };
 
 export const nodeTypes = {
   shape: ShapeNode,
   file: FileNode,
   text: TextNode,
+  drawing: SvgDrawingNode,
 };

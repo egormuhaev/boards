@@ -42,8 +42,6 @@ function useNodeDimensions(id: string) {
   };
 }
 
-// При добавлении новой фигуры нужно добавить ее в ShapeComponents; И написать формулу для ее высоты и ширины в contentCssFormules
-
 export const ShapeComponents = {
   circle: Circle,
   rectangle: Rectangle,

@@ -5,10 +5,7 @@ import { ConnectionLine } from "@/components/egdes/ConectionLine";
 import { ControlPointData } from "@/components/egdes/EditableEdge";
 import { DEFAULT_ALGORITHM } from "@/components/egdes/EditableEdge/constants";
 import { nodeTypes } from "@/components/nodes";
-import {
-  ShapeComponents,
-  ShapeNodeData,
-} from "@/components/nodes/shapeNode/ShapeNode";
+import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 import { useControlBoards } from "@/hooks/useControlBoards";
 import useCopyPaste from "@/hooks/useCopyPaste";
 import useCreateNode from "@/hooks/useCreateNode";
@@ -18,8 +15,8 @@ import { useUnit } from "effector-react";
 import {
   DragEvent,
   MouseEvent,
+  TouchEvent,
   useCallback,
-  useEffect,
   useRef,
   useState,
 } from "react";
@@ -31,7 +28,6 @@ import ReactFlow, {
   Controls,
   EdgeChange,
   MiniMap,
-  Node,
   NodeChange,
   NodeDragHandler,
   OnEdgesDelete,
@@ -41,7 +37,6 @@ import ReactFlow, {
   addEdge,
   useEdgesState,
   useNodesState,
-  useReactFlow,
 } from "reactflow";
 import { v4 } from "uuid";
 import FlowHeadToolbar from "./FlowHeadToolbar";
@@ -49,80 +44,20 @@ import FlowUndoRedo from "./FlowUndoRedo";
 import { config } from "./data";
 import { $boardPlayground } from "./store/playground.slice";
 import { handleDragEvent } from "./utils/randomColor";
+import { $flow } from "./store/flow.slice";
 
 // TODO: перенести стили из data в style
-
-const initNodesWithSwgDrawer: Node<ShapeNodeData, keyof typeof nodeTypes>[] = [
-  {
-    id: "3",
-    type: "shape",
-    position: { x: 160, y: 130 },
-    style: { width: 180, height: 180, fontWeight: 700 },
-    data: {
-      type: "circle",
-      backgroundColor: "#438D57",
-      textAlign: "center",
-      alignContent: "center",
-      color: "white",
-      fontSize: 14,
-      rotation: 0,
-      text: "text",
-    },
-  },
-  {
-    id: "4",
-    type: "shape",
-    position: { x: 260, y: 500 },
-    style: { width: 180, height: 180 },
-    data: {
-      type: "rectangle",
-      backgroundColor: "#438D57",
-      textAlign: "center",
-      alignContent: "center",
-      color: "white",
-      fontSize: 14,
-      rotation: 0,
-      text: "text",
-    },
-  },
-];
-
-const flowKey = "example-flow";
 
 const FlowMonitor = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
-  const { setViewport } = useReactFlow();
-
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const flowState = useUnit($flow);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   useControlBoards();
-
   const inputFileRef = useRef<HTMLInputElement>(null);
 
-  const saveFlow = useCallback(() => {
-    if (reactFlowInstance) {
-      const flow = reactFlowInstance.toObject();
-      localStorage.setItem(flowKey, JSON.stringify(flow));
-    }
-  }, [reactFlowInstance]);
-
-  // Получение flow из локалстораджа (имитация запроса в БД)
-  useEffect(() => {
-    const ls = localStorage.getItem(flowKey);
-    if (!ls) return;
-
-    const flow = JSON.parse(ls);
-
-    if (flow) {
-      const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-      setNodes(flow.nodes || []);
-      setEdges(flow.edges || []);
-      setViewport({ x, y, zoom });
-    }
-  }, []);
-
-  const { addFileNode, addNode } = useCreateNode(inputFileRef);
+  const { addFileNode, addNode, addDrawingNode } = useCreateNode(inputFileRef);
 
   const { connectionLinePath } = useUnit($boardPlayground);
   const { buffer, theme } = useUnit($boardPlayground);
@@ -153,20 +88,10 @@ const FlowMonitor = () => {
       setHelperLineVertical(helperLines.vertical);
     }
 
-    console.log("Nodes");
-    // saveFlow();
-
     onNodesChange(changes);
   };
 
-  useEffect(() => {
-    saveFlow();
-  }, [nodes, edges]);
-
   const onCustomEdgesChange = (changes: EdgeChange[]) => {
-    console.log("Edges");
-    saveFlow();
-
     onEdgesChange(changes);
   };
 
@@ -239,17 +164,18 @@ const FlowMonitor = () => {
   const onClick = useCallback(
     async (e: MouseEvent<Element>) => {
       if (!buffer?.nodeType || !reactFlowInstance) return;
-
       const position = reactFlowInstance.screenToFlowPosition({
         x: e.clientX,
         y: e.clientY,
       });
-
       takeSnapshot();
-
-      // TODO: заменить file на тип
       if (buffer.nodeType === "file") {
         await addFileNode(position);
+      } else if (flowState.isDrawingMode) {
+        addDrawingNode({
+          x: position.x - window.screen.width,
+          y: position.y - window.screen.height,
+        });
       } else {
         addNode(
           { nodeType: buffer.nodeType, subType: buffer.subType },
@@ -260,9 +186,27 @@ const FlowMonitor = () => {
     [buffer, nodes]
   );
 
+  const onMobileClick = useCallback(
+    async (e: TouchEvent) => {
+      if (reactFlowInstance) {
+        const position = reactFlowInstance.screenToFlowPosition({
+          x: e.changedTouches[0].clientX!,
+          y: e.changedTouches[0].clientY!,
+        });
+        addNode(
+          { nodeType: "drawing" },
+          {
+            x: position.x - window.screen.width / 2,
+            y: position.y - window.screen.height / 2,
+          }
+        );
+      }
+    },
+    [buffer, nodes]
+  );
+
   const onNodeDragStart: NodeDragHandler = useCallback(() => {
     takeSnapshot();
-    // 👉 you can place your event handlers here
   }, [takeSnapshot]);
 
   const onSelectionDragStart: SelectionDragHandler = useCallback(() => {
@@ -280,10 +224,20 @@ const FlowMonitor = () => {
   return (
     <>
       {/* Инпут находится снаружи, чтобы искусственный клик по нему не вызывал заново функцию onClick */}
-      <input type="file" ref={inputFileRef} hidden />
+      {/* <input type="file" ref={inputFileRef} hidden /> */}
       <ReactFlow
         onInit={setReactFlowInstance}
-        onPaneClick={onClick}
+        onPaneClick={!flowState.isDrawingMode ? onClick : undefined}
+        onTouchStart={(e: TouchEvent) => {
+          if (flowState.isDrawingMode) {
+            return onMobileClick(e);
+          } else return null;
+        }}
+        onMouseDown={(e: MouseEvent) => {
+          if (flowState.isDrawingMode) {
+            return onClick(e);
+          } else return null;
+        }}
         onContextMenu={(e) => e.preventDefault()}
         onDrop={onDrop}
         onConnect={onConnect}
@@ -306,22 +260,17 @@ const FlowMonitor = () => {
         onEdgesDelete={onEdgesDelete}
         className={theme}
         // НАСТРОЙКИ
-        nodesDraggable={true}
-        panOnDrag={true}
+        zoomOnDoubleClick={!flowState.isDrawingMode}
+        // nodesDraggable={!flowState.isDrawingMode}
+        panOnDrag={!flowState.isDrawingMode}
         zoomOnScroll
-        elevateNodesOnSelect={false} // Выключение автоматического повышения z-index элемента при его выделении
-        onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне поле зрения
+        //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне поле зрения
       >
         <Theme />
-
         <FlowUndoRedo />
-
         <FlowHeadToolbar />
-
         <Background color="#ccc" variant={BackgroundVariant.Cross} size={2} />
-
         <Controls showZoom showFitView showInteractive className="text-black" />
-
         <HelperLines
           horizontal={helperLineHorizontal}
           vertical={helperLineVertical}
