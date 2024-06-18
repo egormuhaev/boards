@@ -13,6 +13,11 @@ export interface SvgPolylineProps {
   isCompletedDrawing: boolean;
 }
 
+export interface SvgPathProps {
+  path: string;
+  isCompletedDrawing: boolean;
+}
+
 export interface Props {
   plotSize?: PlotSize;
   points?: Point[];

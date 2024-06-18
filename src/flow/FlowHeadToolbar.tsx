@@ -53,12 +53,14 @@ const FlowHeadToolbar = ({}) => {
         onClick={(e: React.MouseEvent) => {
           e.preventDefault();
           e.stopPropagation();
+          if (flowState.isDrawingMode) {
+            clearBufferCreatingType();
+          } else {
+            saveCreatingTypeInBuffer("drawing");
+          }
 
           cleaningEmptyCanvasesAfterDrawing();
           changeDrawingMode(!flowState.isDrawingMode);
-          if (!flowState.isDrawingMode) {
-            saveCreatingTypeInBuffer("drawing");
-          }
         }}
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Карандаш"

@@ -5,26 +5,21 @@ import {
   useNodes,
   useReactFlow,
 } from "reactflow";
-import { PlotSize, Point, Props } from "./types";
+import { PlotSize, Props } from "./types";
 import calculateNaturalSizeOfDrawing from "./utils/calculateNaturalSizeOfDrawing";
 import { SvgPolyline } from "./SvgPolyline";
 import { SvgDrawingNodeHandle } from "./SvgDrawingNodeHandle";
 import { useUnit } from "effector-react";
 import { $flow } from "@/flow/store/flow.slice";
 import { useRef } from "react";
+import { SvgPath } from "./SvgPath";
+import smoothPolyline from "./utils/smoothPolyline";
+import resizeSVGContainer from "./utils/resizeSVGContainer";
+import normalizationSvgOffset from "./utils/normalizationSvgOffset";
 
 const defaultSvgPlotSize: PlotSize = {
-  width: window.screen.availWidth * 2,
-  height: window.screen.availHeight * 2,
-};
-
-const normalizationSvg = (minX: number, minY: number, points: Point[]) => {
-  return points.map((point: Point) => {
-    return {
-      x: point.x - minX,
-      y: point.y - minY,
-    };
-  });
+  width: window.screen.height * 2,
+  height: window.screen.width * 2,
 };
 
 export default function SvgDrawingNode({
@@ -44,6 +39,10 @@ export default function SvgDrawingNode({
   const nodes = useNodes<Props>();
   const { setNodes } = useReactFlow();
   const svgContainerRef = useRef<HTMLDivElement>(null);
+
+  const conditionVizibleHandeTools = selected && !flowState.isDrawingMode;
+  const conditionActionsDrawEnable =
+    !isCompletedDrawing && flowState.isDrawingMode;
 
   const getNativeTouchScreenCoordinate = (e: TouchEvent) => {
     if (svgContainerRef.current) {
@@ -95,7 +94,8 @@ export default function SvgDrawingNode({
     const [maxX, maxY, minX, minY] = calculateNaturalSizeOfDrawing(
       points.slice(1, points.length),
     );
-    const currentNormalPoints = normalizationSvg(
+
+    const currentNormalPoints = normalizationSvgOffset(
       minX,
       minY,
       points.slice(1, points.length),
@@ -111,29 +111,11 @@ export default function SvgDrawingNode({
         isCompletedDrawing: true,
         points: [...currentNormalPoints],
       },
-
       {
         x: xPos + minX,
         y: yPos + minY,
       },
     );
-  };
-
-  const resizeSVGContainer = (x: number, y: number) => {
-    const threshold = 300;
-    const increment = 500;
-    const { width, height } = plotSize;
-    let newWidth = width;
-    let newHeight = height;
-
-    if (x >= width - threshold) newWidth += increment;
-    if (x <= threshold) newWidth += increment;
-    if (y >= height - threshold) newHeight += increment;
-    if (y <= threshold) newHeight += increment;
-
-    if (newWidth !== width || newHeight !== height) {
-      setNodesCustom({ plotSize: { width: newWidth, height: newHeight } });
-    }
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -147,7 +129,13 @@ export default function SvgDrawingNode({
     if (!isDrawing) return;
     const { offsetX, offsetY } = e.nativeEvent;
     onDrawing(offsetX, offsetY);
-    resizeSVGContainer(offsetX, offsetY);
+
+    const newSize = resizeSVGContainer(x, y, plotSize);
+    if (newSize !== null) {
+      setNodesCustom({
+        plotSize: { width: newSize.width, height: newSize.height },
+      });
+    }
   };
 
   const handleMouseUp = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -163,7 +151,13 @@ export default function SvgDrawingNode({
   const onTouchMove = (e: TouchEvent) => {
     const { x, y } = getNativeTouchScreenCoordinate(e);
     onDrawing(x, y);
-    resizeSVGContainer(x, y);
+
+    const newSize = resizeSVGContainer(x, y, plotSize);
+    if (newSize !== null) {
+      setNodesCustom({
+        plotSize: { width: newSize.width, height: newSize.height },
+      });
+    }
   };
 
   const onTouchEnd = (e: TouchEvent) => {
@@ -174,33 +168,19 @@ export default function SvgDrawingNode({
   return (
     <>
       <NodeResizer
-        isVisible={selected}
+        isVisible={conditionVizibleHandeTools}
         minWidth={plotSize.width}
         minHeight={plotSize.height}
+        maxWidth={plotSize.width}
+        maxHeight={plotSize.height}
       />
-      <SvgDrawingNodeHandle visible={!flowState.isDrawingMode || selected} />
+      <SvgDrawingNodeHandle visible={conditionVizibleHandeTools} />
       <div
         ref={svgContainerRef}
-        onMouseEnter={
-          !isCompletedDrawing && flowState.isDrawingMode
-            ? handleMouseDown
-            : undefined
-        }
-        onMouseDown={
-          !isCompletedDrawing && flowState.isDrawingMode
-            ? handleMouseDown
-            : undefined
-        }
-        onMouseMove={
-          !isCompletedDrawing && flowState.isDrawingMode
-            ? handleMouseMove
-            : undefined
-        }
-        onMouseUp={
-          !isCompletedDrawing && flowState.isDrawingMode
-            ? handleMouseUp
-            : undefined
-        }
+        onMouseEnter={conditionActionsDrawEnable ? handleMouseDown : undefined}
+        onMouseDown={conditionActionsDrawEnable ? handleMouseDown : undefined}
+        onMouseMove={conditionActionsDrawEnable ? handleMouseMove : undefined}
+        onMouseUp={conditionActionsDrawEnable ? handleMouseUp : undefined}
         onTouchStart={onTouchDown as any}
         onTouchMove={onTouchMove as any}
         onTouchEnd={onTouchEnd as any}
@@ -210,13 +190,21 @@ export default function SvgDrawingNode({
           height: plotSize.height,
         }}
       >
-        <SvgPolyline
-          points={points.slice(1, points.length)}
-          isCompletedDrawing={isCompletedDrawing}
-        />
+        {isCompletedDrawing && (
+          <SvgPath
+            path={smoothPolyline(points.slice(1, points.length))}
+            isCompletedDrawing={isCompletedDrawing}
+          />
+        )}
+        {!isCompletedDrawing && (
+          <SvgPolyline
+            points={points.slice(1, points.length)}
+            isCompletedDrawing={isCompletedDrawing}
+          />
+        )}
       </div>
     </>
   );
 }
 
-export const svgDrawingNodeTypes = "drawing";
+export const svgDrawingNodeTypes = "svgDrawingNodeTypes";

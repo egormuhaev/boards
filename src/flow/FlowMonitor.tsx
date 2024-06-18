@@ -88,19 +88,19 @@ const FlowMonitor = () => {
     }
   }, [reactFlowInstance]);
 
-  useEffect(() => {
-    const ls = localStorage.getItem(flowKey);
-    if (!ls) return;
+  // useEffect(() => {
+  //   const ls = localStorage.getItem(flowKey);
+  //   if (!ls) return;
 
-    const flow = JSON.parse(ls);
+  //   const flow = JSON.parse(ls);
 
-    if (flow) {
-      const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-      setNodes(flow.nodes || []);
-      setEdges(flow.edges || []);
-      setViewport({ x, y, zoom });
-    }
-  }, []);
+  //   if (flow) {
+  //     const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+  //     setNodes(flow.nodes || []);
+  //     setEdges(flow.edges || []);
+  //     setViewport({ x, y, zoom });
+  //   }
+  // }, []);
 
   const onCustomNodesChange = (changes: NodeChange[]) => {
     setHelperLineHorizontal(undefined);
@@ -296,7 +296,7 @@ const FlowMonitor = () => {
         className={theme}
         // НАСТРОЙКИ
         zoomOnDoubleClick={!flowState.isDrawingMode}
-        // nodesDraggable={!flowState.isDrawingMode}
+        nodesDraggable={!flowState.isDrawingMode}
         panOnDrag={!flowState.isDrawingMode}
         zoomOnScroll
         //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне поле зрения
