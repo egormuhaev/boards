@@ -1,11 +1,10 @@
 import { nodeTypes } from "@/components/nodes";
 import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 import { useCleaningEmptyCanvasesAfterDrawing } from "@/hooks/useCleaningEmptyCanvasesAfterDrawing";
-import useUndoRedo from "@/hooks/useUndoRedo";
 import { Button } from "@/shadcn/ui/button";
 import { useUnit } from "effector-react";
 import { Pencil, Type } from "lucide-react";
-import { DragEvent, MouseEvent, useEffect } from "react";
+import { DragEvent, MouseEvent } from "react";
 import { FaFile } from "react-icons/fa";
 import { LuCircle, LuRectangleHorizontal } from "react-icons/lu";
 import { $flow, changeDrawingMode } from "./store/flow.slice";
@@ -23,7 +22,7 @@ const FlowHeadToolbar = ({}) => {
 
   const saveCreatingTypeInBuffer = (
     nodeType: keyof typeof nodeTypes,
-    subType?: keyof typeof ShapeComponents,
+    subType?: keyof typeof ShapeComponents
   ) => {
     setCreateBuffer({
       nodeType,
@@ -31,16 +30,10 @@ const FlowHeadToolbar = ({}) => {
     });
   };
 
-  const { undo, redo, canUndo, canRedo, takeSnapshot } = useUndoRedo();
-
-  useEffect(() => {
-    console.log("snapshot into FlowHeadToolbar");
-  }, [undo, redo, takeSnapshot, canUndo, canRedo]);
-
   const onDragStart = (
     event: DragEvent<HTMLButtonElement>,
     nodeType: keyof typeof nodeTypes,
-    subType?: keyof typeof ShapeComponents,
+    subType?: keyof typeof ShapeComponents
   ) => {
     event.dataTransfer.setData("nodeType", nodeType);
     if (subType) event.dataTransfer.setData("subType", subType);

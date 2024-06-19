@@ -1,15 +1,10 @@
 import useUndoRedo from "@/hooks/useUndoRedo";
 import { Redo, Undo } from "lucide-react";
-import { useEffect } from "react";
 
 //FIXME: не обновляется
 
 const FlowUndoRedo = () => {
-  const { undo, redo, canUndo, canRedo, takeSnapshot } = useUndoRedo();
-
-  useEffect(() => {
-    console.log("snapshot into FlowUndoRedo");
-  }, [undo, redo, takeSnapshot]);
+  const { undo, redo, canUndo, canRedo } = useUndoRedo();
 
   return (
     <>

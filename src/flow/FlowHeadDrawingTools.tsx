@@ -12,6 +12,7 @@ import { Slider } from "@/shadcn/ui/slider";
 export default function FlowHeadDrawingTools() {
   const cleaningEmptyCanvasesAfterDrawing =
     useCleaningEmptyCanvasesAfterDrawing();
+
   const colorPickHangler = (color: ColorResult) => {
     changeColor(color.hex);
     cleaningEmptyCanvasesAfterDrawing();
@@ -26,10 +27,10 @@ export default function FlowHeadDrawingTools() {
   const drawState = useUnit($draw);
   return (
     <Panel
-      onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
+      onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {}}
+      onMouseMove={(e: React.MouseEvent<HTMLDivElement>) => {}}
+      onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {}}
+      onClick={(e: React.MouseEvent<HTMLDivElement>) => {}}
       position="top-center"
     >
       <div className="h-[50px] w-auto flex  flex-row z-50 gap-3 p-2 bg-white rounded-lg border border-solid-1 border-slate-300">
@@ -38,7 +39,7 @@ export default function FlowHeadDrawingTools() {
           color={drawState.color}
           pickHandler={colorPickHangler}
         />
-        <div className=" flex flex-row gap-2 items-center justify-center h-full w-[200px] aspect-square  outline-none border-none text-black bg-white  ">
+        <div className=" flex flex-row gap-2 items-center justify-center h-full w-[200px] aspect-square  outline-none border-none text-black bg-white ">
           <Slider
             onValueChange={changeLineWidth}
             value={[drawState.width]}
@@ -103,5 +104,5 @@ const ColorPickerButton = memo(
         )}
       </Button>
     );
-  },
+  }
 );

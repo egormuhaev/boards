@@ -1,37 +1,41 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from "react";
 import {
-	NodeDragHandler,
-	OnEdgesDelete,
-	OnNodesDelete,
-	SelectionDragHandler,
-} from 'reactflow'
-import useUndoRedo from './useUndoRedo'
+  NodeDragHandler,
+  OnEdgesDelete,
+  OnNodesDelete,
+  SelectionDragHandler,
+} from "reactflow";
+import useUndoRedo from "./useUndoRedo";
 
 const useEvents = () => {
-	const { takeSnapshot } = useUndoRedo()
+  const { takeSnapshot, undo, redo, canUndo, canRedo } = useUndoRedo();
 
-	const onNodeDragStart: NodeDragHandler = useCallback(() => {
-		takeSnapshot()
-	}, [takeSnapshot])
+  useEffect(() => {
+    console.log("change redo undo use events");
+  }, [undo, redo, canUndo, canRedo, takeSnapshot]);
 
-	const onSelectionDragStart: SelectionDragHandler = useCallback(() => {
-		takeSnapshot()
-	}, [takeSnapshot])
+  const onNodeDragStart: NodeDragHandler = useCallback(() => {
+    takeSnapshot();
+  }, [takeSnapshot]);
 
-	const onNodesDelete: OnNodesDelete = useCallback(() => {
-		takeSnapshot()
-	}, [takeSnapshot])
+  const onSelectionDragStart: SelectionDragHandler = useCallback(() => {
+    takeSnapshot();
+  }, [takeSnapshot]);
 
-	const onEdgesDelete: OnEdgesDelete = useCallback(() => {
-		takeSnapshot()
-	}, [takeSnapshot])
+  const onNodesDelete: OnNodesDelete = useCallback(() => {
+    takeSnapshot();
+  }, [takeSnapshot]);
 
-	return {
-		onNodeDragStart,
-		onSelectionDragStart,
-		onNodesDelete,
-		onEdgesDelete,
-	}
-}
+  const onEdgesDelete: OnEdgesDelete = useCallback(() => {
+    takeSnapshot();
+  }, [takeSnapshot]);
 
-export default useEvents
+  return {
+    onNodeDragStart,
+    onSelectionDragStart,
+    onNodesDelete,
+    onEdgesDelete,
+  };
+};
+
+export default useEvents;

@@ -93,32 +93,32 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
       )
     );
 
-  useEffect(() => {
-    if (!rotateControlRef.current) return;
+  // useEffect(() => {
+  //   if (!rotateControlRef.current) return;
 
-    const selection = select(rotateControlRef.current);
+  //   const selection = select(rotateControlRef.current);
 
-    const dragHandler = drag<HTMLDivElement, any>()
-      .on("drag", (evt) => {
-        const dx = evt.x - 100;
-        const dy = evt.y - 100;
-        const rad = Math.atan2(dx, dy);
-        const deg = rad * (180 / Math.PI);
+  //   const dragHandler = drag<HTMLDivElement, any>()
+  //     .on("drag", (evt) => {
+  //       const dx = evt.x - 100;
+  //       const dy = evt.y - 100;
+  //       const rad = Math.atan2(dx, dy);
+  //       const deg = rad * (180 / Math.PI);
 
-        setRotation(180 - deg);
-        updateNodeInternals(id);
-      })
-      .on("end", (evt) => {
-        const dx = evt.x - 100;
-        const dy = evt.y - 100;
-        const rad = Math.atan2(dx, dy);
-        const deg = rad * (180 / Math.PI);
+  //       setRotation(180 - deg);
+  //       updateNodeInternals(id);
+  //     })
+  //     .on("end", (evt) => {
+  //       const dx = evt.x - 100;
+  //       const dy = evt.y - 100;
+  //       const rad = Math.atan2(dx, dy);
+  //       const deg = rad * (180 / Math.PI);
 
-        updateNode({ rotation: 180 - deg });
-      });
+  //       updateNode({ rotation: 180 - deg });
+  //     });
 
-    selection.call(dragHandler);
-  }, [id, updateNodeInternals]);
+  //   selection.call(dragHandler);
+  // }, [id, updateNodeInternals]);
 
   return (
     <>

@@ -80,7 +80,7 @@ export default function SvgDrawingNode({
           };
         }
         return node;
-      }),
+      })
     );
   };
 
@@ -103,14 +103,14 @@ export default function SvgDrawingNode({
 
   const onEndDrawing = () => {
     const [maxX, maxY, minX, minY] = calculateNaturalSizeOfDrawing(
-      points.slice(1, points.length),
+      points.slice(1, points.length)
     );
 
     const currentNormalPoints = normalizationSvgOffset(
       minX,
       minY,
       points.slice(1, points.length),
-      lineWidth,
+      lineWidth
     );
 
     setNodesCustom(
@@ -126,12 +126,11 @@ export default function SvgDrawingNode({
       {
         x: xPos + minX - lineWidth,
         y: yPos + minY - lineWidth,
-      },
+      }
     );
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    e.preventDefault();
     const { offsetX, offsetY } = e.nativeEvent;
     onStartDrawing(offsetX, offsetY);
   };
@@ -176,7 +175,7 @@ export default function SvgDrawingNode({
           lineColor={lineColor}
           lineWidth={lineWidth}
           path={smoothPolyline(
-            isCompletedDrawing ? points : points.slice(1, points.length),
+            isCompletedDrawing ? points : points.slice(1, points.length)
           )}
           isCompletedDrawing={isCompletedDrawing}
         /> */}

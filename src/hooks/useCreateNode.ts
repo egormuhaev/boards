@@ -1,14 +1,15 @@
 import { nodeTypes } from "@/components/nodes";
 import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 import { clearInput, randomColor, selectFiles } from "@/flow/utils/randomColor";
-import { MouseEvent, RefObject, useEffect, useState } from "react";
-import { Node, XYPosition, useEdges, useReactFlow } from "reactflow";
+import { MouseEvent, RefObject, useCallback, useState } from "react";
+import { Node, XYPosition, useReactFlow } from "reactflow";
 import { v4 } from "uuid";
 import { colorsPalet, defaultNodeData } from "../flow/data";
 import { FileComponents } from "@/components/nodes/FileNode";
-import { PlotSize } from "@/components/nodes/svgDrawingNode/types";
 import { useUnit } from "effector-react";
 import { $draw } from "@/flow/store/draw.slice";
+import { $boardPlayground } from "@/flow/store/playground.slice";
+import { PlotSize } from "@/components/nodes/svgDrawingNode/desktop/types";
 
 // TODO: заменить Function на нужный тип
 // Заменить везде file на тип
@@ -32,7 +33,7 @@ export interface ShapeNodeTypes {
 
 function getCurrentParamsDrawingPlot(
   zoom: number,
-  position: XYPosition,
+  position: XYPosition
 ): [XYPosition, PlotSize] {
   const zoomScale = zoom < 1 ? zoom * 100 : zoom;
 
@@ -50,35 +51,25 @@ function getCurrentParamsDrawingPlot(
 const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
   const { setNodes, getZoom, screenToFlowPosition } = useReactFlow();
   const drawState = useUnit($draw);
+  const { buffer } = useUnit($boardPlayground);
 
-  const [isDragging, setIsDragging] = useState(false);
+  const [isMoving, setIsMoving] = useState(false);
   const [startPosition, setStartPosition] = useState<{
     x: number;
     y: number;
   } | null>(null);
 
-  useEffect(() => {
-    if (isDragging) {
-      // document.addEventListener("mousemove", handleMouseMove);
-      // document.addEventListener("mouseup", handleMouseUp);
+  const setPosition = useCallback(
+    (event: MouseEvent) =>
+      setStartPosition({ x: event.clientX, y: event.clientY }),
+    []
+  );
 
-      return () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-      };
-    }
-  }, [isDragging]);
+  const activateMoving = useCallback(() => setIsMoving(true), []);
+  const disactivateMoving = useCallback(() => setIsMoving(false), []);
 
-  const handleMouseDown = (event: MouseEvent<Element>) => {
-    setStartPosition({ x: event.clientX, y: event.clientY });
-  };
-
-  const handleMouseMove = (event: MouseEvent<Element>) => {
-    setIsDragging(true);
-  };
-
-  const handleMouseUp = (event: MouseEvent<Element>) => {
-    if (isDragging && startPosition) {
+  const addNodeOnResize = (event: MouseEvent) => {
+    if (buffer?.nodeType && buffer.subType && isMoving && startPosition) {
       const scaledStartPosition = screenToFlowPosition(startPosition);
       const scaledEndPosition = screenToFlowPosition({
         x: event.clientX,
@@ -88,19 +79,32 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       const width = Math.abs(scaledEndPosition.x - scaledStartPosition.x);
       const height = Math.abs(scaledEndPosition.y - scaledStartPosition.y);
 
-      addNode({ nodeType: "shape", subType: "rectangle" }, startPosition, {
-        width,
-        height,
-      });
+      const smartStartPosition = {
+        x:
+          scaledStartPosition.x < scaledEndPosition.x
+            ? scaledStartPosition.x
+            : scaledEndPosition.x,
+        y:
+          scaledStartPosition.y < scaledEndPosition.y
+            ? scaledStartPosition.y
+            : scaledEndPosition.y,
+      };
 
-      setIsDragging(false);
+      addNode(
+        { nodeType: buffer?.nodeType, subType: buffer.subType },
+        smartStartPosition,
+        {
+          width,
+          height,
+        }
+      );
     }
   };
 
   const addNode = (
     types: ShapeNodeTypes,
     position: XYPosition,
-    { width, height }: { width: number; height: number },
+    { width, height }: { width: number; height: number }
   ) => {
     const newNode = {
       id: v4(),
@@ -118,37 +122,40 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
     setNodes((nds) => nds.concat(newNode));
   };
 
-  const addFileNode = async (position: XYPosition, fileList?: FileList) => {
-    const files = fileList?.length ? fileList : await selectFiles(ref);
-    if (!files?.length) return;
+  const addFileNode = useCallback(
+    async (position: XYPosition, fileList?: FileList) => {
+      const files = fileList?.length ? fileList : await selectFiles(ref);
+      if (!files?.length) return;
 
-    const newNodes: Node[] = [];
+      const newNodes: Node[] = [];
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const fileExtension = file.name.slice(file.name.lastIndexOf(".") + 1);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExtension = file.name.slice(file.name.lastIndexOf(".") + 1);
 
-      const type = fileSubTypes[fileExtension] ?? "file";
+        const type = fileSubTypes[fileExtension] ?? "file";
 
-      const newNode: Node = {
-        id: v4(),
-        data: { file },
-        type,
-        position,
-      };
+        const newNode: Node = {
+          id: v4(),
+          data: { file },
+          type,
+          position,
+        };
 
-      newNodes.push(newNode);
-    }
+        newNodes.push(newNode);
+      }
 
-    setNodes((nds) => nds.concat(newNodes));
-    // Очищаем инпут, чтобы при выборе того же файла второй раз подряд вызывалось событие onChange
-    clearInput(ref);
-  };
+      setNodes((nds) => nds.concat(newNodes));
+      // Очищаем инпут, чтобы при выборе того же файла второй раз подряд вызывалось событие onChange
+      clearInput(ref);
+    },
+    []
+  );
 
   const addDrawingNode = (position: XYPosition) => {
     const [pos, size] = getCurrentParamsDrawingPlot(getZoom(), position);
     const id = v4();
-    console.log(id);
+
     const newNode = {
       id: id,
       position: pos,
@@ -160,6 +167,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
         lineWidth: drawState.width,
       },
     };
+
     setNodes((nds) => nds.concat(newNode));
   };
 
@@ -167,9 +175,11 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
     addFileNode,
     addNode,
     addDrawingNode,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
+    activateMoving,
+    addNodeOnResize,
+    setPosition,
+    disactivateMoving,
+    isMoving,
   };
 };
 
