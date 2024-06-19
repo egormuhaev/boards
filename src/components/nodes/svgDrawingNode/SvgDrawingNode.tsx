@@ -41,10 +41,6 @@ export default function SvgDrawingNode({
   const { setNodes } = useReactFlow();
   const svgContainerRef = useRef<HTMLDivElement>(null);
 
-  if (selected) {
-    console.log(id);
-  }
-
   const conditionVizibleHandeTools = selected && !flowState.isDrawingMode;
   const conditionActionsDrawEnable =
     !isCompletedDrawing && flowState.isDrawingMode;
