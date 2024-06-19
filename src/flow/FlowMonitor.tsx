@@ -238,22 +238,6 @@ const FlowMonitor = () => {
     [buffer, nodes],
   );
 
-  const onMobileClick = useCallback(
-    async (e: any) => {
-      if (reactFlowInstance) {
-        const position = reactFlowInstance.screenToFlowPosition({
-          x: e.changedTouches[0].clientX!,
-          y: e.changedTouches[0].clientY!,
-        });
-
-        console.log(position);
-
-        addDrawingNode(position);
-      }
-    },
-    [buffer, nodes, reactFlowInstance],
-  );
-
   const proOptions = { hideAttribution: true };
 
   return (
@@ -264,14 +248,6 @@ const FlowMonitor = () => {
       <ReactFlow
         onInit={setReactFlowInstance}
         onClick={!flowState.isDrawingMode ? onClick : undefined}
-        // onTouchStart={(e: TouchEvent) => {
-        //   if (flowState.isDrawingMode) {
-        //     return onMobileClick(e);
-        //   } else return null;
-        // }}
-        onTouchStart={(e: TouchEvent<HTMLDivElement>) => {
-          onMobileClick(e);
-        }}
         onMouseDown={(e: MouseEvent) => {
           if (flowState.isDrawingMode) {
             return onClick(e);
