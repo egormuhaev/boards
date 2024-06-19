@@ -1,8 +1,8 @@
 import { nodeTypes } from "@/components/nodes";
 import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 import { clearInput, randomColor, selectFiles } from "@/flow/utils/randomColor";
-import { RefObject } from "react";
-import { Node, XYPosition, useReactFlow } from "reactflow";
+import { MouseEvent, RefObject, useEffect, useState } from "react";
+import { Node, XYPosition, useEdges, useReactFlow } from "reactflow";
 import { v4 } from "uuid";
 import { colorsPalet, defaultNodeData } from "../flow/data";
 import { FileComponents } from "@/components/nodes/FileNode";
@@ -32,7 +32,7 @@ export interface ShapeNodeTypes {
 
 function getCurrentParamsDrawingPlot(
   zoom: number,
-  position: XYPosition,
+  position: XYPosition
 ): [XYPosition, PlotSize] {
   const zoomScale = zoom < 1 ? zoom * 100 : zoom;
 
@@ -48,15 +48,66 @@ function getCurrentParamsDrawingPlot(
 }
 
 const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
-  const { setNodes, getZoom } = useReactFlow();
+  const { setNodes, getZoom, screenToFlowPosition } = useReactFlow();
   const drawState = useUnit($draw);
 
-  const addNode = (types: ShapeNodeTypes, position: XYPosition) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [startPosition, setStartPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+
+      return () => {
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
+    }
+  }, [isDragging]);
+
+  const handleMouseDown = (event: MouseEvent<Element>) => {
+    setStartPosition({ x: event.clientX, y: event.clientY });
+  };
+
+  const handleMouseMove = (event: MouseEvent<Element>) => {
+    setIsDragging(true);
+  };
+
+  const handleMouseUp = (event: MouseEvent<Element>) => {
+    if (isDragging && startPosition) {
+      const scaledStartPosition = screenToFlowPosition(startPosition);
+      const scaledEndPosition = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      const width = Math.abs(scaledEndPosition.x - scaledStartPosition.x);
+      const height = Math.abs(scaledEndPosition.y - scaledStartPosition.y);
+
+      console.log(width, height);
+      addNode({ nodeType: "shape", subType: "rectangle" }, startPosition, {
+        width,
+        height,
+      });
+
+      setIsDragging(false);
+    }
+  };
+
+  const addNode = (
+    types: ShapeNodeTypes,
+    position: XYPosition,
+    { width, height }: { width: number; height: number }
+  ) => {
     const newNode = {
       id: v4(),
       position,
       type: types.nodeType,
-      style: { width: 180, height: 180 },
+      style: { width, height },
       data: {
         ...defaultNodeData,
         type: types.subType,
@@ -111,7 +162,14 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
     setNodes((nds) => nds.concat(newNode));
   };
 
-  return { addFileNode, addNode, addDrawingNode };
+  return {
+    addFileNode,
+    addNode,
+    addDrawingNode,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+  };
 };
 
 export default useCreateNode;
