@@ -1,3 +1,5 @@
+import { DrawTools } from "../constants";
+
 export interface Point {
   x: number;
   y: number;
@@ -11,6 +13,7 @@ export interface PlotSize {
 export interface BaseLineProps {
   lineWidth: number;
   lineColor: string;
+  tool?: DrawTools;
 }
 
 export interface SvgPolylineProps extends BaseLineProps {
@@ -30,4 +33,5 @@ export interface Props {
   isDrawing?: boolean;
   lineWidth?: number;
   lineColor?: string;
+  tool?: DrawTools;
 }

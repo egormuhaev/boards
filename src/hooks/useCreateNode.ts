@@ -33,7 +33,7 @@ export interface ShapeNodeTypes {
 
 function getCurrentParamsDrawingPlot(
   zoom: number,
-  position: XYPosition
+  position: XYPosition,
 ): [XYPosition, PlotSize] {
   const zoomScale = zoom < 1 ? zoom * 100 : zoom;
 
@@ -62,7 +62,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
   const setPosition = useCallback(
     (event: MouseEvent) =>
       setStartPosition({ x: event.clientX, y: event.clientY }),
-    []
+    [],
   );
 
   const activateMoving = useCallback(() => setIsMoving(true), []);
@@ -96,7 +96,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
         {
           width,
           height,
-        }
+        },
       );
     }
   };
@@ -104,7 +104,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
   const addNode = (
     types: ShapeNodeTypes,
     position: XYPosition,
-    { width, height }: { width: number; height: number }
+    { width, height }: { width: number; height: number },
   ) => {
     const newNode = {
       id: v4(),
@@ -149,7 +149,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       // Очищаем инпут, чтобы при выборе того же файла второй раз подряд вызывалось событие onChange
       clearInput(ref);
     },
-    []
+    [],
   );
 
   const addDrawingNode = (position: XYPosition) => {
@@ -165,6 +165,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
         plotSize: size,
         lineColor: drawState.color,
         lineWidth: drawState.width,
+        tool: drawState.tool,
       },
     };
 

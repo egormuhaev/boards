@@ -1,9 +1,11 @@
 import { useMemo } from "react";
-import { SvgPolylineProps } from "./types";
+import { SvgPolylineProps } from "./desktop/types";
+import { DrawTools } from "./constants";
 
 export function SvgPolyline({
   points,
   lineColor,
+  tool,
   lineWidth,
 }: SvgPolylineProps) {
   const pointsAsString = useMemo(() => {
@@ -13,9 +15,7 @@ export function SvgPolyline({
   return (
     <svg className="h-full w-full">
       <polyline
-        cx={2}
-        cy={2}
-        opacity={1}
+        opacity={tool === DrawTools.Highlighter ? 0.3 : 1}
         points={pointsAsString}
         fill="none"
         stroke={lineColor}

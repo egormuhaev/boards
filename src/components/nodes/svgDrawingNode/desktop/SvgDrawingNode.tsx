@@ -16,6 +16,7 @@ import { SvgPath } from "../SvgPath";
 import smoothPolyline from "./utils/smoothPolyline";
 import resizeSVGContainer from "./utils/resizeSVGContainer";
 import normalizationSvgOffset from "./utils/normalizationSvgOffset";
+import { DrawTools } from "../constants";
 
 const defaultSvgPlotSize: PlotSize = {
   width: window.screen.height * 2,
@@ -28,6 +29,7 @@ export default function SvgDrawingNode({
   xPos,
   yPos,
   data: {
+    tool = DrawTools.Pen,
     isCompletedDrawing = false,
     isDrawing = false,
     plotSize = defaultSvgPlotSize,
@@ -80,7 +82,7 @@ export default function SvgDrawingNode({
           };
         }
         return node;
-      })
+      }),
     );
   };
 
@@ -103,14 +105,14 @@ export default function SvgDrawingNode({
 
   const onEndDrawing = () => {
     const [maxX, maxY, minX, minY] = calculateNaturalSizeOfDrawing(
-      points.slice(1, points.length)
+      points.slice(1, points.length),
     );
 
     const currentNormalPoints = normalizationSvgOffset(
       minX,
       minY,
       points.slice(1, points.length),
-      lineWidth
+      lineWidth,
     );
 
     setNodesCustom(
@@ -126,7 +128,7 @@ export default function SvgDrawingNode({
       {
         x: xPos + minX - lineWidth,
         y: yPos + minY - lineWidth,
-      }
+      },
     );
   };
 
@@ -171,16 +173,10 @@ export default function SvgDrawingNode({
           maxHeight={plotSize.height + lineWidth}
         />
         <SvgDrawingNodeHandle visible={conditionVizibleHandeTools} />
-        {/* <SvgPath
-          lineColor={lineColor}
-          lineWidth={lineWidth}
-          path={smoothPolyline(
-            isCompletedDrawing ? points : points.slice(1, points.length)
-          )}
-          isCompletedDrawing={isCompletedDrawing}
-        /> */}
+
         {isCompletedDrawing && (
           <SvgPath
+            tool={tool}
             lineColor={lineColor}
             lineWidth={lineWidth}
             path={smoothPolyline(points)}
@@ -189,6 +185,7 @@ export default function SvgDrawingNode({
         )}
         {!isCompletedDrawing && (
           <SvgPolyline
+            tool={tool}
             lineColor={lineColor}
             lineWidth={lineWidth}
             points={points.slice(1, points.length)}
