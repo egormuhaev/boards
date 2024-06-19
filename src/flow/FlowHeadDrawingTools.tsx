@@ -5,12 +5,15 @@ import { colorsPalet } from "@/flow/data";
 import { memo, useState } from "react";
 import { useUnit } from "effector-react";
 import { $draw, changeColor } from "./store/draw.slice";
+import { useCleaningEmptyCanvasesAfterDrawing } from "@/hooks/useCleaningEmptyCanvasesAfterDrawing";
 
 export default function FlowHeadDrawingTools() {
+  const cleaningEmptyCanvasesAfterDrawing =
+    useCleaningEmptyCanvasesAfterDrawing();
   const colorPickHangler = (color: ColorResult) => {
     changeColor(color.hex);
+    cleaningEmptyCanvasesAfterDrawing();
   };
-
   const drawState = useUnit($draw);
   return (
     <Panel

@@ -9,6 +9,7 @@ import { FileComponents } from "@/components/nodes/FileNode";
 import { PlotSize } from "@/components/nodes/svgDrawingNode/types";
 import { useUnit } from "effector-react";
 import { $draw } from "@/flow/store/draw.slice";
+import { useCleaningEmptyCanvasesAfterDrawing } from "./useCleaningEmptyCanvasesAfterDrawing";
 
 // TODO: заменить Function на нужный тип
 // Заменить везде file на тип

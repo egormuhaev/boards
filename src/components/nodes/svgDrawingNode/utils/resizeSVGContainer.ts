@@ -4,7 +4,7 @@ export default function resizeSVGContainer(
   x: number,
   y: number,
   plotSize: PlotSize,
-): PlotSize | null {
+): PlotSize {
   const threshold = 300;
   const increment = 500;
 
@@ -17,9 +17,5 @@ export default function resizeSVGContainer(
   if (y >= height - threshold) newHeight += increment;
   if (y <= threshold) newHeight += increment;
 
-  if (newWidth !== width || newHeight !== height) {
-    return { width: newWidth, height: newHeight };
-  }
-
-  return null;
+  return { width: newWidth, height: newHeight };
 }
