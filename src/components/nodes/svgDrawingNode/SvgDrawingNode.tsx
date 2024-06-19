@@ -41,6 +41,10 @@ export default function SvgDrawingNode({
   const { setNodes } = useReactFlow();
   const svgContainerRef = useRef<HTMLDivElement>(null);
 
+  if (selected) {
+    console.log(id);
+  }
+
   const conditionVizibleHandeTools = selected && !flowState.isDrawingMode;
   const conditionActionsDrawEnable =
     !isCompletedDrawing && flowState.isDrawingMode;
@@ -91,7 +95,9 @@ export default function SvgDrawingNode({
   };
 
   const onDrawing = (offsetX: number, offsetY: number) => {
+    const { width, height } = resizeSVGContainer(offsetX, offsetY, plotSize);
     setNodesCustom({
+      plotSize: { width: width, height: height },
       points: [...points, { x: offsetX, y: offsetY }],
       isDrawing: true,
     });
@@ -136,13 +142,6 @@ export default function SvgDrawingNode({
     if (!isDrawing) return;
     const { offsetX, offsetY } = e.nativeEvent;
     onDrawing(offsetX, offsetY);
-
-    const newSize = resizeSVGContainer(offsetX, offsetY, plotSize);
-    if (newSize !== null) {
-      setNodesCustom({
-        plotSize: { width: newSize.width, height: newSize.height },
-      });
-    }
   };
 
   const handleMouseUp = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -180,6 +179,7 @@ export default function SvgDrawingNode({
         onMouseDown={conditionActionsDrawEnable ? handleMouseDown : undefined}
         onMouseMove={conditionActionsDrawEnable ? handleMouseMove : undefined}
         onMouseUp={conditionActionsDrawEnable ? handleMouseUp : undefined}
+        onMouseLeave={conditionActionsDrawEnable ? handleMouseUp : undefined}
         onTouchStart={onTouchDown as any}
         onTouchMove={onTouchMove as any}
         onTouchEnd={onTouchEnd as any}
