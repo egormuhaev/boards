@@ -1,16 +1,15 @@
 import { nodeTypes } from "@/components/nodes";
 import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 import { clearInput, randomColor, selectFiles } from "@/flow/utils/randomColor";
-import { MouseEvent, RefObject, useEffect, useState } from "react";
-import { Node, XYPosition, useEdges, useReactFlow } from "reactflow";
+import { MouseEvent, RefObject, useCallback, useState } from "react";
+import { Node, XYPosition, useReactFlow } from "reactflow";
 import { v4 } from "uuid";
 import { colorsPalet, defaultNodeData } from "../flow/data";
 import { FileComponents } from "@/components/nodes/FileNode";
-import { PlotSize } from "@/components/nodes/svgDrawingNode/types";
 import { useUnit } from "effector-react";
 import { $draw } from "@/flow/store/draw.slice";
-import { useCleaningEmptyCanvasesAfterDrawing } from "./useCleaningEmptyCanvasesAfterDrawing";
 import { $boardPlayground } from "@/flow/store/playground.slice";
+import { PlotSize } from "@/components/nodes/svgDrawingNode/desktop/types";
 
 // TODO: заменить Function на нужный тип
 // Заменить везде file на тип
@@ -39,7 +38,7 @@ function getCurrentParamsDrawingPlot(
   const zoomScale = zoom < 1 ? zoom * 100 : zoom;
 
   const plotSizeWidth = window.screen.width * zoomScale * 2;
-  const plotSizeHeight = window.screen.width * zoomScale * 2;
+  const plotSizeHeight = window.screen.height * zoomScale * 2;
 
   const positionCurrent: XYPosition = {
     x: position.x - window.screen.width * zoomScale,
@@ -60,48 +59,14 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
     y: number;
   } | null>(null);
 
-  // const handleMouseDown = (event: MouseEvent) => {
-  //   setStartPosition({ x: event.clientX, y: event.clientY });
-  // };
+  const setPosition = useCallback(
+    (event: MouseEvent) =>
+      setStartPosition({ x: event.clientX, y: event.clientY }),
+    []
+  );
 
-  // const handleMouseMove = () => setIsDragging(true);
-
-  // const handleMouseUp = (event: MouseEvent) => {
-  //   if (isDragging && startPosition) {
-  //     const scaledStartPosition = screenToFlowPosition(startPosition);
-  //     const scaledEndPosition = screenToFlowPosition({
-  //       x: event.clientX,
-  //       y: event.clientY,
-  //     });
-
-  //     const width = Math.abs(scaledEndPosition.x - scaledStartPosition.x);
-  //     const height = Math.abs(scaledEndPosition.y - scaledStartPosition.y);
-
-  //     const smartStartPosition = {
-  //       x:
-  //         scaledStartPosition.x < scaledEndPosition.x
-  //           ? scaledStartPosition.x
-  //           : scaledEndPosition.x,
-  //       y:
-  //         scaledStartPosition.y < scaledEndPosition.y
-  //           ? scaledStartPosition.y
-  //           : scaledEndPosition.y,
-  //     };
-
-  //     addNode({ nodeType: "shape", subType: "rectangle" }, smartStartPosition, {
-  //       width,
-  //       height,
-  //     });
-
-  //     setIsDragging(false);
-  //   }
-  // };
-
-  const setPosition = (event: MouseEvent) =>
-    setStartPosition({ x: event.clientX, y: event.clientY });
-
-  const activateMoving = () => setIsMoving(true);
-  const disactivateMoving = () => setIsMoving(false);
+  const activateMoving = useCallback(() => setIsMoving(true), []);
+  const disactivateMoving = useCallback(() => setIsMoving(false), []);
 
   const addNodeOnResize = (event: MouseEvent) => {
     if (buffer?.nodeType && buffer.subType && isMoving && startPosition) {
@@ -157,46 +122,52 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
     setNodes((nds) => nds.concat(newNode));
   };
 
-  const addFileNode = async (position: XYPosition, fileList?: FileList) => {
-    const files = fileList?.length ? fileList : await selectFiles(ref);
-    if (!files?.length) return;
+  const addFileNode = useCallback(
+    async (position: XYPosition, fileList?: FileList) => {
+      const files = fileList?.length ? fileList : await selectFiles(ref);
+      if (!files?.length) return;
 
-    const newNodes: Node[] = [];
+      const newNodes: Node[] = [];
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const fileExtension = file.name.slice(file.name.lastIndexOf(".") + 1);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExtension = file.name.slice(file.name.lastIndexOf(".") + 1);
 
-      const type = fileSubTypes[fileExtension] ?? "file";
+        const type = fileSubTypes[fileExtension] ?? "file";
 
-      const newNode: Node = {
-        id: v4(),
-        data: { file },
-        type,
-        position,
-      };
+        const newNode: Node = {
+          id: v4(),
+          data: { file },
+          type,
+          position,
+        };
 
-      newNodes.push(newNode);
-    }
+        newNodes.push(newNode);
+      }
 
-    setNodes((nds) => nds.concat(newNodes));
-    // Очищаем инпут, чтобы при выборе того же файла второй раз подряд вызывалось событие onChange
-    clearInput(ref);
-  };
+      setNodes((nds) => nds.concat(newNodes));
+      // Очищаем инпут, чтобы при выборе того же файла второй раз подряд вызывалось событие onChange
+      clearInput(ref);
+    },
+    []
+  );
 
   const addDrawingNode = (position: XYPosition) => {
     const [pos, size] = getCurrentParamsDrawingPlot(getZoom(), position);
+    const id = v4();
 
     const newNode = {
-      id: v4(),
+      id: id,
       position: pos,
       type: "drawing",
       data: {
+        points: [],
         plotSize: size,
         lineColor: drawState.color,
         lineWidth: drawState.width,
       },
     };
+
     setNodes((nds) => nds.concat(newNode));
   };
 

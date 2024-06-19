@@ -14,8 +14,12 @@ const conditions: IConditions = {
   },
 
   sizeOfTheContainerIsInfinite: (node: Node) =>
-    node.data.plotSize.width === -Infinity ||
-    node.data.plotSize.height === -Infinity,
+    node.type === "drawing" &&
+    (node.data.plotSize.width === -Infinity ||
+      node.data.plotSize.height === -Infinity),
+
+  noCompleteDraving: (node: Node) =>
+    node.type === "drawing" && !node.data.isCompletedDrawing,
 };
 
 function nodeValidation(node: Node) {
@@ -37,7 +41,7 @@ export function useCleaningEmptyCanvasesAfterDrawing() {
   return () => {
     setNodes((nodes: Node[]) => {
       const nodesAfterFilter = nodes.filter((node: Node) =>
-        nodeValidation(node),
+        nodeValidation(node)
       );
       return nodesAfterFilter;
     });

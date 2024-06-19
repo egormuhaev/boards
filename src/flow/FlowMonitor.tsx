@@ -14,6 +14,7 @@ import { useUnit } from "effector-react";
 import {
   DragEvent,
   TouchEvent,
+  TouchEventHandler,
   useCallback,
   useEffect,
   useRef,
@@ -44,6 +45,7 @@ import { $flow } from "./store/flow.slice";
 import { $boardPlayground } from "./store/playground.slice";
 import { handleDragEvent } from "./utils/randomColor";
 import useMouseEvents from "@/hooks/useMouseEvents";
+import { Redo, Undo } from "lucide-react";
 
 const flowKey = "example-flow";
 
@@ -61,7 +63,7 @@ const FlowMonitor = () => {
 
   const { setViewport } = useReactFlow();
 
-  const { addFileNode, addNode, addDrawingNode } = useCreateNode(inputFileRef);
+  const { addFileNode, addNode } = useCreateNode(inputFileRef);
 
   const {
     onNodeDragStart,
@@ -77,7 +79,7 @@ const FlowMonitor = () => {
 
   const { connectionLinePath } = useUnit($boardPlayground);
   const { buffer, theme } = useUnit($boardPlayground);
-  const { takeSnapshot } = useUndoRedo();
+  const { takeSnapshot, undo, redo, canUndo, canRedo } = useUndoRedo();
   useCopyPaste();
 
   const [helperLineHorizontal, setHelperLineHorizontal] = useState<number>();
@@ -95,17 +97,15 @@ const FlowMonitor = () => {
   }, [nodes, edges]);
 
   useEffect(() => {
-    const ls = localStorage.getItem(flowKey);
-    if (!ls) return;
-
-    const flow = JSON.parse(ls);
-
-    if (flow) {
-      const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-      setNodes(flow.nodes || []);
-      setEdges(flow.edges || []);
-      setViewport({ x, y, zoom });
-    }
+    // const ls = localStorage.getItem(flowKey);
+    // if (!ls) return;
+    // const flow = JSON.parse(ls);
+    // if (flow) {
+    //   const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+    //   setNodes(flow.nodes || []);
+    //   setEdges(flow.edges || []);
+    //   setViewport({ x, y, zoom });
+    // }
   }, []);
 
   const onCustomNodesChange = (changes: NodeChange[]) => {
@@ -201,20 +201,6 @@ const FlowMonitor = () => {
     [reactFlowInstance, takeSnapshot, setNodes]
   );
 
-  const onMobileClick = useCallback(
-    async (e: TouchEvent) => {
-      if (reactFlowInstance) {
-        const position = reactFlowInstance.screenToFlowPosition({
-          x: e.changedTouches[0].clientX!,
-          y: e.changedTouches[0].clientY!,
-        });
-
-        addDrawingNode(position);
-      }
-    },
-    [buffer, nodes]
-  );
-
   const proOptions = { hideAttribution: true };
 
   return (
@@ -225,11 +211,6 @@ const FlowMonitor = () => {
       <ReactFlow
         onInit={setReactFlowInstance}
         onClick={onClick}
-        onTouchStart={(e: TouchEvent) => {
-          if (flowState.isDrawingMode) {
-            return onMobileClick(e);
-          } else return null;
-        }}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}

@@ -14,7 +14,7 @@ const useMouseEvents = (
   ref: RefObject<HTMLInputElement>
 ) => {
   const flowState = useUnit($flow);
-  const nodes = useNodes();
+  // const nodes = useNodes();
   const { buffer } = useUnit($boardPlayground);
   const { takeSnapshot } = useUndoRedo();
 
@@ -29,59 +29,56 @@ const useMouseEvents = (
     isMoving,
   } = useCreateNode(ref);
 
-  // TODO: вынести функции
-  const onClick = useCallback(
-    async (e: MouseEvent<Element>) => {
-      if (buffer?.nodeType && reactFlowInstance && !flowState.isDrawingMode) {
-        const position = reactFlowInstance.screenToFlowPosition({
-          x: e.clientX,
-          y: e.clientY,
-        });
+  const onClick = async (e: MouseEvent<Element>) => {
+    if (!buffer?.nodeType || !reactFlowInstance) return;
 
-        takeSnapshot();
+    const position = reactFlowInstance.screenToFlowPosition({
+      x: e.clientX,
+      y: e.clientY,
+    });
 
-        if (buffer.nodeType === "file") {
-          await addFileNode(position);
-          clearBufferCreatingType();
-        } else if (flowState.isDrawingMode) {
-          addDrawingNode(position);
-        } else {
-          const nodeSize = {
-            width: 180,
-            height: 180,
-          };
+    takeSnapshot();
 
-          if (!isMoving) {
-            console.log("жеский издраггинг");
-            addNode(
-              { nodeType: buffer.nodeType, subType: buffer.subType },
-              position,
-              nodeSize
-            );
-          }
+    if (buffer.nodeType === "file") {
+      await addFileNode(position);
+      clearBufferCreatingType();
+    } else if (flowState.isDrawingMode) {
+      addDrawingNode(position);
+    } else {
+      const nodeSize = {
+        width: 180,
+        height: 180,
+      };
 
-          clearBufferCreatingType();
-        }
+      if (!isMoving) {
+        addNode(
+          { nodeType: buffer.nodeType, subType: buffer.subType },
+          position,
+          nodeSize
+        );
       }
-    },
-    [buffer, nodes, isMoving]
-  );
 
-  const onMouseDown = useCallback(
-    (event: MouseEvent) => {
+      clearBufferCreatingType();
+    }
+  };
+
+  const onMouseDown = (event: MouseEvent) => {
+    if (flowState.isDrawingMode) {
+      return onClick(event);
+    } else {
       disactivateMoving();
-      if (flowState.isDrawingMode) {
-        return onClick(event);
-      } else {
-        setPosition(event);
+      setPosition(event);
+    }
+  };
+
+  const onMouseMove = useCallback(
+    (event: MouseEvent) => {
+      if (!flowState.isDrawingMode) {
+        activateMoving();
       }
     },
-    [onClick, flowState.isDrawingMode]
+    [flowState.isDrawingMode]
   );
-
-  const onMouseMove = useCallback((event: MouseEvent) => {
-    activateMoving();
-  }, []);
 
   const onMouseUp = useCallback(
     (event: MouseEvent) => {
