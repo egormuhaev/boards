@@ -10,6 +10,7 @@ import { PlotSize } from "@/components/nodes/svgDrawingNode/types";
 import { useUnit } from "effector-react";
 import { $draw } from "@/flow/store/draw.slice";
 import { useCleaningEmptyCanvasesAfterDrawing } from "./useCleaningEmptyCanvasesAfterDrawing";
+import { $boardPlayground } from "@/flow/store/playground.slice";
 
 // TODO: заменить Function на нужный тип
 // Заменить везде file на тип
@@ -51,35 +52,59 @@ function getCurrentParamsDrawingPlot(
 const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
   const { setNodes, getZoom, screenToFlowPosition } = useReactFlow();
   const drawState = useUnit($draw);
+  const { buffer } = useUnit($boardPlayground);
 
-  const [isDragging, setIsDragging] = useState(false);
+  const [isMoving, setIsMoving] = useState(false);
   const [startPosition, setStartPosition] = useState<{
     x: number;
     y: number;
   } | null>(null);
 
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
+  // const handleMouseDown = (event: MouseEvent) => {
+  //   setStartPosition({ x: event.clientX, y: event.clientY });
+  // };
 
-      return () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-      };
-    }
-  }, [isDragging]);
+  // const handleMouseMove = () => setIsDragging(true);
 
-  const handleMouseDown = (event: MouseEvent<Element>) => {
+  // const handleMouseUp = (event: MouseEvent) => {
+  //   if (isDragging && startPosition) {
+  //     const scaledStartPosition = screenToFlowPosition(startPosition);
+  //     const scaledEndPosition = screenToFlowPosition({
+  //       x: event.clientX,
+  //       y: event.clientY,
+  //     });
+
+  //     const width = Math.abs(scaledEndPosition.x - scaledStartPosition.x);
+  //     const height = Math.abs(scaledEndPosition.y - scaledStartPosition.y);
+
+  //     const smartStartPosition = {
+  //       x:
+  //         scaledStartPosition.x < scaledEndPosition.x
+  //           ? scaledStartPosition.x
+  //           : scaledEndPosition.x,
+  //       y:
+  //         scaledStartPosition.y < scaledEndPosition.y
+  //           ? scaledStartPosition.y
+  //           : scaledEndPosition.y,
+  //     };
+
+  //     addNode({ nodeType: "shape", subType: "rectangle" }, smartStartPosition, {
+  //       width,
+  //       height,
+  //     });
+
+  //     setIsDragging(false);
+  //   }
+  // };
+
+  const setPosition = (event: MouseEvent) =>
     setStartPosition({ x: event.clientX, y: event.clientY });
-  };
 
-  const handleMouseMove = (event: MouseEvent<Element>) => {
-    setIsDragging(true);
-  };
+  const activateMoving = () => setIsMoving(true);
+  const disactivateMoving = () => setIsMoving(false);
 
-  const handleMouseUp = (event: MouseEvent<Element>) => {
-    if (isDragging && startPosition) {
+  const addNodeOnResize = (event: MouseEvent) => {
+    if (buffer?.nodeType && buffer.subType && isMoving && startPosition) {
       const scaledStartPosition = screenToFlowPosition(startPosition);
       const scaledEndPosition = screenToFlowPosition({
         x: event.clientX,
@@ -89,13 +114,25 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       const width = Math.abs(scaledEndPosition.x - scaledStartPosition.x);
       const height = Math.abs(scaledEndPosition.y - scaledStartPosition.y);
 
-      console.log(width, height);
-      addNode({ nodeType: "shape", subType: "rectangle" }, startPosition, {
-        width,
-        height,
-      });
+      const smartStartPosition = {
+        x:
+          scaledStartPosition.x < scaledEndPosition.x
+            ? scaledStartPosition.x
+            : scaledEndPosition.x,
+        y:
+          scaledStartPosition.y < scaledEndPosition.y
+            ? scaledStartPosition.y
+            : scaledEndPosition.y,
+      };
 
-      setIsDragging(false);
+      addNode(
+        { nodeType: buffer?.nodeType, subType: buffer.subType },
+        smartStartPosition,
+        {
+          width,
+          height,
+        }
+      );
     }
   };
 
@@ -167,9 +204,11 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
     addFileNode,
     addNode,
     addDrawingNode,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
+    activateMoving,
+    addNodeOnResize,
+    setPosition,
+    disactivateMoving,
+    isMoving,
   };
 };
 

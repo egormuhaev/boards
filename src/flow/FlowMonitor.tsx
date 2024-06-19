@@ -13,7 +13,6 @@ import { getHelperLines } from "@/lib/utils";
 import { useUnit } from "effector-react";
 import {
   DragEvent,
-  MouseEvent,
   TouchEvent,
   useCallback,
   useEffect,
@@ -42,11 +41,9 @@ import FlowHeadToolbar from "./FlowHeadToolbar";
 import FlowUndoRedo from "./FlowUndoRedo";
 import { config } from "./data";
 import { $flow } from "./store/flow.slice";
-import {
-  $boardPlayground,
-  clearBufferCreatingType,
-} from "./store/playground.slice";
+import { $boardPlayground } from "./store/playground.slice";
 import { handleDragEvent } from "./utils/randomColor";
+import useMouseEvents from "@/hooks/useMouseEvents";
 
 const flowKey = "example-flow";
 
@@ -64,14 +61,7 @@ const FlowMonitor = () => {
 
   const { setViewport } = useReactFlow();
 
-  const {
-    addFileNode,
-    addNode,
-    addDrawingNode,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-  } = useCreateNode(inputFileRef);
+  const { addFileNode, addNode, addDrawingNode } = useCreateNode(inputFileRef);
 
   const {
     onNodeDragStart,
@@ -79,6 +69,11 @@ const FlowMonitor = () => {
     onNodesDelete,
     onEdgesDelete,
   } = useEvents();
+
+  const { onClick, onMouseDown, onMouseMove, onMouseUp } = useMouseEvents(
+    reactFlowInstance,
+    inputFileRef
+  );
 
   const { connectionLinePath } = useUnit($boardPlayground);
   const { buffer, theme } = useUnit($boardPlayground);
@@ -94,6 +89,10 @@ const FlowMonitor = () => {
       localStorage.setItem(flowKey, JSON.stringify(flow));
     }
   }, [reactFlowInstance]);
+
+  useEffect(() => {
+    saveFlow();
+  }, [nodes, edges]);
 
   useEffect(() => {
     const ls = localStorage.getItem(flowKey);
@@ -136,10 +135,6 @@ const FlowMonitor = () => {
   const onCustomEdgesChange = (changes: EdgeChange[]) => {
     onEdgesChange(changes);
   };
-
-  useEffect(() => {
-    saveFlow();
-  }, [nodes, edges]);
 
   const onConnect = useCallback(
     (connection: Connection) => {
@@ -206,39 +201,6 @@ const FlowMonitor = () => {
     [reactFlowInstance, takeSnapshot, setNodes]
   );
 
-  const onClick = useCallback(
-    async (e: MouseEvent<Element>) => {
-      console.log("click");
-      if (!buffer?.nodeType || !reactFlowInstance) return;
-      const position = reactFlowInstance.screenToFlowPosition({
-        x: e.clientX,
-        y: e.clientY,
-      });
-
-      takeSnapshot();
-
-      if (buffer.nodeType === "file") {
-        await addFileNode(position);
-        clearBufferCreatingType();
-      } else if (flowState.isDrawingMode) {
-        addDrawingNode(position);
-      } else {
-        const nodeSize = {
-          width: 180,
-          height: 180,
-        };
-
-        addNode(
-          { nodeType: buffer.nodeType, subType: buffer.subType },
-          position,
-          nodeSize
-        );
-        clearBufferCreatingType();
-      }
-    },
-    [buffer, nodes]
-  );
-
   const onMobileClick = useCallback(
     async (e: TouchEvent) => {
       if (reactFlowInstance) {
@@ -262,21 +224,15 @@ const FlowMonitor = () => {
 
       <ReactFlow
         onInit={setReactFlowInstance}
-        onClick={!flowState.isDrawingMode ? onClick : undefined}
+        onClick={onClick}
         onTouchStart={(e: TouchEvent) => {
           if (flowState.isDrawingMode) {
             return onMobileClick(e);
           } else return null;
         }}
-        onMouseDown={(e: MouseEvent) => {
-          if (flowState.isDrawingMode) {
-            return onClick(e);
-          } else {
-            handleMouseDown(e);
-          }
-        }}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
         onContextMenu={(e) => e.preventDefault()}
         onDrop={onDrop}
         onConnect={onConnect}
@@ -298,13 +254,11 @@ const FlowMonitor = () => {
         onNodesDelete={onNodesDelete}
         onEdgesDelete={onEdgesDelete}
         className={theme}
-        // НАСТРОЙКИ
         zoomOnDoubleClick={!flowState.isDrawingMode}
         nodesDraggable={!flowState.isDrawingMode}
         panOnDrag={!(flowState.isDrawingMode || buffer?.nodeType === "shape")} // Нужно для того чтобы карта не двигалась при рисовании и создании ноды ресайзингом
         zoomOnScroll
         proOptions={proOptions}
-
         //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне поле зрения
       >
         <Theme />
