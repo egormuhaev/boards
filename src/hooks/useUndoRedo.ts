@@ -79,9 +79,9 @@ export const useUndoRedo: UseUndoRedo = ({
     }
 
     const keyDownHandler = (event: KeyboardEvent) => {
-      if (event.key === "y" && (event.ctrlKey || event.metaKey)) {
+      if (event.code === "KeyY" && (event.ctrlKey || event.metaKey)) {
         redo();
-      } else if (event.key === "z" && (event.ctrlKey || event.metaKey)) {
+      } else if (event.code === "KeyZ" && (event.ctrlKey || event.metaKey)) {
         undo();
       }
     };
