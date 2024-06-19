@@ -14,8 +14,9 @@ const conditions: IConditions = {
   },
 
   sizeOfTheContainerIsInfinite: (node: Node) =>
-    node.data.plotSize.width === -Infinity ||
-    node.data.plotSize.height === -Infinity,
+    node.type === "drawing" &&
+    (node.data.plotSize.width === -Infinity ||
+      node.data.plotSize.height === -Infinity),
 };
 
 function nodeValidation(node: Node) {

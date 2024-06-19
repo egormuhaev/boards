@@ -42,11 +42,11 @@ export default function FlowHeadDrawingTools() {
           <Slider
             onValueChange={changeLineWidth}
             value={[drawState.width]}
-            defaultValue={[2]}
+            defaultValue={[20]}
             max={100}
-            step={10}
+            step={1}
           />
-          <div>{drawState.width / 10}</div>
+          <div>{drawState.width}</div>
         </div>
       </div>
     </Panel>

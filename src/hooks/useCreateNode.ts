@@ -9,7 +9,6 @@ import { FileComponents } from "@/components/nodes/FileNode";
 import { PlotSize } from "@/components/nodes/svgDrawingNode/types";
 import { useUnit } from "effector-react";
 import { $draw } from "@/flow/store/draw.slice";
-import { useCleaningEmptyCanvasesAfterDrawing } from "./useCleaningEmptyCanvasesAfterDrawing";
 
 // TODO: заменить Function на нужный тип
 // Заменить везде file на тип
@@ -33,12 +32,12 @@ export interface ShapeNodeTypes {
 
 function getCurrentParamsDrawingPlot(
   zoom: number,
-  position: XYPosition
+  position: XYPosition,
 ): [XYPosition, PlotSize] {
   const zoomScale = zoom < 1 ? zoom * 100 : zoom;
 
   const plotSizeWidth = window.screen.width * zoomScale * 2;
-  const plotSizeHeight = window.screen.width * zoomScale * 2;
+  const plotSizeHeight = window.screen.height * zoomScale * 2;
 
   const positionCurrent: XYPosition = {
     x: position.x - window.screen.width * zoomScale,
@@ -60,8 +59,8 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
 
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
+      // document.addEventListener("mousemove", handleMouseMove);
+      // document.addEventListener("mouseup", handleMouseUp);
 
       return () => {
         document.removeEventListener("mousemove", handleMouseMove);
@@ -89,7 +88,6 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       const width = Math.abs(scaledEndPosition.x - scaledStartPosition.x);
       const height = Math.abs(scaledEndPosition.y - scaledStartPosition.y);
 
-      console.log(width, height);
       addNode({ nodeType: "shape", subType: "rectangle" }, startPosition, {
         width,
         height,
@@ -102,7 +100,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
   const addNode = (
     types: ShapeNodeTypes,
     position: XYPosition,
-    { width, height }: { width: number; height: number }
+    { width, height }: { width: number; height: number },
   ) => {
     const newNode = {
       id: v4(),
@@ -149,12 +147,14 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
 
   const addDrawingNode = (position: XYPosition) => {
     const [pos, size] = getCurrentParamsDrawingPlot(getZoom(), position);
-
+    const id = v4();
+    console.log(id);
     const newNode = {
-      id: v4(),
+      id: id,
       position: pos,
       type: "drawing",
       data: {
+        points: [],
         plotSize: size,
         lineColor: drawState.color,
         lineWidth: drawState.width,

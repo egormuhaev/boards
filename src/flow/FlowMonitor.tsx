@@ -15,6 +15,7 @@ import {
   DragEvent,
   MouseEvent,
   TouchEvent,
+  TouchEventHandler,
   useCallback,
   useEffect,
   useRef,
@@ -96,17 +97,15 @@ const FlowMonitor = () => {
   }, [reactFlowInstance]);
 
   useEffect(() => {
-    const ls = localStorage.getItem(flowKey);
-    if (!ls) return;
-
-    const flow = JSON.parse(ls);
-
-    if (flow) {
-      const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-      setNodes(flow.nodes || []);
-      setEdges(flow.edges || []);
-      setViewport({ x, y, zoom });
-    }
+    // const ls = localStorage.getItem(flowKey);
+    // if (!ls) return;
+    // const flow = JSON.parse(ls);
+    // if (flow) {
+    //   const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+    //   setNodes(flow.nodes || []);
+    //   setEdges(flow.edges || []);
+    //   setViewport({ x, y, zoom });
+    // }
   }, []);
 
   const onCustomNodesChange = (changes: NodeChange[]) => {
@@ -240,17 +239,19 @@ const FlowMonitor = () => {
   );
 
   const onMobileClick = useCallback(
-    async (e: TouchEvent) => {
+    async (e: any) => {
       if (reactFlowInstance) {
         const position = reactFlowInstance.screenToFlowPosition({
           x: e.changedTouches[0].clientX!,
           y: e.changedTouches[0].clientY!,
         });
 
+        console.log(position);
+
         addDrawingNode(position);
       }
     },
-    [buffer, nodes],
+    [buffer, nodes, reactFlowInstance],
   );
 
   const proOptions = { hideAttribution: true };
@@ -263,10 +264,13 @@ const FlowMonitor = () => {
       <ReactFlow
         onInit={setReactFlowInstance}
         onClick={!flowState.isDrawingMode ? onClick : undefined}
-        onTouchStart={(e: TouchEvent) => {
-          if (flowState.isDrawingMode) {
-            return onMobileClick(e);
-          } else return null;
+        // onTouchStart={(e: TouchEvent) => {
+        //   if (flowState.isDrawingMode) {
+        //     return onMobileClick(e);
+        //   } else return null;
+        // }}
+        onTouchStart={(e: TouchEvent<HTMLDivElement>) => {
+          onMobileClick(e);
         }}
         onMouseDown={(e: MouseEvent) => {
           if (flowState.isDrawingMode) {
@@ -275,8 +279,18 @@ const FlowMonitor = () => {
             handleMouseDown(e);
           }
         }}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onMouseMove={(e: MouseEvent) => {
+          if (!flowState.isDrawingMode) {
+            return handleMouseMove(e);
+          }
+          return null;
+        }}
+        onMouseUp={(e: MouseEvent) => {
+          if (!flowState.isDrawingMode) {
+            handleMouseUp(e);
+          }
+          return null;
+        }}
         onContextMenu={(e) => e.preventDefault()}
         onDrop={onDrop}
         onConnect={onConnect}
@@ -299,9 +313,12 @@ const FlowMonitor = () => {
         onEdgesDelete={onEdgesDelete}
         className={theme}
         // НАСТРОЙКИ
-        zoomOnDoubleClick={!flowState.isDrawingMode}
-        nodesDraggable={!flowState.isDrawingMode}
-        panOnDrag={!(flowState.isDrawingMode || buffer?.nodeType === "shape")} // Нужно для того чтобы карта не двигалась при рисовании и создании ноды ресайзингом
+        // zoomOnDoubleClick={!flowState.isDrawingMode}
+        // nodesDraggable={!flowState.isDrawingMode}
+        // panOnDrag={!(flowState.isDrawingMode || buffer?.nodeType === "shape")} // Нужно для того чтобы карта не двигалась при рисовании и создании ноды ресайзингом
+        zoomOnDoubleClick={false}
+        nodesDraggable={false}
+        panOnDrag={false}
         zoomOnScroll
         proOptions={proOptions}
 
