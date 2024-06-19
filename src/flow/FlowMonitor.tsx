@@ -64,7 +64,6 @@ const FlowMonitor = () => {
 
   const { setViewport } = useReactFlow();
 
-
   const {
     addFileNode,
     addNode,
@@ -73,7 +72,6 @@ const FlowMonitor = () => {
     handleMouseMove,
     handleMouseUp,
   } = useCreateNode(inputFileRef);
-
 
   const {
     onNodeDragStart,
@@ -98,7 +96,6 @@ const FlowMonitor = () => {
   }, [reactFlowInstance]);
 
   useEffect(() => {
-
     const ls = localStorage.getItem(flowKey);
     if (!ls) return;
 
@@ -155,16 +152,16 @@ const FlowMonitor = () => {
           algorithm: DEFAULT_ALGORITHM,
           points: connectionLinePath.map(
             (point, i) =>
-            ({
-              ...point,
-              data: {
-                lineColor: "#000",
-                lineWidth: 2,
-              },
-              id: v4(),
-              prev: i === 0 ? undefined : connectionLinePath[i - 1],
-              active: true,
-            } as ControlPointData)
+              ({
+                ...point,
+                data: {
+                  lineColor: "#000",
+                  lineWidth: 2,
+                },
+                id: v4(),
+                prev: i === 0 ? undefined : connectionLinePath[i - 1],
+                active: true,
+              }) as ControlPointData,
           ),
         },
       };
@@ -172,7 +169,7 @@ const FlowMonitor = () => {
       takeSnapshot();
       setEdges((edges) => addEdge(edge, edges));
     },
-    [setEdges, takeSnapshot]
+    [setEdges, takeSnapshot],
   );
 
   const onDrop = useCallback(
@@ -206,7 +203,7 @@ const FlowMonitor = () => {
         addNode({ nodeType, subType } as ShapeNodeTypes, position, nodeSize);
       }
     },
-    [reactFlowInstance, takeSnapshot, setNodes]
+    [reactFlowInstance, takeSnapshot, setNodes],
   );
 
   const onClick = useCallback(
@@ -234,12 +231,12 @@ const FlowMonitor = () => {
         addNode(
           { nodeType: buffer.nodeType, subType: buffer.subType },
           position,
-          nodeSize
+          nodeSize,
         );
         clearBufferCreatingType();
       }
     },
-    [buffer, nodes]
+    [buffer, nodes],
   );
 
   const onMobileClick = useCallback(
@@ -253,7 +250,7 @@ const FlowMonitor = () => {
         addDrawingNode(position);
       }
     },
-    [buffer, nodes]
+    [buffer, nodes],
   );
 
   const proOptions = { hideAttribution: true };
@@ -308,7 +305,7 @@ const FlowMonitor = () => {
         zoomOnScroll
         proOptions={proOptions}
 
-      //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне поле зрения
+        //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне поле зрения
       >
         <Theme />
 
@@ -333,5 +330,4 @@ const FlowMonitor = () => {
   );
 };
 
->>>>>>> 3ce21b20d844bda8ee1a81aca5640a95e78d4ef1
 export default FlowMonitor;
