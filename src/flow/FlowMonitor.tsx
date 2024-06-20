@@ -11,15 +11,7 @@ import useEvents from "@/hooks/useEvents";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import { getHelperLines } from "@/lib/utils";
 import { useUnit } from "effector-react";
-import {
-  DragEvent,
-  TouchEvent,
-  TouchEventHandler,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { DragEvent, useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -50,15 +42,8 @@ import { Redo, Undo } from "lucide-react";
 const flowKey = "example-flow";
 
 const FlowMonitor = () => {
-
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
-
-
-  const proOptions = {
-    account: 'paid-pro',
-    hideAttribution: true,
-  };
 
   const playgroundState = useUnit($boardPlayground);
 
@@ -213,11 +198,9 @@ const FlowMonitor = () => {
   const proOptions = { hideAttribution: true };
 
   return (
-
     <>
       {/* Инпут находится снаружи, чтобы искусственный клик по нему не вызывал заново функцию onClick */}
       <input multiple type="file" ref={inputFileRef} hidden />
-
       <ReactFlow
         onInit={setReactFlowInstance}
         onClick={onClick}
@@ -250,9 +233,9 @@ const FlowMonitor = () => {
         panOnDrag={!(flowState.isDrawingMode || buffer?.nodeType === "shape")} // Нужно для того чтобы карта не двигалась при рисовании и создании ноды ресайзингом
         zoomOnScroll
         proOptions={proOptions}
-        //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне поле зрения
+        //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне
+      >
         <Theme />
-
         <Panel
           position="bottom-center"
           className="w-[100px] flex justify-around z-50 gap-5 p-2 bg-white rounded-lg border border-solid-1 border-slate-300"
@@ -267,7 +250,6 @@ const FlowMonitor = () => {
           horizontal={helperLineHorizontal}
           vertical={helperLineVertical}
         />
-
         <MiniMap nodeStrokeWidth={3} zoomable pannable />
       </ReactFlow>
     </>
