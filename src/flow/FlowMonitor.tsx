@@ -50,13 +50,11 @@ import { Redo, Undo } from "lucide-react";
 const flowKey = "example-flow";
 
 const FlowMonitor = () => {
-
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
 
-
   const proOptions = {
-    account: 'paid-pro',
+    account: "paid-pro",
     hideAttribution: true,
   };
 
@@ -225,10 +223,7 @@ const FlowMonitor = () => {
     [reactFlowInstance, takeSnapshot, setNodes]
   );
 
-  const proOptions = { hideAttribution: true };
-
   return (
-
     <>
       {/* Инпут находится снаружи, чтобы искусственный клик по нему не вызывал заново функцию onClick */}
       <input multiple type="file" ref={inputFileRef} hidden />
@@ -266,8 +261,7 @@ const FlowMonitor = () => {
         zoomOnScroll
         proOptions={proOptions}
         //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне поле зрения
-        <Theme />
-
+      >
         <FlowHeadToolbar />
 
         {flowState.isDrawingMode && <FlowHeadDrawingTools />}
