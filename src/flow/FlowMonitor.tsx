@@ -47,6 +47,11 @@ const FlowMonitor = () => {
     useState<ReactFlowInstance | null>(null);
   const drawState = useUnit($draw);
 
+  const proOptions = {
+    account: "paid-pro",
+    hideAttribution: true,
+  };
+
   const playgroundState = useUnit($boardPlayground);
 
   const flowState = useUnit($flow);
@@ -59,7 +64,8 @@ const FlowMonitor = () => {
 
   const { setViewport } = useReactFlow();
 
-  const { addFileNode, addNode } = useCreateNode(inputFileRef);
+  const { addFileNode, addShapeNode, addTextNode } =
+    useCreateNode(inputFileRef);
 
   const {
     onNodeDragStart,
@@ -68,10 +74,8 @@ const FlowMonitor = () => {
     onEdgesDelete,
   } = useEvents();
 
-  const { onClick, onMouseDown, onMouseMove, onMouseUp } = useMouseEvents(
-    reactFlowInstance,
-    inputFileRef
-  );
+  const { onClick, onMouseDown, onMouseMove, onMouseUp } =
+    useMouseEvents(inputFileRef);
 
   const { connectionLinePath } = useUnit($boardPlayground);
   const { buffer, theme } = useUnit($boardPlayground);
@@ -183,21 +187,35 @@ const FlowMonitor = () => {
 
       takeSnapshot();
 
-      const nodeSize = {
-        width: 180,
-        height: 180,
-      };
-
       if (nodeType === "file") {
-        addFileNode(position, files);
+        const nodeSize = {
+          width: 500,
+          height: 600,
+        };
+
+        addFileNode(position, nodeSize, files);
+      } else if (nodeType === "text") {
+        const nodeSize = {
+          width: 180,
+          height: 40,
+        };
+
+        addTextNode(position, nodeSize);
       } else {
-        addNode({ nodeType, subType } as ShapeNodeTypes, position, nodeSize);
+        const nodeSize = {
+          width: 180,
+          height: 180,
+        };
+
+        addShapeNode(
+          { nodeType, subType } as ShapeNodeTypes,
+          position,
+          nodeSize
+        );
       }
     },
     [reactFlowInstance, takeSnapshot, setNodes]
   );
-
-  const proOptions = { hideAttribution: true };
 
   return (
     <>

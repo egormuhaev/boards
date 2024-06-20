@@ -13,6 +13,7 @@ interface ContentProps {
   value: string | undefined;
   onChange: (e: React.ChangeEvent<Element>) => void;
   style: CSSProperties;
+  placeholder?: string;
 }
 
 function getCaret(el: HTMLDivElement | null) {
@@ -49,14 +50,10 @@ function setCaret(el: HTMLDivElement | null, offset?: number) {
   sel.addRange(range);
 }
 
-const Content = ({ value, onChange, style }: ContentProps) => {
+const Content = ({ value, onChange, style, placeholder }: ContentProps) => {
   // const { takeSnapshot } = useUndoRedo();
 
   const [active, setActive] = useState(false);
-
-  useEffect(() => {
-    console.log("active: ", active);
-  }, [active]);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const caretPos = useRef<number>();
@@ -103,13 +100,15 @@ const Content = ({ value, onChange, style }: ContentProps) => {
         onInput={inputHandler}
         onBlur={() => setActive(false)}
         contentEditable={active}
+        // data-placeholder={placeholder}
         className={`w-full resize-none bg-transparent outline-none break-words text-ellipsis overflow-hidden box-border border-none ${
           active ? "nodrag cursor-text" : ""
         }`}
+        // before:content-[attr(data-placeholder)] before:absolute before:text-slate-500 before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 w-full h-full block pointer-events-none
         style={{ ...otherStyles, minHeight: fontSize, fontSize }}
         suppressContentEditableWarning
       >
-        {value}
+        {value || placeholder}
       </div>
     </div>
   );

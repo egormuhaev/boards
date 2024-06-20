@@ -187,6 +187,7 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
         </div>
         <Content
           value={data.text}
+          placeholder="Фигурный блок"
           onChange={onEditText}
           style={{
             ...data,

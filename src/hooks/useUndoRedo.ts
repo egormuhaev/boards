@@ -40,6 +40,7 @@ export const useUndoRedo: UseUndoRedo = ({
       ...past.slice(past.length - maxHistorySize + 1, past.length),
       { nodes: getNodes(), edges: getEdges() },
     ]);
+
     // whenever we take a new snapshot, the redo operations need to be cleared to avoid state mismatches
     setFuture([]);
   }, [getNodes, getEdges, maxHistorySize]);
@@ -47,7 +48,7 @@ export const useUndoRedo: UseUndoRedo = ({
   const undo = useCallback(() => {
     // get the last state that we want to go back to
     const pastState = past[past.length - 1];
-    console.log(getNodes());
+
     if (pastState) {
       // first we remove the state from the history
       setPast((past) => past.slice(0, past.length - 1));
@@ -74,14 +75,19 @@ export const useUndoRedo: UseUndoRedo = ({
   }, [setNodes, setEdges, getNodes, getEdges, future]);
 
   useEffect(() => {
+    // this effect is used to attach the global event handlers
     if (!enableShortcuts) {
       return;
     }
 
     const keyDownHandler = (event: KeyboardEvent) => {
-      if (event.code === "KeyY" && (event.ctrlKey || event.metaKey)) {
+      if (
+        event.key === "z" &&
+        (event.ctrlKey || event.metaKey) &&
+        event.shiftKey
+      ) {
         redo();
-      } else if (event.code === "KeyZ" && (event.ctrlKey || event.metaKey)) {
+      } else if (event.key === "z" && (event.ctrlKey || event.metaKey)) {
         undo();
       }
     };
