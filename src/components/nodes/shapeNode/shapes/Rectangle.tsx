@@ -1,4 +1,4 @@
-import { ShapeProps } from "./Circle";
+import { ShapeProps } from "./types";
 
 function Rectangle({ width, height, children, ...svgAttributes }: ShapeProps) {
   return (

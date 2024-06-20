@@ -1,86 +1,138 @@
-import { NodeProps, NodeResizer, NodeToolbar, Position } from "reactflow";
-import { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
+import {
+  Handle,
+  HandleType,
+  NodeResizer,
+  NodeToolbar,
+  Position,
+  useKeyPress,
+  useReactFlow,
+  type NodeProps,
+} from "reactflow";
+
+import { AlignContent, TextAlign } from "@/flow/store/types/playground.schema";
+import { CSSProperties } from "react";
+import Content from "./shapeNode/Content";
 import ToolbarControlls from "./nodeEnviroment/ToolbarControlls";
 
-interface Props {
-  type: "text";
-  id: string;
-  bgColor?: string;
-  textColor?: string;
+export interface TextNodeData extends CSSProperties {
+  type: "rectangle";
+  color?: string;
+  borderWidth?: number;
+  textAlign?: TextAlign;
+  alignContent?: AlignContent;
+  fontSize?: number;
+  lineHeight?: number;
+  text?: string;
 }
 
-const styles = {
-  wrapper:
-    "h-full w-full flex flex-col justify-center items-center rounded-md min-w-[180px] min-h-[30px] box-border p-2",
-  textarea:
-    "flex-1 w-full resize-none text-left outline-none text-black overflow-y-auto align-middle break-words",
+const contentCssFormules = {
+  width: "90%",
+  height: "90%",
 };
 
-const TextNode = ({ selected, data, id }: NodeProps<Props>) => {
-  const [editText, setEditText] = useState(false);
-  const [text, setText] = useState("Тут должен быть текст");
+const resizerHandleStyles = {
+  height: "5px",
+  width: "5px",
+  borderColor: "grey",
+  backgroundColor: "grey",
+  borderRadius: 0,
+};
 
-  const textarea = useRef<HTMLTextAreaElement>(null);
+const resizerLineStyle = {
+  borderWidth: "2px",
+  borderColor: "grey",
+};
 
-  const onEditText = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    setText(value);
+const defaultNodeHandles: {
+  id: string;
+  type: HandleType;
+  position: Position;
+}[] = [
+  {
+    id: "top",
+    type: "source",
+    position: Position.Top,
+  },
+  {
+    id: "right",
+    type: "source",
+    position: Position.Right,
+  },
+  {
+    id: "bottom",
+    type: "source",
+    position: Position.Bottom,
+  },
+  {
+    id: "left",
+    type: "source",
+    position: Position.Left,
+  },
+];
+
+function TextNode({ id, selected, data }: NodeProps<TextNodeData>) {
+  const shiftKeyPressed = useKeyPress("Shift");
+  const { setNodes } = useReactFlow();
+
+  const handleStyle = { backgroundColor: data.backgroundColor };
+
+  const onEditText = (e: React.ChangeEvent<Element>) => {
+    const value = e.target.textContent;
+    updateNode({ text: value || "" });
   };
 
-  useEffect(() => {
-    if (editText) {
-      textarea.current?.focus();
-      textarea.current?.setSelectionRange(
-        textarea.current.value.length,
-        textarea.current.value.length,
-      );
-    } else {
-      textarea.current?.setSelectionRange(0, 0);
-      textarea.current?.blur();
-    }
-  }, [editText]);
+  const updateNode = (nodePart: Partial<TextNodeData>) =>
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === id
+          ? {
+              ...node,
+              data: {
+                ...node.data,
+                ...nodePart,
+              },
+            }
+          : node
+      )
+    );
 
   return (
-    <>
-      <NodeResizer isVisible={selected} minWidth={180} minHeight={30} />
+    <div>
+      <NodeToolbar isVisible={selected} position={Position.Top} offset={40}>
+        <ToolbarControlls id={id} data={data} />
+      </NodeToolbar>
 
-      <div
-        onClick={() => setEditText(false)}
-        className={cn(
-          styles.wrapper,
-          "bg-transparent",
-          editText ? "border border-solid-2 border-black" : "",
-        )}
-      >
-        {editText ? (
-          <textarea
-            value={text}
-            ref={textarea}
-            onChange={onEditText}
-            onClick={(e) => e.stopPropagation()}
-            onBlur={() => setEditText(false)}
-            className={cn(styles.textarea, "nodrag bg-transparent")}
-          />
-        ) : (
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditText(true);
-            }}
-            className={cn(
-              styles.textarea,
-              "inline text-ellipsis overflow-hidden bg-transparent",
-            )}
-          >
-            {text}
-          </div>
-        )}
-      </div>
-    </>
+      <NodeResizer
+        isVisible={selected}
+        handleStyle={resizerHandleStyles}
+        lineStyle={resizerLineStyle}
+        keepAspectRatio={shiftKeyPressed}
+      />
+
+      {defaultNodeHandles.map((handle) => (
+        <Handle
+          key={handle.id}
+          style={handleStyle}
+          id={handle.id}
+          type={handle.type}
+          position={handle.position}
+        />
+      ))}
+
+      <Content
+        value={data.text}
+        placeholder="Текстовый блок"
+        onChange={onEditText}
+        style={{
+          ...data,
+          width: contentCssFormules.width,
+          maxHeight: contentCssFormules.height,
+          fontSize: data.fontSize + "px",
+          lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
+        }}
+      />
+    </div>
   );
-};
-
-export const textNodeFlowTypes = "textNode";
+}
 
 export default TextNode;

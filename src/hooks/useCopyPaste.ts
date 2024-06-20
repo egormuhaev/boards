@@ -9,6 +9,7 @@ import {
   XYPosition,
   useStore,
 } from "reactflow";
+import useUndoRedo from "./useUndoRedo";
 
 export function useCopyPaste<NodeData, EdgeData>() {
   const mousePosRef = useRef<XYPosition>({ x: 0, y: 0 });
@@ -146,14 +147,17 @@ function useShortcut(keyCode: KeyCode, callback: Function): void {
   const [didRun, setDidRun] = useState(false);
   const shouldRun = useKeyPress(keyCode);
 
+  const { takeSnapshot } = useUndoRedo();
+
   useEffect(() => {
     if (shouldRun && !didRun) {
+      takeSnapshot();
       callback();
       setDidRun(true);
     } else {
       setDidRun(shouldRun);
     }
-  }, [shouldRun, didRun, callback]);
+  }, [shouldRun, didRun, callback, takeSnapshot]);
 }
 
 export default useCopyPaste;

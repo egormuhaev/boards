@@ -4,26 +4,28 @@ import { clearInput, randomColor, selectFiles } from "@/flow/utils/randomColor";
 import { MouseEvent, RefObject, useCallback, useState } from "react";
 import { Node, XYPosition, useReactFlow } from "reactflow";
 import { v4 } from "uuid";
-import { colorsPalet, defaultNodeData } from "../flow/data";
-import { FileComponents } from "@/components/nodes/FileNode";
+import {
+  colorsPalet,
+  defaultNodeData,
+  defaultTextNodeData,
+} from "../flow/data";
 import { useUnit } from "effector-react";
 import { $draw } from "@/flow/store/draw.slice";
-import { $boardPlayground } from "@/flow/store/playground.slice";
 import { PlotSize } from "@/components/nodes/svgDrawingNode/desktop/types";
+import { FileComponents } from "@/components/nodes/fileNodes/FileNode";
 
 // TODO: заменить Function на нужный тип
 // Заменить везде file на тип
 // Все файлы будут вызывать FileNode и уже внутри нее будет различное отображение в зависимости от типа файла
 
-// Должно наследоваться не от nodeTypes, а от объекта или enum с видами файловых нод (pdf, video, img...)
 export const fileSubTypes: Record<string, keyof typeof FileComponents> = {
-  pdf: "pdf",
-  jpeg: "img",
-  jpg: "img",
-  png: "img",
   mov: "video",
   mp4: "video",
   webm: "video",
+  jpg: "image",
+  jpeg: "image",
+  png: "image",
+  pdf: "pdf",
 };
 
 export interface ShapeNodeTypes {
@@ -33,7 +35,7 @@ export interface ShapeNodeTypes {
 
 function getCurrentParamsDrawingPlot(
   zoom: number,
-  position: XYPosition,
+  position: XYPosition
 ): [XYPosition, PlotSize] {
   const zoomScale = zoom < 1 ? zoom * 100 : zoom;
 
@@ -49,62 +51,13 @@ function getCurrentParamsDrawingPlot(
 }
 
 const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
-  const { setNodes, getZoom, screenToFlowPosition } = useReactFlow();
+  const { setNodes, getZoom } = useReactFlow();
   const drawState = useUnit($draw);
-  const { buffer } = useUnit($boardPlayground);
 
-  const [isMoving, setIsMoving] = useState(false);
-  const [startPosition, setStartPosition] = useState<{
-    x: number;
-    y: number;
-  } | null>(null);
-
-  const setPosition = useCallback(
-    (event: MouseEvent) =>
-      setStartPosition({ x: event.clientX, y: event.clientY }),
-    [],
-  );
-
-  const activateMoving = useCallback(() => setIsMoving(true), []);
-  const disactivateMoving = useCallback(() => setIsMoving(false), []);
-
-  const addNodeOnResize = (event: MouseEvent) => {
-    if (buffer?.nodeType && buffer.subType && isMoving && startPosition) {
-      const scaledStartPosition = screenToFlowPosition(startPosition);
-      const scaledEndPosition = screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
-
-      const width = Math.abs(scaledEndPosition.x - scaledStartPosition.x);
-      const height = Math.abs(scaledEndPosition.y - scaledStartPosition.y);
-
-      const smartStartPosition = {
-        x:
-          scaledStartPosition.x < scaledEndPosition.x
-            ? scaledStartPosition.x
-            : scaledEndPosition.x,
-        y:
-          scaledStartPosition.y < scaledEndPosition.y
-            ? scaledStartPosition.y
-            : scaledEndPosition.y,
-      };
-
-      addNode(
-        { nodeType: buffer?.nodeType, subType: buffer.subType },
-        smartStartPosition,
-        {
-          width,
-          height,
-        },
-      );
-    }
-  };
-
-  const addNode = (
+  const addShapeNode = (
     types: ShapeNodeTypes,
     position: XYPosition,
-    { width, height }: { width: number; height: number },
+    { width, height }: { width: number; height: number }
   ) => {
     const newNode = {
       id: v4(),
@@ -122,8 +75,27 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
     setNodes((nds) => nds.concat(newNode));
   };
 
+  const addTextNode = (
+    position: XYPosition,
+    { width, height }: { width: number; height: number }
+  ) => {
+    const newNode = {
+      id: v4(),
+      position,
+      type: "text",
+      style: { width, height },
+      data: defaultTextNodeData,
+    };
+
+    setNodes((nds) => nds.concat(newNode));
+  };
+
   const addFileNode = useCallback(
-    async (position: XYPosition, fileList?: FileList) => {
+    async (
+      position: XYPosition,
+      { width, height }: { width: number; height: number },
+      fileList?: FileList
+    ) => {
       const files = fileList?.length ? fileList : await selectFiles(ref);
       if (!files?.length) return;
 
@@ -137,8 +109,9 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
 
         const newNode: Node = {
           id: v4(),
-          data: { file },
-          type,
+          data: { file, type },
+          type: "file",
+          style: { width, height },
           position,
         };
 
@@ -149,7 +122,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       // Очищаем инпут, чтобы при выборе того же файла второй раз подряд вызывалось событие onChange
       clearInput(ref);
     },
-    [],
+    []
   );
 
   const addDrawingNode = (position: XYPosition) => {
@@ -174,13 +147,9 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
 
   return {
     addFileNode,
-    addNode,
+    addTextNode,
+    addShapeNode,
     addDrawingNode,
-    activateMoving,
-    addNodeOnResize,
-    setPosition,
-    disactivateMoving,
-    isMoving,
   };
 };
 

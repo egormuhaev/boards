@@ -1,9 +1,4 @@
-import { SVGAttributes } from "react";
-
-export type ShapeProps = {
-  width: number;
-  height: number;
-} & SVGAttributes<SVGElement>;
+import { ShapeProps } from "./types";
 
 function Circle({ width, height, ...svgAttributes }: ShapeProps) {
   return (

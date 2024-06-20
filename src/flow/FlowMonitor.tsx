@@ -63,7 +63,8 @@ const FlowMonitor = () => {
 
   const { setViewport } = useReactFlow();
 
-  const { addFileNode, addNode } = useCreateNode(inputFileRef);
+  const { addFileNode, addShapeNode, addTextNode } =
+    useCreateNode(inputFileRef);
 
   const {
     onNodeDragStart,
@@ -72,10 +73,8 @@ const FlowMonitor = () => {
     onEdgesDelete,
   } = useEvents();
 
-  const { onClick, onMouseDown, onMouseMove, onMouseUp } = useMouseEvents(
-    reactFlowInstance,
-    inputFileRef,
-  );
+  const { onClick, onMouseDown, onMouseMove, onMouseUp } =
+    useMouseEvents(inputFileRef);
 
   const { connectionLinePath } = useUnit($boardPlayground);
   const { buffer, theme } = useUnit($boardPlayground);
@@ -156,7 +155,7 @@ const FlowMonitor = () => {
                 id: v4(),
                 prev: i === 0 ? undefined : connectionLinePath[i - 1],
                 active: true,
-              }) as ControlPointData,
+              } as ControlPointData)
           ),
         },
       };
@@ -164,7 +163,7 @@ const FlowMonitor = () => {
       takeSnapshot();
       setEdges((edges) => addEdge(edge, edges));
     },
-    [setEdges, takeSnapshot],
+    [setEdges, takeSnapshot]
   );
 
   const onDrop = useCallback(
@@ -187,18 +186,34 @@ const FlowMonitor = () => {
 
       takeSnapshot();
 
-      const nodeSize = {
-        width: 180,
-        height: 180,
-      };
-
       if (nodeType === "file") {
-        addFileNode(position, files);
+        const nodeSize = {
+          width: 500,
+          height: 600,
+        };
+
+        addFileNode(position, nodeSize, files);
+      } else if (nodeType === "text") {
+        const nodeSize = {
+          width: 180,
+          height: 40,
+        };
+
+        addTextNode(position, nodeSize);
       } else {
-        addNode({ nodeType, subType } as ShapeNodeTypes, position, nodeSize);
+        const nodeSize = {
+          width: 180,
+          height: 180,
+        };
+
+        addShapeNode(
+          { nodeType, subType } as ShapeNodeTypes,
+          position,
+          nodeSize
+        );
       }
     },
-    [reactFlowInstance, takeSnapshot, setNodes],
+    [reactFlowInstance, takeSnapshot, setNodes]
   );
 
   const proOptions = { hideAttribution: true };
@@ -244,16 +259,14 @@ const FlowMonitor = () => {
       >
         <Theme />
 
-        <Panel
-          position="bottom-center"
-          className="w-[100px] flex justify-around z-50 gap-5 p-2 bg-white rounded-lg border border-solid-1 border-slate-300"
-        >
-          <FlowUndoRedo />
-        </Panel>
         <FlowHeadToolbar />
+
         {flowState.isDrawingMode && <FlowHeadDrawingTools />}
+
         <Background color="#ccc" variant={BackgroundVariant.Cross} size={2} />
+
         <Controls showZoom showFitView showInteractive className="text-black" />
+
         <HelperLines
           horizontal={helperLineHorizontal}
           vertical={helperLineVertical}

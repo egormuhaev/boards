@@ -1,5 +1,5 @@
 import { ShapeComponents } from "./ShapeNode";
-import { ShapeProps } from "./shapes/Circle";
+import { ShapeProps } from "./shapes/types";
 
 export type ShapeType = keyof typeof ShapeComponents;
 
