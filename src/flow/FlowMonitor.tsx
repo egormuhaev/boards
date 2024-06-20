@@ -70,7 +70,7 @@ const FlowMonitor = () => {
 
   const { onClick, onMouseDown, onMouseMove, onMouseUp } = useMouseEvents(
     reactFlowInstance,
-    inputFileRef,
+    inputFileRef
   );
 
   const { connectionLinePath } = useUnit($boardPlayground);
@@ -152,7 +152,7 @@ const FlowMonitor = () => {
                 id: v4(),
                 prev: i === 0 ? undefined : connectionLinePath[i - 1],
                 active: true,
-              }) as ControlPointData,
+              } as ControlPointData)
           ),
         },
       };
@@ -160,7 +160,7 @@ const FlowMonitor = () => {
       takeSnapshot();
       setEdges((edges) => addEdge(edge, edges));
     },
-    [setEdges, takeSnapshot],
+    [setEdges, takeSnapshot]
   );
 
   const onDrop = useCallback(
@@ -194,7 +194,7 @@ const FlowMonitor = () => {
         addNode({ nodeType, subType } as ShapeNodeTypes, position, nodeSize);
       }
     },
-    [reactFlowInstance, takeSnapshot, setNodes],
+    [reactFlowInstance, takeSnapshot, setNodes]
   );
 
   const proOptions = { hideAttribution: true };
