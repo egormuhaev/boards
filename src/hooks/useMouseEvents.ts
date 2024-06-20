@@ -24,7 +24,7 @@ const useMouseEvents = (ref: RefObject<HTMLInputElement>) => {
   const setPosition = useCallback(
     (event: MouseEvent) =>
       setStartPosition({ x: event.clientX, y: event.clientY }),
-    []
+    [],
   );
 
   const activateMoving = useCallback(() => setIsMoving(true), []);
@@ -55,7 +55,6 @@ const useMouseEvents = (ref: RefObject<HTMLInputElement>) => {
         width: 180,
         height: 40,
       };
-
       addTextNode(position, nodeSize);
     } else if (flowState.isDrawingMode) {
       addDrawingNode(position);
@@ -69,12 +68,14 @@ const useMouseEvents = (ref: RefObject<HTMLInputElement>) => {
         addShapeNode(
           { nodeType: buffer.nodeType, subType: buffer.subType },
           position,
-          nodeSize
+          nodeSize,
         );
       }
     }
 
-    clearBufferCreatingType();
+    if (!flowState.isDrawingMode) {
+      clearBufferCreatingType();
+    }
   };
 
   const addShapeNodeOnResize = (event: MouseEvent) => {
@@ -105,7 +106,7 @@ const useMouseEvents = (ref: RefObject<HTMLInputElement>) => {
         {
           width,
           height,
-        }
+        },
       );
     }
   };
@@ -125,14 +126,14 @@ const useMouseEvents = (ref: RefObject<HTMLInputElement>) => {
         activateMoving();
       }
     },
-    [flowState.isDrawingMode]
+    [flowState.isDrawingMode],
   );
 
   const onMouseUp = useCallback(
     (event: MouseEvent) => {
       addShapeNodeOnResize(event);
     },
-    [addShapeNodeOnResize]
+    [addShapeNodeOnResize],
   );
 
   return { onClick, onMouseDown, onMouseMove, onMouseUp };
