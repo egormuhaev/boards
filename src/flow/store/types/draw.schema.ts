@@ -4,4 +4,5 @@ export interface IDrawSchema {
   color: string;
   width: number;
   tool: DrawTools;
+  drawingInThisMoment: boolean;
 }

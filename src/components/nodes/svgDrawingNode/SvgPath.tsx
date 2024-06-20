@@ -5,8 +5,8 @@ export function SvgPath({ path, lineColor, lineWidth, tool }: SvgPathProps) {
   return (
     <svg className="h-full w-full">
       <path
-        className="black"
         d={path}
+        // Z - замкнутый контур
         opacity={tool === DrawTools.Highlighter ? 0.3 : 1}
         stroke={lineColor}
         fill="none"

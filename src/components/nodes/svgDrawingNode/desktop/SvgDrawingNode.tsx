@@ -17,6 +17,7 @@ import smoothPolyline from "./utils/smoothPolyline";
 import resizeSVGContainer from "./utils/resizeSVGContainer";
 import normalizationSvgOffset from "./utils/normalizationSvgOffset";
 import { DrawTools } from "../constants";
+import { changeDrawingInThisMoment } from "@/flow/store/draw.slice";
 
 const defaultSvgPlotSize: PlotSize = {
   width: window.screen.height * 2,
@@ -91,6 +92,7 @@ export default function SvgDrawingNode({
       points: [{ x: offsetX, y: offsetY }],
       isDrawing: true,
     });
+    changeDrawingInThisMoment(true);
   };
 
   const onDrawing = (offsetX: number, offsetY: number) => {
@@ -130,6 +132,7 @@ export default function SvgDrawingNode({
         y: yPos + minY - lineWidth,
       },
     );
+    changeDrawingInThisMoment(false);
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

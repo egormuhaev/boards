@@ -38,12 +38,14 @@ import { $boardPlayground } from "./store/playground.slice";
 import { handleDragEvent } from "./utils/randomColor";
 import useMouseEvents from "@/hooks/useMouseEvents";
 import { Redo, Undo } from "lucide-react";
+import { $draw } from "./store/draw.slice";
 
 const flowKey = "example-flow";
 
 const FlowMonitor = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
+  const drawState = useUnit($draw);
 
   const playgroundState = useUnit($boardPlayground);
 
@@ -235,22 +237,35 @@ const FlowMonitor = () => {
         proOptions={proOptions}
         //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне
       >
-        <Theme />
-        <Panel
-          position="bottom-center"
-          className="w-[100px] flex justify-around z-50 gap-5 p-2 bg-white rounded-lg border border-solid-1 border-slate-300"
-        >
-          <FlowUndoRedo />
-        </Panel>
-        <FlowHeadToolbar />
-        {flowState.isDrawingMode && <FlowHeadDrawingTools />}
+        {!drawState.drawingInThisMoment && <Theme />}
+        {!drawState.drawingInThisMoment && (
+          <Panel
+            position="bottom-center"
+            className="w-[100px] flex justify-around z-50 gap-5 p-2 bg-white rounded-lg border border-solid-1 border-slate-300"
+          >
+            <FlowUndoRedo />
+          </Panel>
+        )}
+        {!drawState.drawingInThisMoment && <FlowHeadToolbar />}
+        {flowState.isDrawingMode && !drawState.drawingInThisMoment && (
+          <FlowHeadDrawingTools />
+        )}
         <Background color="#ccc" variant={BackgroundVariant.Cross} size={2} />
-        <Controls showZoom showFitView showInteractive className="text-black" />
+        {!drawState.drawingInThisMoment && (
+          <Controls
+            showZoom
+            showFitView
+            showInteractive
+            className="text-black"
+          />
+        )}
         <HelperLines
           horizontal={helperLineHorizontal}
           vertical={helperLineVertical}
         />
-        <MiniMap nodeStrokeWidth={3} zoomable pannable />
+        {!drawState.drawingInThisMoment && (
+          <MiniMap nodeStrokeWidth={3} zoomable pannable />
+        )}
       </ReactFlow>
     </>
   );
