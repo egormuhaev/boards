@@ -1,4 +1,3 @@
-import useUndoRedo from "@/hooks/useUndoRedo";
 import { DragEvent, RefObject } from "react";
 
 const getRandomInt = (min: number, max: number) => {

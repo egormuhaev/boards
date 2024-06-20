@@ -1,7 +1,7 @@
 import { nodeTypes } from "@/components/nodes";
 import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 import { clearInput, randomColor, selectFiles } from "@/flow/utils/randomColor";
-import { MouseEvent, RefObject, useCallback, useState } from "react";
+import { RefObject, useCallback } from "react";
 import { Node, XYPosition, useReactFlow } from "reactflow";
 import { v4 } from "uuid";
 import {

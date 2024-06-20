@@ -10,7 +10,7 @@ const Pdf = ({ file }: { file: File }) => {
   return (
     <div
       ref={ref}
-      onClick={(e) => setActive(false)}
+      onClick={() => setActive(false)}
       className="flex justify-center items-center box-border bg-transparent gap-3 w-full h-full"
     >
       <iframe

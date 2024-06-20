@@ -1,9 +1,8 @@
-import { Handle, NodeProps, NodeResizer, Position, useStore } from "reactflow";
+import { Handle, NodeProps, NodeResizer, Position } from "reactflow";
 import Video from "./files/Video";
 import File, { FileType } from "./File";
 import Image from "../shapeNode/shapes/Image";
 import Pdf from "./files/Pdf";
-import { useState } from "react";
 
 export interface FileNodeData {
   type: FileType;

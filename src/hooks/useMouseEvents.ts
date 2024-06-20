@@ -1,4 +1,4 @@
-import { MouseEvent, RefObject, useCallback, useEffect, useState } from "react";
+import { MouseEvent, RefObject, useCallback, useState } from "react";
 import useCreateNode from "./useCreateNode";
 import { useUnit } from "effector-react";
 import {
@@ -120,7 +120,7 @@ const useMouseEvents = (ref: RefObject<HTMLInputElement>) => {
   };
 
   const onMouseMove = useCallback(
-    (event: MouseEvent) => {
+    (_: MouseEvent) => {
       if (!flowState.isDrawingMode) {
         activateMoving();
       }

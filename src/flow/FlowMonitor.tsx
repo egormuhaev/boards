@@ -1,5 +1,5 @@
-import HelperLines from "@/components/HelperLines";
-import Theme from "@/components/Theme";
+// import HelperLines from "@/components/HelperLines";
+// import Theme from "@/components/Theme";
 import { edgeTypes } from "@/components/egdes";
 import { ConnectionLine } from "@/components/egdes/ConectionLine";
 import { ControlPointData } from "@/components/egdes/EditableEdge";
@@ -21,23 +21,23 @@ import ReactFlow, {
   EdgeChange,
   MiniMap,
   NodeChange,
-  Panel,
+  // Panel,
   ReactFlowInstance,
   addEdge,
   useEdgesState,
   useNodesState,
-  useReactFlow,
+  // useReactFlow,
 } from "reactflow";
 import { v4 } from "uuid";
 import FlowHeadDrawingTools from "./FlowHeadDrawingTools";
 import FlowHeadToolbar from "./FlowHeadToolbar";
-import FlowUndoRedo from "./FlowUndoRedo";
+// import FlowUndoRedo from "./FlowUndoRedo";
 import { config } from "./data";
 import { $flow } from "./store/flow.slice";
 import { $boardPlayground } from "./store/playground.slice";
 import { handleDragEvent } from "./utils/randomColor";
 import useMouseEvents from "@/hooks/useMouseEvents";
-import { Redo, Undo } from "lucide-react";
+// import { Redo, Undo } from "lucide-react";
 import { $draw } from "./store/draw.slice";
 
 const flowKey = "example-flow";
@@ -52,7 +52,7 @@ const FlowMonitor = () => {
     hideAttribution: true,
   };
 
-  const playgroundState = useUnit($boardPlayground);
+  // const playgroundState = useUnit($boardPlayground);
 
   const flowState = useUnit($flow);
 
@@ -62,7 +62,7 @@ const FlowMonitor = () => {
 
   const inputFileRef = useRef<HTMLInputElement>(null);
 
-  const { setViewport } = useReactFlow();
+  // const { setViewport } = useReactFlow();
 
   const { addFileNode, addShapeNode, addTextNode } =
     useCreateNode(inputFileRef);
@@ -79,11 +79,11 @@ const FlowMonitor = () => {
 
   const { connectionLinePath } = useUnit($boardPlayground);
   const { buffer, theme } = useUnit($boardPlayground);
-  const { takeSnapshot, undo, redo, canUndo, canRedo } = useUndoRedo();
+  const { takeSnapshot } = useUndoRedo();
   useCopyPaste();
 
-  const [helperLineHorizontal, setHelperLineHorizontal] = useState<number>();
-  const [helperLineVertical, setHelperLineVertical] = useState<number>();
+  const [, setHelperLineHorizontal] = useState<number>();
+  const [, setHelperLineVertical] = useState<number>();
 
   const saveFlow = useCallback(() => {
     if (reactFlowInstance) {
@@ -255,20 +255,25 @@ const FlowMonitor = () => {
         proOptions={proOptions}
         //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне
       >
-        {!drawState.drawingInThisMoment && <Theme />}
-        {!drawState.drawingInThisMoment && (
+        {/* {!drawState.drawingInThisMoment && <Theme />} */}
+
+        {/* {!drawState.drawingInThisMoment && (
           <Panel
             position="bottom-center"
             className="w-[100px] flex justify-around z-50 gap-5 p-2 bg-white rounded-lg border border-solid-1 border-slate-300"
           >
             <FlowUndoRedo />
           </Panel>
-        )}
+        )} */}
+
         {!drawState.drawingInThisMoment && <FlowHeadToolbar />}
+
         {flowState.isDrawingMode && !drawState.drawingInThisMoment && (
           <FlowHeadDrawingTools />
         )}
+
         <Background color="#ccc" variant={BackgroundVariant.Cross} size={2} />
+
         {!drawState.drawingInThisMoment && (
           <Controls
             showZoom
@@ -277,10 +282,12 @@ const FlowMonitor = () => {
             className="text-black"
           />
         )}
-        <HelperLines
+
+        {/* <HelperLines
           horizontal={helperLineHorizontal}
           vertical={helperLineVertical}
-        />
+        /> */}
+
         {!drawState.drawingInThisMoment && (
           <MiniMap nodeStrokeWidth={3} zoomable pannable />
         )}
