@@ -2,12 +2,11 @@ import { useUnit } from "effector-react";
 import { memo, useCallback, useState } from "react";
 import { BlockPicker, ColorResult } from "react-color";
 import { Button } from "@/shadcn/ui/button";
-
-import { $boardPlayground, changeEdge } from "@/flow/store/playground.slice";
 import { createPortal } from "react-dom";
 import { $flow } from "@/flow/store/flow.slice";
 import { Algorithm } from "../EditableEdge/constants";
-import { useReactFlow } from "reactflow";
+import { Edge, useEdges, useReactFlow } from "reactflow";
+import { colorsPalet } from "@/flow/data";
 
 interface EdgeToolbarProps {
   id: string;
@@ -23,54 +22,54 @@ interface Settings {
 }
 
 export default function EdgeToolbar({ id, settings }: EdgeToolbarProps) {
-  const { edges } = useUnit($boardPlayground);
+  const edges = useEdges();
   const flowState = useUnit($flow);
-  const { flowToScreenPosition } = useReactFlow();
+  const { flowToScreenPosition, setEdges } = useReactFlow();
 
   const changeLineWidth = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newEdges = edges.map((node) => {
-        if (node.id === id) {
+      const newEdges = edges.map((edge: Edge) => {
+        if (edge.id === id) {
           return {
-            ...node,
+            ...edge,
             data: {
-              ...node.data,
+              ...edge.data,
               lineWidth: +e.target.value,
             },
           };
         }
-        return node;
+        return edge;
       });
 
-      changeEdge([...newEdges]);
+      setEdges([...newEdges]);
     },
-    [settings.lineWidth, edges],
+    [settings.lineWidth, edges, setEdges],
   );
 
   const changeLineType = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newEdges = edges.map((node) => {
-        if (node.id === id) {
+      const newEdges = edges.map((edge: Edge) => {
+        if (edge.id === id) {
           return {
-            ...node,
+            ...edge,
             data: {
-              ...node.data,
+              ...edge.data,
               algorithm: e.target.value,
             },
           };
         }
-        return node;
+        return edge;
       });
 
-      changeEdge([...newEdges]);
+      setEdges([...newEdges]);
     },
-    [settings.lineWidth, edges],
+    [settings.lineWidth, edges, setEdges],
   );
 
   const changeEdgeColor = useCallback(
     (color: ColorResult) => {
       if (!flowState.isDrawingMode) {
-        const newEdges = edges.map((edgs) => {
+        const newEdges = edges.map((edgs: Edge) => {
           if (edgs.id === id) {
             return {
               ...edgs,
@@ -83,10 +82,10 @@ export default function EdgeToolbar({ id, settings }: EdgeToolbarProps) {
           return edgs;
         });
 
-        changeEdge([...newEdges]);
+        setEdges([...newEdges]);
       }
     },
-    [edges, settings.lineColor],
+    [edges, settings.lineColor, setEdges],
   );
 
   return createPortal(
@@ -196,7 +195,6 @@ const ColorPickerButton = memo(
     pickHandler: (color: ColorResult) => void;
     icon?: JSX.Element;
   }) => {
-    const playgroundState = useUnit($boardPlayground);
     const [visibleColorPicker, setVisibleColorPicker] = useState(false);
 
     return (
@@ -218,9 +216,7 @@ const ColorPickerButton = memo(
           <div className="absolute h-auto w-auto top-0 translate-y-7 ">
             <BlockPicker
               color={color}
-              colors={playgroundState.colorsPalet.map(
-                (color: string) => "#" + color,
-              )}
+              colors={colorsPalet.map((color: string) => "#" + color)}
               onChangeComplete={(e) => {
                 pickHandler(e);
                 setVisibleColorPicker(false);

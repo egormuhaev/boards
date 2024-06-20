@@ -1,11 +1,11 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+import { Node, NodePositionChange, XYPosition } from "reactflow";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-import { Node, NodePositionChange, XYPosition } from "reactflow";
 
 type GetHelperLinesResult = {
   horizontal?: number;
@@ -13,8 +13,6 @@ type GetHelperLinesResult = {
   snapPosition: Partial<XYPosition>;
 };
 
-// this utility function can be called with a position change (inside onNodesChange)
-// it checks all other nodes and calculated the helper line positions and the position where the current node should snap to
 export function getHelperLines(
   change: NodePositionChange,
   nodes: Node[],

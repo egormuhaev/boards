@@ -1,75 +1,27 @@
 import { createStore, createEvent, StoreWritable } from "effector";
-import { Edge, Node, XYPosition } from "reactflow";
 import {
   IReactFlowSliceSchema,
   ICreateNewNodeBuffer,
 } from "./types/playground.schema";
-import CanvasNode from "@/components/nodes/CanvasNode";
-import { v4 } from "uuid";
-import { NodeTypes } from "@/components";
-import { randomColor } from "../utils/randomColor";
-import { EdgeTypes } from "@/components/egdes";
-import { EditableEdge } from "@/components/egdes/EditableEdge";
-import VideoNode from "@/components/nodes/VideoNode";
-import FileNode from "@/components/nodes/FileNode";
-import PictureNode from "@/components/nodes/PictureNode";
-import RectangleNode from "@/components/nodes/RectangleNode";
-import TextNode from "@/components/nodes/TextNode";
-import PDFNode from "@/components/nodes/PDFNode";
-import CircleNode from "@/components/nodes/CircleNode";
+import { Edge, XYPosition } from "reactflow";
 
 export const $boardPlayground: StoreWritable<IReactFlowSliceSchema> =
   createStore<IReactFlowSliceSchema>({
-    nodes: [],
     edges: [],
-    nodeTypes: {
-      [NodeTypes.CanvasNodeFlowTypes]: CanvasNode,
-      [NodeTypes.RectangleNodeFlowTypes]: RectangleNode,
-      [NodeTypes.CircleNodeFlowTypes]: CircleNode,
-      [NodeTypes.TextNodeFlowTypes]: TextNode,
-      [NodeTypes.VideoNodeFlowTypes]: VideoNode,
-      [NodeTypes.FileNodeFlowTypes]: FileNode,
-      [NodeTypes.PictureNodeFlowTypes]: PictureNode,
-      [NodeTypes.PDFNodeFlowTypes]: PDFNode,
-    },
-
-    edgeTypes: {
-      [EdgeTypes.EditableEdgeFlowTypes]: EditableEdge,
-    },
-
+    buffer: null,
     isMovementPlayground: false,
-
     connectionLinePath: [],
-    create: null,
-    colorsPalet: [
-      "8ecae6",
-      "219ebc",
-      "023047",
-      "cdb4db",
-      "ffc8dd",
-      "ffafcc",
-      "bde0fe",
-      "a2d2ff",
-      "ffbe0b",
-      "fb5607",
-      "ff006e",
-      "8338ec",
-      "3a86ff",
-      "9b5de5",
-      "f15bb5",
-      "fee440",
-      "00bbf9",
-      "00f5d4",
-    ],
+    theme: localStorage.getItem("theme") || "light",
   });
 
-export const changeNode = createEvent<Node[]>();
+export const changeTheme = createEvent<string>();
 export const changeEdge = createEvent<Edge[]>();
-export const addNewNode = createEvent<Omit<Node, "id">>();
-export const deleteNode = createEvent<Node>();
 export const setCreateBuffer = createEvent<ICreateNewNodeBuffer>();
 export const setConnectionLinePath = createEvent<XYPosition[]>();
 export const setIsMovementPlayground = createEvent<boolean>();
+
+export const clearBufferCreatingType = () =>
+  setCreateBuffer({ nodeType: undefined, subType: undefined });
 
 const setIsMovementPlaygroundReducer = (
   state: IReactFlowSliceSchema,
@@ -77,7 +29,16 @@ const setIsMovementPlaygroundReducer = (
 ): IReactFlowSliceSchema => {
   return {
     ...state,
-    isMovementPlayground: isMovementPlayground,
+    isMovementPlayground,
+  };
+};
+
+const setTheme = (state: IReactFlowSliceSchema, theme: string) => {
+  localStorage.setItem("theme", theme);
+
+  return {
+    ...state,
+    theme,
   };
 };
 
@@ -87,7 +48,7 @@ const setConnectionLinePathReducer = (
 ): IReactFlowSliceSchema => {
   return {
     ...state,
-    connectionLinePath: connectionLinePath,
+    connectionLinePath,
   };
 };
 
@@ -97,56 +58,7 @@ const setCreateBufferReducer = (
 ): IReactFlowSliceSchema => {
   return {
     ...state,
-    create: {
-      ...buffer,
-      bgColor: buffer.bgColor ?? randomColor(state.colorsPalet),
-      textColor: buffer.textColor ?? randomColor(state.colorsPalet),
-      horizontalAlign: buffer.horizontalAlign ?? "center",
-      verticalAlign: buffer.verticalAlign ?? "center",
-      fontSize: buffer.fontSize ?? 14,
-      rotation: buffer.rotation ?? 0,
-    },
-  };
-};
-
-const addNewNodeReducer = (
-  state: IReactFlowSliceSchema,
-  node: Omit<Node, "id">
-): IReactFlowSliceSchema => {
-  return {
-    ...state,
-    nodes: [
-      ...state.nodes,
-      {
-        ...node,
-        id: v4(),
-        data: { ...state.create, ...node.data },
-      },
-    ],
-    create: null,
-  };
-};
-
-const deleteNodeReducer = (
-  state: IReactFlowSliceSchema,
-  node: Node
-): IReactFlowSliceSchema => {
-  const newNodes = [...state.nodes].filter((nd) => nd.id !== node.id);
-  console.log(newNodes);
-  return {
-    ...state,
-    nodes: [...newNodes],
-    create: null,
-  };
-};
-
-const changeNodesReducer = (
-  state: IReactFlowSliceSchema,
-  nodes: Node[]
-): IReactFlowSliceSchema => {
-  return {
-    ...state,
-    nodes: [...nodes],
+    buffer,
   };
 };
 
@@ -161,10 +73,8 @@ const changeEdgesReducer = (
   };
 };
 
-$boardPlayground.on(changeNode, changeNodesReducer);
+$boardPlayground.on(changeTheme, setTheme);
 $boardPlayground.on(changeEdge, changeEdgesReducer);
-$boardPlayground.on(addNewNode, addNewNodeReducer);
-$boardPlayground.on(deleteNode, deleteNodeReducer);
 $boardPlayground.on(setCreateBuffer, setCreateBufferReducer);
 $boardPlayground.on(setConnectionLinePath, setConnectionLinePathReducer);
 $boardPlayground.on(setIsMovementPlayground, setIsMovementPlaygroundReducer);

@@ -1,230 +1,276 @@
-import ReactFlow, {
-  applyNodeChanges,
-  applyEdgeChanges,
-  addEdge,
-  Background,
-  Controls,
-  MiniMap,
-  BackgroundVariant,
-  useReactFlow,
-  NodeChange,
-  EdgeChange,
-  Connection,
-  OnConnect,
-  ConnectionMode,
-  Panel,
-} from "reactflow";
-import {
-  $boardPlayground,
-  changeNode,
-  changeEdge,
-  setIsMovementPlayground,
-  addNewNode,
-} from "./store/playground.slice";
-import { $flow } from "./store/flow.slice";
-import { useUnit } from "effector-react";
-import FlowHeadToolbar from "./FlowHeadToolbar";
-import FlowHeadParamsNode from "./FlowHeadParamsNode";
+import HelperLines from "@/components/HelperLines";
+import Theme from "@/components/Theme";
+import { edgeTypes } from "@/components/egdes";
+import { ConnectionLine } from "@/components/egdes/ConectionLine";
 import { ControlPointData } from "@/components/egdes/EditableEdge";
 import { DEFAULT_ALGORITHM } from "@/components/egdes/EditableEdge/constants";
-import { v4 } from "uuid";
-import { ConnectionLine } from "@/components/egdes/ConectionLine";
-import React, { DragEvent, useState } from "react";
-import { NodeTypes } from "@/components";
-import useUndoRedo from "@/hooks/useUndoRedo";
-import { Redo, Undo } from "lucide-react";
-import { getHelperLines } from "@/lib/utils";
-import HelperLines from "@/components/HelperLines";
+import { nodeTypes } from "@/components/nodes";
 import useCopyPaste from "@/hooks/useCopyPaste";
+import useCreateNode, { ShapeNodeTypes } from "@/hooks/useCreateNode";
+import useEvents from "@/hooks/useEvents";
+import useUndoRedo from "@/hooks/useUndoRedo";
+import { getHelperLines } from "@/lib/utils";
+import { useUnit } from "effector-react";
+import {
+  DragEvent,
+  TouchEvent,
+  TouchEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import ReactFlow, {
+  Background,
+  BackgroundVariant,
+  Connection,
+  ConnectionMode,
+  Controls,
+  EdgeChange,
+  MiniMap,
+  NodeChange,
+  Panel,
+  ReactFlowInstance,
+  addEdge,
+  useEdgesState,
+  useNodesState,
+  useReactFlow,
+} from "reactflow";
+import { v4 } from "uuid";
+import FlowHeadDrawingTools from "./FlowHeadDrawingTools";
+import FlowHeadToolbar from "./FlowHeadToolbar";
+import FlowUndoRedo from "./FlowUndoRedo";
+import { config } from "./data";
+import { $flow } from "./store/flow.slice";
+import { $boardPlayground } from "./store/playground.slice";
+import { handleDragEvent } from "./utils/randomColor";
+import useMouseEvents from "@/hooks/useMouseEvents";
+import { Redo, Undo } from "lucide-react";
 
-const fileTypes: Record<string, NodeTypes> = {
-  pdf: NodeTypes.PDFNodeFlowTypes,
-  jpeg: NodeTypes.PictureNodeFlowTypes,
-  jpg: NodeTypes.PictureNodeFlowTypes,
-  png: NodeTypes.PictureNodeFlowTypes,
-  mov: NodeTypes.VideoNodeFlowTypes,
-  mp4: NodeTypes.VideoNodeFlowTypes,
-  webm: NodeTypes.VideoNodeFlowTypes,
-};
+const flowKey = "example-flow";
 
 const FlowMonitor = () => {
+
+  const [reactFlowInstance, setReactFlowInstance] =
+    useState<ReactFlowInstance | null>(null);
+
+
   const proOptions = {
     account: 'paid-pro',
     hideAttribution: true,
   };
 
   const playgroundState = useUnit($boardPlayground);
+
   const flowState = useUnit($flow);
-  const { screenToFlowPosition } = useReactFlow();
-  const { undo, redo, canUndo, canRedo, takeSnapshot } = useUndoRedo();
+
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  const inputFileRef = useRef<HTMLInputElement>(null);
+
+  const { setViewport } = useReactFlow();
+
+  const { addFileNode, addNode } = useCreateNode(inputFileRef);
+
+  const {
+    onNodeDragStart,
+    onSelectionDragStart,
+    onNodesDelete,
+    onEdgesDelete,
+  } = useEvents();
+
+  const { onClick, onMouseDown, onMouseMove, onMouseUp } = useMouseEvents(
+    reactFlowInstance,
+    inputFileRef,
+  );
+
+  const { connectionLinePath } = useUnit($boardPlayground);
+  const { buffer, theme } = useUnit($boardPlayground);
+  const { takeSnapshot, undo, redo, canUndo, canRedo } = useUndoRedo();
   useCopyPaste();
 
-  const [helperLineHorizontal, setHelperLineHorizontal] = useState<
-    number | undefined
-  >(undefined);
-  const [helperLineVertical, setHelperLineVertical] = useState<
-    number | undefined
-  >(undefined);
+  const [helperLineHorizontal, setHelperLineHorizontal] = useState<number>();
+  const [helperLineVertical, setHelperLineVertical] = useState<number>();
 
-  const onNodesChange = (changes: NodeChange[]) => {
-    if (!flowState.isDrawingMode) {
-      setHelperLineHorizontal(undefined);
-      setHelperLineVertical(undefined);
-
-      if (
-        changes.length === 1 &&
-        changes[0].type === "position" &&
-        changes[0].dragging &&
-        changes[0].position
-      ) {
-        const helperLines = getHelperLines(changes[0], playgroundState.nodes);
-
-        // if we have a helper line, we snap the node to the helper line position
-        // this is being done by manipulating the node position inside the change object
-        changes[0].position.x =
-          helperLines.snapPosition.x ?? changes[0].position.x;
-        changes[0].position.y =
-          helperLines.snapPosition.y ?? changes[0].position.y;
-
-        // if helper lines are returned, we set them so that they can be displayed
-        setHelperLineHorizontal(helperLines.horizontal);
-        setHelperLineVertical(helperLines.vertical);
-      }
-
-      return changeNode(applyNodeChanges(changes, playgroundState.nodes));
+  const saveFlow = useCallback(() => {
+    if (reactFlowInstance) {
+      const flow = reactFlowInstance.toObject();
+      localStorage.setItem(flowKey, JSON.stringify(flow));
     }
-  };
+  }, [reactFlowInstance]);
 
-  const onEdgesChange = (changes: EdgeChange[]) => {
-    if (!flowState.isDrawingMode) {
-      changeEdge(applyEdgeChanges(changes, playgroundState.edges));
+  useEffect(() => {
+    saveFlow();
+  }, [nodes, edges]);
+
+  useEffect(() => {
+    // const ls = localStorage.getItem(flowKey);
+    // if (!ls) return;
+    // const flow = JSON.parse(ls);
+    // if (flow) {
+    //   const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+    //   setNodes(flow.nodes || []);
+    //   setEdges(flow.edges || []);
+    //   setViewport({ x, y, zoom });
+    // }
+  }, []);
+
+  const onCustomNodesChange = (changes: NodeChange[]) => {
+    setHelperLineHorizontal(undefined);
+    setHelperLineVertical(undefined);
+
+    if (
+      changes.length === 1 &&
+      changes[0].type === "position" &&
+      changes[0].dragging &&
+      changes[0].position
+    ) {
+      const helperLines = getHelperLines(changes[0], nodes);
+
+      changes[0].position.x =
+        helperLines.snapPosition.x ?? changes[0].position.x;
+      changes[0].position.y =
+        helperLines.snapPosition.y ?? changes[0].position.y;
+
+      setHelperLineHorizontal(helperLines.horizontal);
+      setHelperLineVertical(helperLines.vertical);
     }
+
+    onNodesChange(changes);
   };
 
-  const onConnect: OnConnect = (connection: Connection) => {
-    const edge = {
-      ...connection,
-      id: `${Date.now()}-${connection.source}-${connection.target}`,
-      type: "editableEdge",
-      selected: true,
-      data: {
-        algorithm: DEFAULT_ALGORITHM,
-        points: playgroundState.connectionLinePath.map(
-          (point, i) =>
-            ({
-              ...point,
-              data: {
-                lineColor: "#000",
-                lineWidth: 2,
-              },
-              id: v4(),
-              prev:
-                i === 0 ? undefined : playgroundState.connectionLinePath[i - 1],
-              active: true,
-            } as ControlPointData)
-        ),
-      },
-    };
-
-    takeSnapshot();
-    changeEdge(addEdge(edge, playgroundState.edges));
+  const onCustomEdgesChange = (changes: EdgeChange[]) => {
+    onEdgesChange(changes);
   };
 
-  const addNewItemPlaygroud = (e: React.MouseEvent) => {
-    if (!flowState.isDrawingMode) {
-      if (playgroundState.create !== null) {
-        takeSnapshot();
-        addNewNode({
-          data: {},
-          type: playgroundState.create.type ?? "",
-          position: screenToFlowPosition({
-            x: e.clientX,
-            y: e.clientY,
-          }),
-        });
-      }
-    }
-  };
+  const onConnect = useCallback(
+    (connection: Connection) => {
+      const edge = {
+        ...connection,
+        id: `${v4()}-${connection.source}-${connection.target}`,
+        type: "editableEdge",
+        selected: true,
+        data: {
+          algorithm: DEFAULT_ALGORITHM,
+          points: connectionLinePath.map(
+            (point, i) =>
+              ({
+                ...point,
+                data: {
+                  lineColor: "#000",
+                  lineWidth: 2,
+                },
+                id: v4(),
+                prev: i === 0 ? undefined : connectionLinePath[i - 1],
+                active: true,
+              }) as ControlPointData,
+          ),
+        },
+      };
 
-  const handleDragEvent = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
-    handleDragEvent(e);
-
-    const files = e.dataTransfer.files;
-    if (!files.length) return;
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const fileExtension = file.name.slice(file.name.lastIndexOf(".") + 1);
-
-      const type: NodeTypes =
-        fileTypes[fileExtension] ?? NodeTypes.FileNodeFlowTypes;
-
-      const position = screenToFlowPosition({
-        x: e.clientX,
-        y: e.clientY + i * 100,
-      });
       takeSnapshot();
-      addNewNode({
-        data: { file },
-        type,
-        position,
+      setEdges((edges) => addEdge(edge, edges));
+    },
+    [setEdges, takeSnapshot],
+  );
+
+  const onDrop = useCallback(
+    (e: DragEvent<HTMLDivElement>) => {
+      handleDragEvent(e);
+
+      if (!reactFlowInstance) return;
+
+      const nodeType = e.dataTransfer.getData("nodeType");
+      if (!nodeType) return;
+
+      const subType = e.dataTransfer.getData("subType");
+
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: e.clientX,
+        y: e.clientY,
       });
-    }
-  };
+
+      const files = e.dataTransfer.files;
+
+      takeSnapshot();
+
+      const nodeSize = {
+        width: 180,
+        height: 180,
+      };
+
+      if (nodeType === "file") {
+        addFileNode(position, files);
+      } else {
+        addNode({ nodeType, subType } as ShapeNodeTypes, position, nodeSize);
+      }
+    },
+    [reactFlowInstance, takeSnapshot, setNodes],
+  );
+
+  const proOptions = { hideAttribution: true };
 
   return (
-    <ReactFlow
-      onClick={addNewItemPlaygroud}
-      onContextMenu={(e) => e.preventDefault()}
-      onDrop={handleDrop}
-      onConnect={onConnect}
-      onDragOver={handleDragEvent}
-      onDragEnter={handleDragEvent}
-      onDragLeave={handleDragEvent}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onMoveStart={() => setIsMovementPlayground(true)}
-      onMoveEnd={() => setIsMovementPlayground(false)}
-      selectionOnDrag
-      edges={playgroundState.edges}
-      nodes={playgroundState.nodes}
-      nodeTypes={playgroundState.nodeTypes}
-      edgeTypes={playgroundState.edgeTypes}
-      connectionMode={ConnectionMode.Loose}
-      minZoom={0.1}
-      maxZoom={500}
-      connectionLineComponent={ConnectionLine}  
-      proOptions={proOptions}
-    >
-      <Panel
-        position="bottom-center"
-        className="w-[100px] flex justify-around z-50 gap-5 p-2 bg-white rounded-lg border border-solid-1 border-slate-300"
-      >
-        <button disabled={canUndo} onClick={undo}>
-          <Undo color={!canUndo ? "black" : "#e5e7eb"} />
-        </button>
-        <button disabled={canRedo} onClick={redo}>
-          <Redo color={!canRedo ? "black" : "#e5e7eb"} />
-        </button>
-      </Panel>
 
-      {playgroundState.create && <FlowHeadParamsNode />}
-      <FlowHeadToolbar />
-      <Background color="#ccc" variant={BackgroundVariant.Cross} size={1} />
-      <Controls />
+    <>
+      {/* Инпут находится снаружи, чтобы искусственный клик по нему не вызывал заново функцию onClick */}
+      <input multiple type="file" ref={inputFileRef} hidden />
 
-      <HelperLines
-        horizontal={helperLineHorizontal}
-        vertical={helperLineVertical}
-      />
+      <ReactFlow
+        onInit={setReactFlowInstance}
+        onClick={onClick}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onContextMenu={(e) => e.preventDefault()}
+        onDrop={onDrop}
+        onConnect={onConnect}
+        onDragOver={handleDragEvent}
+        onDragEnter={handleDragEvent}
+        onDragLeave={handleDragEvent}
+        onNodesChange={onCustomNodesChange}
+        onEdgesChange={onCustomEdgesChange}
+        edges={edges}
+        nodes={nodes}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        connectionMode={ConnectionMode.Loose}
+        minZoom={config.minZoom}
+        maxZoom={config.maxZoom}
+        connectionLineComponent={ConnectionLine}
+        onNodeDragStart={onNodeDragStart}
+        onSelectionDragStart={onSelectionDragStart}
+        onNodesDelete={onNodesDelete}
+        onEdgesDelete={onEdgesDelete}
+        className={theme}
+        zoomOnDoubleClick={!flowState.isDrawingMode}
+        nodesDraggable={!flowState.isDrawingMode}
+        panOnDrag={!(flowState.isDrawingMode || buffer?.nodeType === "shape")} // Нужно для того чтобы карта не двигалась при рисовании и создании ноды ресайзингом
+        zoomOnScroll
+        proOptions={proOptions}
+        //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне поле зрения
+        <Theme />
 
-      <MiniMap nodeStrokeWidth={3} zoomable pannable />
-    </ReactFlow>
+        <Panel
+          position="bottom-center"
+          className="w-[100px] flex justify-around z-50 gap-5 p-2 bg-white rounded-lg border border-solid-1 border-slate-300"
+        >
+          <FlowUndoRedo />
+        </Panel>
+        <FlowHeadToolbar />
+        {flowState.isDrawingMode && <FlowHeadDrawingTools />}
+        <Background color="#ccc" variant={BackgroundVariant.Cross} size={2} />
+        <Controls showZoom showFitView showInteractive className="text-black" />
+        <HelperLines
+          horizontal={helperLineHorizontal}
+          vertical={helperLineVertical}
+        />
+
+        <MiniMap nodeStrokeWidth={3} zoomable pannable />
+      </ReactFlow>
+    </>
   );
 };
 

@@ -1,9 +1,10 @@
 import { NodeProps, NodeResizer, NodeToolbar, Position } from "reactflow";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import ToolbarControlls from "../nodeEnviroment/ToolbarControlls";
+import ToolbarControlls from "./nodeEnviroment/ToolbarControlls";
 
 interface Props {
+  type: "text";
   id: string;
   bgColor?: string;
   textColor?: string;
@@ -32,7 +33,7 @@ const TextNode = ({ selected, data, id }: NodeProps<Props>) => {
       textarea.current?.focus();
       textarea.current?.setSelectionRange(
         textarea.current.value.length,
-        textarea.current.value.length
+        textarea.current.value.length,
       );
     } else {
       textarea.current?.setSelectionRange(0, 0);
@@ -42,21 +43,14 @@ const TextNode = ({ selected, data, id }: NodeProps<Props>) => {
 
   return (
     <>
-      <NodeToolbar isVisible={selected} position={Position.Top}>
-        <ToolbarControlls
-          id={id}
-          settings={{ bgColor: data.bgColor, textColor: data.textColor }}
-        />
-      </NodeToolbar>
-
-      <NodeResizer isVisible={selected} minWidth={180} minHeight={68} />
+      <NodeResizer isVisible={selected} minWidth={180} minHeight={30} />
 
       <div
         onClick={() => setEditText(false)}
         className={cn(
           styles.wrapper,
           "bg-transparent",
-          editText ? "border border-solid-2 border-black" : ""
+          editText ? "border border-solid-2 border-black" : "",
         )}
       >
         {editText ? (
@@ -76,7 +70,7 @@ const TextNode = ({ selected, data, id }: NodeProps<Props>) => {
             }}
             className={cn(
               styles.textarea,
-              "inline text-ellipsis overflow-hidden bg-transparent"
+              "inline text-ellipsis overflow-hidden bg-transparent",
             )}
           >
             {text}
