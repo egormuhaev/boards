@@ -1,7 +1,8 @@
 import useOnClickOutside from "@/hooks/useOnClickOutside";
 import { useRef, useState } from "react";
+import { CustomFile } from "./types";
 
-const Pdf = ({ file }: { file: File }) => {
+const Pdf = ({ file }: { file: CustomFile }) => {
   const [active, setActive] = useState(false);
   const ref = useRef(null);
 
@@ -15,7 +16,7 @@ const Pdf = ({ file }: { file: File }) => {
     >
       <iframe
         id="pdf-js-viewer"
-        src={`/src/pdf-reader/web/viewer.html?file=/public/${file.name}`}
+        src={`/src/pdf-reader/web/viewer.html?file=${file.path}`}
         title="webviewer"
         width="100%"
         height="100%"

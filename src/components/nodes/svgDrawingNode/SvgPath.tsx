@@ -11,6 +11,7 @@ export function SvgPath({ path, lineColor, lineWidth, tool }: SvgPathProps) {
         stroke={lineColor}
         fill="none"
         strokeWidth={lineWidth}
+        strokeLinecap="round"
       />
     </svg>
   );

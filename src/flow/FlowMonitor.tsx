@@ -26,6 +26,7 @@ import ReactFlow, {
   addEdge,
   useEdgesState,
   useNodesState,
+  useReactFlow,
   // useReactFlow,
 } from "reactflow";
 import { v4 } from "uuid";
@@ -62,7 +63,7 @@ const FlowMonitor = () => {
 
   const inputFileRef = useRef<HTMLInputElement>(null);
 
-  // const { setViewport } = useReactFlow();
+  const { setViewport } = useReactFlow();
 
   const { addFileNode, addShapeNode, addTextNode } =
     useCreateNode(inputFileRef);
@@ -93,19 +94,20 @@ const FlowMonitor = () => {
   }, [reactFlowInstance]);
 
   useEffect(() => {
+    console.log("save to localstorage");
     saveFlow();
   }, [nodes, edges]);
 
   useEffect(() => {
-    // const ls = localStorage.getItem(flowKey);
-    // if (!ls) return;
-    // const flow = JSON.parse(ls);
-    // if (flow) {
-    //   const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-    //   setNodes(flow.nodes || []);
-    //   setEdges(flow.edges || []);
-    //   setViewport({ x, y, zoom });
-    // }
+    const ls = localStorage.getItem(flowKey);
+    if (!ls) return;
+    const flow = JSON.parse(ls);
+    if (flow) {
+      const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+      setNodes(flow.nodes || []);
+      setEdges(flow.edges || []);
+      setViewport({ x, y, zoom });
+    }
   }, []);
 
   const onCustomNodesChange = (changes: NodeChange[]) => {
@@ -156,7 +158,7 @@ const FlowMonitor = () => {
                 id: v4(),
                 prev: i === 0 ? undefined : connectionLinePath[i - 1],
                 active: true,
-              }) as ControlPointData,
+              } as ControlPointData)
           ),
         },
       };
@@ -164,7 +166,7 @@ const FlowMonitor = () => {
       takeSnapshot();
       setEdges((edges) => addEdge(edge, edges));
     },
-    [setEdges, takeSnapshot],
+    [setEdges, takeSnapshot]
   );
 
   const onDrop = useCallback(
@@ -210,11 +212,11 @@ const FlowMonitor = () => {
         addShapeNode(
           { nodeType, subType } as ShapeNodeTypes,
           position,
-          nodeSize,
+          nodeSize
         );
       }
     },
-    [reactFlowInstance, takeSnapshot, setNodes],
+    [reactFlowInstance, takeSnapshot, setNodes]
   );
 
   return (

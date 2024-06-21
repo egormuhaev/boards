@@ -19,6 +19,7 @@ export function SvgPolyline({
         points={pointsAsString}
         fill="none"
         stroke={lineColor}
+        strokeLinecap="round"
         strokeWidth={lineWidth}
       />
     </svg>

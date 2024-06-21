@@ -15,10 +15,10 @@ export const clearInput = <T extends HTMLInputElement>(ref: RefObject<T>) => {
 };
 
 //FIXME: при отмене выбора промис зависает, потому что не срабатывает функция onChange
-export const selectFiles = <T extends HTMLInputElement>(
+export const selectFiles = async <T extends HTMLInputElement>(
   ref: RefObject<T>
-): Promise<FileList | null> => {
-  return new Promise((resolve) => {
+) => {
+  const files: FileList | null = await new Promise((resolve) => {
     if (ref.current) {
       ref.current.onchange = (event) => {
         const files = (event.target as HTMLInputElement).files;
@@ -30,6 +30,27 @@ export const selectFiles = <T extends HTMLInputElement>(
       resolve(null);
     }
   });
+
+  if (!files?.length) return;
+
+  const formData = new FormData();
+
+  for (let i = 0; i < files.length; i++) {
+    formData.append("files", files[i]);
+  }
+
+  const response = await fetch("http://localhost:3000/api/files", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+  console.log(result);
+  return result.files;
 };
 
 export const handleDragEvent = (e: DragEvent<HTMLDivElement>) => {

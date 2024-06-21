@@ -1,4 +1,6 @@
-const Video = ({ file }: { file: File }) => {
+import { CustomFile } from "./types";
+
+const Video = ({ file }: { file: CustomFile }) => {
   return (
     <>
       <div
@@ -9,7 +11,7 @@ const Video = ({ file }: { file: File }) => {
 
         <video controls width="250" className="w-full h-full cursor-grab">
           {"Тут надо вставлять ссылку на файл"}
-          <source src={file.name} />
+          <source src={file.path} />
         </video>
       </div>
     </>

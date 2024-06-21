@@ -1,6 +1,17 @@
 import { FaFile } from "react-icons/fa";
+import { CustomFile } from "./types";
 
-const Unknown = ({ file }: { file: File }) => {
+const downloadFile = (file: CustomFile) => {
+  const link = document.createElement("a");
+
+  link.href = file.path;
+
+  link.download = file.name;
+
+  link.click();
+};
+
+const Unknown = ({ file }: { file: CustomFile }) => {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
@@ -12,7 +23,10 @@ const Unknown = ({ file }: { file: File }) => {
         <p className="text-slate-500 text-xl text-start items-center">
           {file.name}
         </p>
-        <button className="text-slate-500 text-xl text-start items-center">
+        <button
+          onClick={() => downloadFile(file)}
+          className="text-slate-500 text-xl text-start items-center"
+        >
           Скачать
         </button>
       </div>
