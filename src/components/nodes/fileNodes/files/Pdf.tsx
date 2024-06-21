@@ -16,7 +16,7 @@ const Pdf = ({ file }: { file: CustomFile }) => {
     >
       <iframe
         id="pdf-js-viewer"
-        src={`/src/pdf-reader/web/viewer.html?file=${file.path}`}
+        src={`${file.path}`}
         title="webviewer"
         width="100%"
         height="100%"
