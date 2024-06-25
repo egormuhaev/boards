@@ -21,7 +21,7 @@ import ReactFlow, {
   EdgeChange,
   MiniMap,
   NodeChange,
-  Panel,
+  // Panel,
   // Panel,
   ReactFlowInstance,
   addEdge,
@@ -41,7 +41,7 @@ import { handleDragEvent } from "./utils/randomColor";
 import useMouseEvents from "@/hooks/useMouseEvents";
 // import { Redo, Undo } from "lucide-react";
 import { $draw } from "./store/draw.slice";
-import FlowUndoRedo from "./FlowUndoRedo";
+// import FlowUndoRedo from "./FlowUndoRedo";
 
 const flowKey = "example-flow";
 
@@ -61,13 +61,13 @@ const FlowMonitor = () => {
 
     viewportMetaTag.setAttribute(
       "content",
-      "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
     );
 
     return () => {
       viewportMetaTag.setAttribute(
         "content",
-        "width=device-width, initial-scale=1.0"
+        "width=device-width, initial-scale=1.0",
       );
     };
   }, []);
@@ -106,6 +106,7 @@ const FlowMonitor = () => {
   const [, setHelperLineVertical] = useState<number>();
 
   const saveFlow = useCallback(() => {
+    console.log("saving flow...");
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject();
       localStorage.setItem(flowKey, JSON.stringify(flow));
@@ -113,8 +114,7 @@ const FlowMonitor = () => {
   }, [reactFlowInstance]);
 
   useEffect(() => {
-    console.log("save to localstorage");
-    saveFlow();
+    // saveFlow();
   }, [nodes, edges]);
 
   useEffect(() => {
@@ -150,10 +150,14 @@ const FlowMonitor = () => {
       setHelperLineVertical(helperLines.vertical);
     }
 
+    saveFlow();
+    console.log("nodes changes");
     onNodesChange(changes);
   };
 
   const onCustomEdgesChange = (changes: EdgeChange[]) => {
+    saveFlow();
+    console.log("edges changes");
     onEdgesChange(changes);
   };
 
@@ -177,7 +181,7 @@ const FlowMonitor = () => {
                 id: v4(),
                 prev: i === 0 ? undefined : connectionLinePath[i - 1],
                 active: true,
-              } as ControlPointData)
+              }) as ControlPointData,
           ),
         },
       };
@@ -185,7 +189,7 @@ const FlowMonitor = () => {
       takeSnapshot();
       setEdges((edges) => addEdge(edge, edges));
     },
-    [setEdges, takeSnapshot]
+    [setEdges, takeSnapshot],
   );
 
   const onDrop = useCallback(
@@ -231,11 +235,11 @@ const FlowMonitor = () => {
         addShapeNode(
           { nodeType, subType } as ShapeNodeTypes,
           position,
-          nodeSize
+          nodeSize,
         );
       }
     },
-    [reactFlowInstance, takeSnapshot, setNodes]
+    [reactFlowInstance, takeSnapshot, setNodes],
   );
 
   return (

@@ -6,15 +6,15 @@ import {
   useKeyPress,
   useReactFlow,
   useStore,
-  // useUpdateNodeInternals,
+  useUpdateNodeInternals,
   type NodeProps,
 } from "reactflow";
 
 import { AlignContent, TextAlign } from "@/flow/store/types/playground.schema";
-// import { drag } from "d3-drag";
-// import { select } from "d3-selection";
+import { drag } from "d3-drag";
+import { select } from "d3-selection";
 import { RotateCw } from "lucide-react";
-import { CSSProperties, useRef } from "react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import ToolbarControlls from "../nodeEnviroment/ToolbarControlls";
 import Content from "./Content";
 import Shape, { ShapeType } from "./Shape";
@@ -66,12 +66,12 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
   const shiftKeyPressed = useKeyPress("Shift");
   const { setNodes } = useReactFlow();
 
-  // const [rotation, setRotation] = useState(data.rotation || 0);
+  const [rotation, setRotation] = useState(0);
 
   const handleStyle = { backgroundColor: data.backgroundColor };
 
   const rotateControlRef = useRef<HTMLDivElement>(null);
-  // const updateNodeInternals = useUpdateNodeInternals();
+  const updateNodeInternals = useUpdateNodeInternals();
 
   const onEditText = (e: React.ChangeEvent<Element>) => {
     const value = e.target.textContent;
@@ -89,43 +89,48 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
                 ...nodePart,
               },
             }
-          : node
-      )
+          : node,
+      ),
     );
 
-  // useEffect(() => {
-  //   if (!rotateControlRef.current) return;
+  useEffect(() => {
+    if (!rotateControlRef.current) return;
 
-  //   const selection = select(rotateControlRef.current);
+    const selection = select(rotateControlRef.current);
 
-  //   const dragHandler = drag<HTMLDivElement, any>()
-  //     .on("drag", (evt) => {
-  //       const dx = evt.x - 100;
-  //       const dy = evt.y - 100;
-  //       const rad = Math.atan2(dx, dy);
-  //       const deg = rad * (180 / Math.PI);
+    const dragHandler = drag<HTMLDivElement, any>()
+      .on("drag", (evt) => {
+        const dx = evt.x - 100;
+        const dy = evt.y - 100;
+        const rad = Math.atan2(dx, dy);
+        const deg = rad * (180 / Math.PI);
 
-  //       setRotation(180 - deg);
-  //       updateNodeInternals(id);
-  //     })
-  //     .on("end", (evt) => {
-  //       const dx = evt.x - 100;
-  //       const dy = evt.y - 100;
-  //       const rad = Math.atan2(dx, dy);
-  //       const deg = rad * (180 / Math.PI);
+        setRotation(180 - deg);
+        updateNodeInternals(id);
+      })
+      .on("end", (evt) => {
+        const dx = evt.x - 100;
+        const dy = evt.y - 100;
+        const rad = Math.atan2(dx, dy);
+        const deg = rad * (180 / Math.PI);
 
-  //       updateNode({ rotation: 180 - deg });
-  //     });
+        updateNodeInternals(id);
+        updateNode({ rotation: 180 - deg });
+      });
 
-  //   selection.call(dragHandler);
-  // }, [id, updateNodeInternals]);
+    selection.call(dragHandler);
+  }, [id, updateNodeInternals]);
+
+  useEffect(() => {
+    updateNodeInternals(id);
+  }, []);
 
   return (
     <>
       <div
-      // style={{
-      // 	transform: `rotate(${rotation}deg)`,
-      // }}
+        style={{
+          transform: `rotate(${rotation}deg)`,
+        }}
       >
         <NodeToolbar isVisible={selected} position={Position.Top} offset={40}>
           <ToolbarControlls id={id} data={data} />

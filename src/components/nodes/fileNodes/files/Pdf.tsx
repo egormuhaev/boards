@@ -6,7 +6,7 @@ const fileViewerUrl = `${
   import.meta.env.VITE_FILE_SERVER_URL
 }/pdf-reader/web/viewer.html?file=/`;
 
-const Pdf = ({ fileName }: FileNodeData) => {
+const Pdf = ({ filePath }: FileNodeData) => {
   const [active, setActive] = useState(false);
   const ref = useRef(null);
 
@@ -20,7 +20,7 @@ const Pdf = ({ fileName }: FileNodeData) => {
     >
       <iframe
         id="pdf-js-viewer"
-        src={fileViewerUrl + fileName}
+        src={fileViewerUrl + filePath.slice(filePath.lastIndexOf("/") + 1)}
         title="webviewer"
         width="100%"
         height="100%"

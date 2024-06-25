@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import {
   NodeDragHandler,
   OnEdgesDelete,
@@ -8,11 +8,7 @@ import {
 import useUndoRedo from "./useUndoRedo";
 
 const useEvents = () => {
-  const { takeSnapshot, undo, redo, canUndo, canRedo } = useUndoRedo();
-
-  useEffect(() => {
-    console.log("change redo undo use events");
-  }, [undo, redo, canUndo, canRedo, takeSnapshot]);
+  const { takeSnapshot } = useUndoRedo();
 
   const onNodeDragStart: NodeDragHandler = useCallback(() => {
     takeSnapshot();

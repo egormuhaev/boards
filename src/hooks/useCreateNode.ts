@@ -2,7 +2,12 @@ import { nodeTypes } from "@/components/nodes";
 import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 import { clearInput, randomColor, selectFiles } from "@/flow/utils/randomColor";
 import { RefObject, useCallback } from "react";
-import { Node, XYPosition, useReactFlow } from "reactflow";
+import {
+  Node,
+  XYPosition,
+  useReactFlow,
+  useUpdateNodeInternals,
+} from "reactflow";
 import { v4 } from "uuid";
 import {
   colorsPalet,
@@ -36,7 +41,7 @@ export interface ShapeNodeTypes {
 
 function getCurrentParamsDrawingPlot(
   zoom: number,
-  position: XYPosition
+  position: XYPosition,
 ): [XYPosition, PlotSize] {
   const zoomScale = zoom < 1 ? zoom * 100 : zoom;
 
@@ -58,7 +63,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
   const addShapeNode = (
     types: ShapeNodeTypes,
     position: XYPosition,
-    { width, height }: { width: number; height: number }
+    { width, height }: { width: number; height: number },
   ) => {
     const newNode = {
       id: v4(),
@@ -78,7 +83,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
 
   const addTextNode = (
     position: XYPosition,
-    { width, height }: { width: number; height: number }
+    { width, height }: { width: number; height: number },
   ) => {
     const newNode = {
       id: v4(),
@@ -95,7 +100,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
     async (
       position: XYPosition,
       { width, height }: { width: number; height: number },
-      fileList?: FileList
+      fileList?: FileList,
     ) => {
       const files = fileList?.length ? fileList : await selectFiles(ref);
       if (!files?.length) return;
@@ -118,8 +123,8 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
             type === "pdf"
               ? { width, height }
               : type === "video"
-              ? { height: 500 }
-              : undefined,
+                ? { height: 500 }
+                : undefined,
           position,
         };
 
@@ -130,7 +135,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       // Очищаем инпут, чтобы при выборе того же файла второй раз подряд вызывалось событие onChange
       clearInput(ref);
     },
-    []
+    [],
   );
 
   const addDrawingNode = (position: XYPosition) => {
