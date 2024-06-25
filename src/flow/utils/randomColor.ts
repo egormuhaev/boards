@@ -49,7 +49,7 @@ export const selectFiles = async <T extends HTMLInputElement>(
   }
 
   const result = await response.json();
-  console.log(result);
+
   return result.files;
 };
 

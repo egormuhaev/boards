@@ -13,6 +13,7 @@ import { useUnit } from "effector-react";
 import { $draw } from "@/flow/store/draw.slice";
 import { PlotSize } from "@/components/nodes/svgDrawingNode/desktop/types";
 import { FileComponents } from "@/components/nodes/fileNodes/FileNode";
+import { CustomFile } from "@/components/nodes/fileNodes/files/types";
 
 // TODO: заменить Function на нужный тип
 // Заменить везде file на тип
@@ -102,14 +103,16 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       const newNodes: Node[] = [];
 
       for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const fileExtension = file.name.slice(file.name.lastIndexOf(".") + 1);
+        const file: CustomFile = files[i];
+        // const fileExtension = file.fileName.slice(
+        //   file.fileName.lastIndexOf(".") + 1
+        // );
 
-        const type = fileSubTypes[fileExtension] ?? "file";
+        const type = fileSubTypes[file.fileExtension] ?? "file";
 
         const newNode: Node = {
           id: v4(),
-          data: { file, type },
+          data: { type, ...file },
           type: "file",
           style:
             type === "pdf"

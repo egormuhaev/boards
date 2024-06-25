@@ -1,22 +1,16 @@
-import { FileComponents } from "./FileNode";
+import { FileComponents, FileNodeData } from "./FileNode";
 import Unknown from "./files/Unknown";
-import { FileProps } from "./files/types";
 
 export type FileType = keyof typeof FileComponents;
 
-export type FileComponentProps = Partial<FileProps> & {
-  type: FileType;
-  file: File;
-};
-
-function File({ file, type }: FileComponentProps) {
-  const FileComponent = FileComponents[type];
+function File(props: FileNodeData) {
+  const FileComponent = FileComponents[props.type];
 
   if (!FileComponent) {
-    return <Unknown file={file} />;
+    return <Unknown {...props} />;
   }
 
-  return <FileComponent file={file} />;
+  return <FileComponent {...props} />;
 }
 
 export default File;

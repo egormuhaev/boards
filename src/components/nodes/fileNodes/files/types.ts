@@ -1,5 +1,6 @@
-export type FileProps = {};
-
-export interface CustomFile extends File {
-  path: string;
+export interface CustomFile {
+  filePath: string;
+  fileName: string;
+  fileSize: string;
+  fileExtension: string;
 }

@@ -1,34 +1,46 @@
-import { FaFile } from "react-icons/fa";
-import { CustomFile } from "./types";
+import { FileNodeData } from "../FileNode";
+import { ArrowDownToLine } from "lucide-react";
 
-const downloadFile = (file: CustomFile) => {
+const downloadFile = async (filePath: string, fileName: string) => {
+  const response = await fetch(filePath);
+  if (!response.ok) {
+    alert("Не удалось загрузить файл! Возможно он был удален.");
+    return;
+  }
+
+  const blob = await response.blob();
+
+  const url = window.URL.createObjectURL(blob);
+
   const link = document.createElement("a");
 
-  link.href = file.path;
+  link.href = url;
 
-  link.download = file.name;
+  link.download = fileName;
 
   link.click();
 };
 
-const Unknown = ({ file }: { file: CustomFile }) => {
+const Unknown = ({ filePath, fileName, fileSize }: FileNodeData) => {
+  const transformedSize = (+fileSize / 1024).toFixed(2) + " КБ";
+
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="flex justify-center items-center box-border bg-transparent gap-3"
+      className="flex justify-center items-center gap-3 h-16 bg-black text-white p-5 box-content rounded-full"
     >
-      <FaFile size={50} color="black" />
+      <button
+        onClick={() => downloadFile(filePath, fileName)}
+        className="bg-white rounded-full h-full aspect-square flex justify-center items-center hover:cursor-pointer"
+      >
+        <ArrowDownToLine size={28} color="black" />
+      </button>
 
-      <div className="flex flex-col">
-        <p className="text-slate-500 text-xl text-start items-center">
-          {file.name}
-        </p>
-        <button
-          onClick={() => downloadFile(file)}
-          className="text-slate-500 text-xl text-start items-center"
-        >
-          Скачать
-        </button>
+      <div className="flex-1">
+        <span>{fileName}</span>
+        <div className="flex text-start items-end gap-2">
+          <span>{transformedSize}</span>
+        </div>
       </div>
     </div>
   );

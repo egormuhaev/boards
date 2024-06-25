@@ -21,6 +21,7 @@ import ReactFlow, {
   EdgeChange,
   MiniMap,
   NodeChange,
+  Panel,
   // Panel,
   ReactFlowInstance,
   addEdge,
@@ -40,6 +41,7 @@ import { handleDragEvent } from "./utils/randomColor";
 import useMouseEvents from "@/hooks/useMouseEvents";
 // import { Redo, Undo } from "lucide-react";
 import { $draw } from "./store/draw.slice";
+import FlowUndoRedo from "./FlowUndoRedo";
 
 const flowKey = "example-flow";
 
@@ -52,6 +54,23 @@ const FlowMonitor = () => {
     account: "paid-pro",
     hideAttribution: true,
   };
+
+  useEffect(() => {
+    const viewportMetaTag = document.querySelector('meta[name="viewport"]');
+    if (!viewportMetaTag) return;
+
+    viewportMetaTag.setAttribute(
+      "content",
+      "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    );
+
+    return () => {
+      viewportMetaTag.setAttribute(
+        "content",
+        "width=device-width, initial-scale=1.0"
+      );
+    };
+  }, []);
 
   // const playgroundState = useUnit($boardPlayground);
 
@@ -258,15 +277,6 @@ const FlowMonitor = () => {
         //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне
       >
         {/* {!drawState.drawingInThisMoment && <Theme />} */}
-
-        {/* {!drawState.drawingInThisMoment && (
-          <Panel
-            position="bottom-center"
-            className="w-[100px] flex justify-around z-50 gap-5 p-2 bg-white rounded-lg border border-solid-1 border-slate-300"
-          >
-            <FlowUndoRedo />
-          </Panel>
-        )} */}
 
         {!drawState.drawingInThisMoment && <FlowHeadToolbar />}
 

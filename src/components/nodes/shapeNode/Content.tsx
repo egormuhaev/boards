@@ -100,11 +100,9 @@ const Content = ({ value, onChange, style, placeholder }: ContentProps) => {
         onInput={inputHandler}
         onBlur={() => setActive(false)}
         contentEditable={active}
-        // data-placeholder={placeholder}
         className={`w-full resize-none bg-transparent outline-none break-words text-ellipsis overflow-hidden box-border border-none ${
           active ? "nodrag cursor-text" : ""
         }`}
-        // before:content-[attr(data-placeholder)] before:absolute before:text-slate-500 before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 w-full h-full block pointer-events-none
         style={{ ...otherStyles, minHeight: fontSize, fontSize }}
         suppressContentEditableWarning
       >
