@@ -7,6 +7,7 @@ export function useChangePosition() {
   const query = useSendingModifiedNodeValues();
 
   useEffect(() => {
+    console.log("useChangePosition");
     if (heap.length !== 0) {
       let nodesWithCompletedMovement = [];
 

@@ -7,6 +7,7 @@ export function useChangeReset() {
   const query = useSendingResetingNodeValues();
 
   useEffect(() => {
+    console.log("useChangeReset");
     if (heap.length !== 0) {
       let nodesWithCompletedReset = heap.map((item) => item.item);
       if (nodesWithCompletedReset.length > 0) {

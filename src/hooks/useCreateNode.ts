@@ -130,7 +130,6 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       }
 
       setNodes((nds) => nds.concat(newNodes));
-      // Очищаем инпут, чтобы при выборе того же файла второй раз подряд вызывалось событие onChange
       clearInput(ref);
     },
     [],
@@ -145,6 +144,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       position: pos,
       type: "drawing",
       data: {
+        isActual: false,
         points: [],
         plotSize: size,
         lineColor: drawState.color,
@@ -153,7 +153,6 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       },
     };
 
-    createNewNode(newNode);
     setNodes((nds) => nds.concat(newNode));
   };
 

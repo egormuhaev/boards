@@ -14,6 +14,13 @@ export function useSendingModifiedNodeValues() {
       const targetId = ids[i];
       const naturalIdNode = nodesIdMap[targetId];
       const nodeCurrentState = getNodeById(targetId, nodes);
+      if (
+        nodeCurrentState.type === "drawing" &&
+        nodeCurrentState.data.isCompletedDrawing === false
+      ) {
+        continue;
+      }
+
       updateNodeDataFunction({
         variables: {
           where: {

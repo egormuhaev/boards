@@ -16,7 +16,7 @@ const setNodesIdMapReducer = (
 ): IFlowSchema => {
   return {
     ...state,
-    nodesIdMap: nodesIdMap,
+    nodesIdMap: { ...nodesIdMap },
   };
 };
 

@@ -10,8 +10,11 @@ export function useCreateNewNodeServer() {
 
   useEffect(() => {
     if (data) {
-      if (data.id && data.nodeId) {
-        let newNodesIdMap = { ...nodesIdMap, [data.nodeId]: data.id };
+      let nodeId = data.createNode.nodeId;
+      let nodeNaturalId = data.createNode.id;
+
+      if (nodeId && nodeNaturalId) {
+        let newNodesIdMap = { ...nodesIdMap, [nodeId]: nodeNaturalId };
         console.log(newNodesIdMap);
         setNodesIdMap(newNodesIdMap);
       }

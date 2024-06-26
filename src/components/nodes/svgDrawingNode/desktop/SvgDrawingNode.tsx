@@ -11,13 +11,15 @@ import { SvgPolyline } from "../SvgPolyline";
 import { SvgDrawingNodeHandle } from "../SvgDrawingNodeHandle";
 import { useUnit } from "effector-react";
 import { $flow } from "@/flow/store/flow.slice";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { SvgPath } from "../SvgPath";
 import smoothPolyline from "./utils/smoothPolyline";
 import resizeSVGContainer from "./utils/resizeSVGContainer";
 import normalizationSvgOffset from "./utils/normalizationSvgOffset";
 import { DrawTools } from "../constants";
 import { changeDrawingInThisMoment } from "@/flow/store/draw.slice";
+import { useCreateNewNodeServer } from "@/server/nodes/create/useCreateNewNode";
+import { getNodeById } from "@/server/nodes/utils/getNodeById";
 
 const defaultSvgPlotSize: PlotSize = {
   width: window.screen.height * 2,
@@ -37,37 +39,43 @@ export default function SvgDrawingNode({
     points = [],
     lineColor = "#000",
     lineWidth = 2,
+    isActual,
   },
 }: NodeProps<Props>) {
   const flowState = useUnit($flow);
   const nodes = useNodes<Props>();
   const { setNodes } = useReactFlow();
   const svgContainerRef = useRef<HTMLDivElement>(null);
+  const updateDrawingServer = useCreateNewNodeServer();
+
+  useEffect(() => {
+    if (!isDrawing && isCompletedDrawing && !isActual) {
+      const nodeCuttentState = getNodeById(id, nodes);
+      if (
+        points.length > 5 &&
+        plotSize.width !== -Infinity &&
+        plotSize.height !== -Infinity
+      )
+        updateDrawingServer(nodeCuttentState);
+      setNodesCustom(
+        {
+          plotSize,
+          isActual: true,
+          isDrawing: false,
+          isCompletedDrawing: true,
+          points,
+        },
+        {
+          x: xPos,
+          y: yPos,
+        },
+      );
+    }
+  }, [isDrawing, isCompletedDrawing]);
 
   const conditionVizibleHandeTools = selected && !flowState.isDrawingMode;
   const conditionActionsDrawEnable =
     !isCompletedDrawing && flowState.isDrawingMode;
-
-  // const getNativeTouchScreenCoordinate = (e: TouchEvent) => {
-  //   if (svgContainerRef.current) {
-  //     const rect = svgContainerRef.current.getBoundingClientRect();
-
-  //     const touch = {
-  //       x: e.changedTouches[0].clientX!,
-  //       y: e.changedTouches[0].clientY!,
-  //     };
-
-  //     return screenToFlowPosition({
-  //       x: touch.x - rect.x,
-  //       y: touch.y - rect.y,
-  //     });
-  //   }
-
-  //   return {
-  //     x: 0,
-  //     y: 0,
-  //   };
-  // };
 
   const setNodesCustom = (args: Props, position?: XYPosition) => {
     setNodes(
@@ -91,6 +99,7 @@ export default function SvgDrawingNode({
     setNodesCustom({
       points: [{ x: offsetX, y: offsetY }],
       isDrawing: true,
+      isActual,
     });
     changeDrawingInThisMoment(true);
   };
@@ -102,6 +111,7 @@ export default function SvgDrawingNode({
       plotSize: { width: width, height: height },
       points: [...points, { x: offsetX, y: offsetY }],
       isDrawing: true,
+      isActual,
     });
   };
 
@@ -123,6 +133,7 @@ export default function SvgDrawingNode({
           width: maxX - minX,
           height: maxY - minY,
         },
+        isActual,
         isDrawing: false,
         isCompletedDrawing: true,
         points: [...currentNormalPoints],

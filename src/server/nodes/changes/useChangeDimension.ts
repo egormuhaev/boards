@@ -7,6 +7,7 @@ export function useChangeDimension() {
   const query = useSendingModifiedNodeValues();
 
   useEffect(() => {
+    console.log("useChangeDimension");
     if (heap.length !== 0) {
       let nodesWithCompletedResize = [];
       for (let i = 0; i < heap.length; i++) {

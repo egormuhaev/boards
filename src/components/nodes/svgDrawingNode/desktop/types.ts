@@ -29,6 +29,7 @@ export interface SvgPathProps extends BaseLineProps {
 export interface Props {
   plotSize?: PlotSize;
   points?: Point[];
+  isActual: boolean;
   isCompletedDrawing?: boolean;
   isDrawing?: boolean;
   lineWidth?: number;

@@ -13,6 +13,13 @@ export function useSendingResetingNodeValues() {
       const naturalIdNode = nodesIdMap[targetId];
       const nodeCurrentState = nodes[i];
 
+      if (
+        nodeCurrentState.type === "drawing" &&
+        nodeCurrentState.data.isCompletedDrawing === false
+      ) {
+        continue;
+      }
+
       updateNodeDataFunction({
         variables: {
           where: {

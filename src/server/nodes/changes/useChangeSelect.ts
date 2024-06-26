@@ -7,6 +7,7 @@ export function useChangeSelect() {
   const query = useSendingModifiedNodeValues();
 
   useEffect(() => {
+    console.log("useChangeSelect");
     if (heap.length !== 0) {
       let nodesWithCompletedSelect = heap.map((item) => item.id);
       if (nodesWithCompletedSelect.length > 0) {
