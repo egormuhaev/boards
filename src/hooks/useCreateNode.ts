@@ -13,6 +13,7 @@ import { useUnit } from "effector-react";
 import { $draw } from "@/flow/store/draw.slice";
 import { PlotSize } from "@/components/nodes/svgDrawingNode/desktop/types";
 import { FileComponents } from "@/components/nodes/fileNodes/FileNode";
+import { useCreateNewNodeServer } from "../server/nodes/create/useCreateNewNode";
 
 // TODO: заменить Function на нужный тип
 // Заменить везде file на тип
@@ -35,7 +36,7 @@ export interface ShapeNodeTypes {
 
 function getCurrentParamsDrawingPlot(
   zoom: number,
-  position: XYPosition
+  position: XYPosition,
 ): [XYPosition, PlotSize] {
   const zoomScale = zoom < 1 ? zoom * 100 : zoom;
 
@@ -53,11 +54,12 @@ function getCurrentParamsDrawingPlot(
 const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
   const { setNodes, getZoom } = useReactFlow();
   const drawState = useUnit($draw);
+  const createNewNode = useCreateNewNodeServer();
 
   const addShapeNode = (
     types: ShapeNodeTypes,
     position: XYPosition,
-    { width, height }: { width: number; height: number }
+    { width, height }: { width: number; height: number },
   ) => {
     const newNode = {
       id: v4(),
@@ -71,13 +73,13 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
         color: randomColor(colorsPalet),
       },
     };
-
+    createNewNode(newNode);
     setNodes((nds) => nds.concat(newNode));
   };
 
   const addTextNode = (
     position: XYPosition,
-    { width, height }: { width: number; height: number }
+    { width, height }: { width: number; height: number },
   ) => {
     const newNode = {
       id: v4(),
@@ -87,6 +89,8 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       data: defaultTextNodeData,
     };
 
+    createNewNode(newNode);
+
     setNodes((nds) => nds.concat(newNode));
   };
 
@@ -94,7 +98,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
     async (
       position: XYPosition,
       { width, height }: { width: number; height: number },
-      fileList?: FileList
+      fileList?: FileList,
     ) => {
       const files = fileList?.length ? fileList : await selectFiles(ref);
       if (!files?.length) return;
@@ -115,10 +119,12 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
             type === "pdf"
               ? { width, height }
               : type === "video"
-              ? { height: 500 }
-              : undefined,
+                ? { height: 500 }
+                : undefined,
           position,
         };
+
+        createNewNode(newNode);
 
         newNodes.push(newNode);
       }
@@ -127,7 +133,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       // Очищаем инпут, чтобы при выборе того же файла второй раз подряд вызывалось событие onChange
       clearInput(ref);
     },
-    []
+    [],
   );
 
   const addDrawingNode = (position: XYPosition) => {
@@ -147,6 +153,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       },
     };
 
+    createNewNode(newNode);
     setNodes((nds) => nds.concat(newNode));
   };
 
