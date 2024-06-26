@@ -2,6 +2,7 @@ import {
   NodeProps,
   NodeResizer,
   XYPosition,
+  applyNodeChanges,
   useNodes,
   useReactFlow,
 } from "reactflow";
@@ -77,22 +78,23 @@ export default function SvgDrawingNode({
   const conditionActionsDrawEnable =
     !isCompletedDrawing && flowState.isDrawingMode;
 
+  // const setNodesChengeCustom = (args: Props, position?: XYPosition) {
+
+  // }
+
   const setNodesCustom = (args: Props, position?: XYPosition) => {
-    setNodes(
-      nodes.map((node) => {
-        if (node.id === id) {
-          return {
-            ...node,
-            position: position ?? node.position,
-            data: {
-              ...node.data,
-              ...args,
-            },
-          };
-        }
-        return node;
-      }),
-    );
+    const curentState = getNodeById(id, nodes);
+    setNodes([
+      ...nodes,
+      {
+        ...curentState,
+        position: position ?? curentState.position,
+        data: {
+          ...curentState.data,
+          ...args,
+        },
+      },
+    ]);
   };
 
   const onStartDrawing = (offsetX: number, offsetY: number) => {
@@ -167,7 +169,11 @@ export default function SvgDrawingNode({
     <>
       <div
         ref={svgContainerRef}
-        onMouseEnter={conditionActionsDrawEnable ? handleMouseDown : undefined}
+        onMouseEnter={
+          conditionActionsDrawEnable && points.length === 0
+            ? handleMouseDown
+            : undefined
+        }
         onMouseDown={conditionActionsDrawEnable ? handleMouseDown : undefined}
         onMouseMove={conditionActionsDrawEnable ? handleMouseMove : undefined}
         onMouseUp={conditionActionsDrawEnable ? handleMouseUp : undefined}
