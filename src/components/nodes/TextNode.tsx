@@ -11,7 +11,7 @@ import {
 
 import { AlignContent, TextAlign } from "@/flow/store/types/playground.schema";
 import { CSSProperties } from "react";
-import Content from "./shapeNode/Content";
+// import Content from "./shapeNode/Content";
 import ToolbarControlls from "./nodeEnviroment/ToolbarControlls";
 
 export interface TextNodeData extends CSSProperties {
@@ -92,8 +92,8 @@ function TextNode({ id, selected, data }: NodeProps<TextNodeData>) {
                 ...nodePart,
               },
             }
-          : node
-      )
+          : node,
+      ),
     );
 
   return (
@@ -119,7 +119,7 @@ function TextNode({ id, selected, data }: NodeProps<TextNodeData>) {
         />
       ))}
 
-      <Content
+      {/* <Content
         value={data.text}
         placeholder="Текстовый блок"
         onChange={onEditText}
@@ -130,7 +130,7 @@ function TextNode({ id, selected, data }: NodeProps<TextNodeData>) {
           fontSize: data.fontSize + "px",
           lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
         }}
-      />
+      /> */}
     </div>
   );
 }

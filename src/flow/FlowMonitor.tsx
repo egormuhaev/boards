@@ -29,6 +29,7 @@ import ReactFlow, {
   useNodesState,
   useReactFlow,
   // useReactFlow,
+  // useReactFlow,
 } from "reactflow";
 import { v4 } from "uuid";
 import FlowHeadDrawingTools from "./FlowHeadDrawingTools";
@@ -114,7 +115,7 @@ const FlowMonitor = () => {
   }, [reactFlowInstance]);
 
   useEffect(() => {
-    // saveFlow();
+    saveFlow();
   }, [nodes, edges]);
 
   useEffect(() => {
@@ -272,6 +273,8 @@ const FlowMonitor = () => {
         onSelectionDragStart={onSelectionDragStart}
         onNodesDelete={onNodesDelete}
         onEdgesDelete={onEdgesDelete}
+        onNodeDragStop={() => console.log("drag stop")}
+        onEdgeUpdateEnd={() => console.log("edge update end")}
         className={theme}
         zoomOnDoubleClick={!flowState.isDrawingMode}
         nodesDraggable={!flowState.isDrawingMode}
