@@ -2,6 +2,7 @@ import {
   NodeChange,
   NodeDimensionChange,
   NodePositionChange,
+  NodeRemoveChange,
   NodeResetChange,
   NodeSelectionChange,
 } from "reactflow";
@@ -11,22 +12,26 @@ import { useChangeReset } from "./nodes/changes/useChangeReset";
 import { useChangeSelect } from "./nodes/changes/useChangeSelect";
 import { useUnit } from "effector-react";
 import { $flow } from "@/flow/store/flow.slice";
+import { useDeleteNodes } from "./nodes/delete/useDeleteNode";
 
 export function useNodesChangeServer() {
   const { setHeep: setHeapPosition } = useChangePosition();
   const { setHeep: setHeapDimension } = useChangeDimension();
   const { setHeep: setHeapReset } = useChangeReset();
   const { setHeep: setHeapSelect } = useChangeSelect();
+  const { setHeep: setHeapDelete } = useDeleteNodes();
   const { isDrawingMode } = useUnit($flow);
 
   return (changes: NodeChange[]) => {
-    const { position, dimension, reset, select } = classificationOfChangeEvents(
-      changes,
-      isDrawingMode,
-    );
+    const { position, remove, dimension, reset, select } =
+      classificationOfChangeEvents(changes, isDrawingMode);
 
     if (select.length > 0) {
       setHeapSelect(select as NodeSelectionChange[]);
+    }
+
+    if (remove.length > 0) {
+      setHeapDelete(remove as NodeRemoveChange[]);
     }
 
     if (position.length > 0) {
@@ -51,10 +56,14 @@ function classificationOfChangeEvents(
   let dimension = [];
   let reset = [];
   let select = [];
+  let remove = [];
 
   if (!isDrawingMode) {
     for (let i = 0; i < changes.length; i++) {
       switch (changes[i].type) {
+        case "remove":
+          remove.push(changes[i]);
+          break;
         case "position":
           position.push(changes[i]);
           break;
@@ -74,5 +83,5 @@ function classificationOfChangeEvents(
     }
   }
 
-  return { position, dimension, reset, select };
+  return { position, dimension, reset, select, remove };
 }
