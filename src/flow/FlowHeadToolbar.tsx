@@ -13,12 +13,14 @@ import {
   setCreateBuffer,
 } from "./store/playground.slice";
 import { ShapeComponents } from "@/components/nodes/shapeNode/Shape";
+import { useReactFlow, Node, Edge } from "reactflow";
 
 const FlowHeadToolbar = ({}) => {
   const flowState = useUnit($flow);
   const { buffer } = useUnit($boardPlayground);
   const cleaningEmptyCanvasesAfterDrawing =
     useCleaningEmptyCanvasesAfterDrawing();
+  const { setNodes, getNodes, setEdges, getEdges } = useReactFlow();
 
   const saveCreatingTypeInBuffer = (
     nodeType: keyof typeof nodeTypes,
@@ -67,6 +69,18 @@ const FlowHeadToolbar = ({}) => {
           } else {
             saveCreatingTypeInBuffer("drawing");
           }
+
+          let nodes = getNodes().map((item: Node) => ({
+            ...item,
+            selected: false,
+          }));
+          let edges = getEdges().map((item: Edge) => ({
+            ...item,
+            selected: false,
+          }));
+
+          setEdges([...edges]);
+          setNodes([...nodes]);
 
           cleaningEmptyCanvasesAfterDrawing();
           changeDrawingMode(!flowState.isDrawingMode);
