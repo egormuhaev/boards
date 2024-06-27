@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useReactFlow } from "reactflow";
 import { useQuery, gql } from "@apollo/client";
+import { setEdgesIdMap } from "@/flow/store/flow.slice";
 
 const GET_EDGES = gql`
   query Edges {
@@ -29,6 +30,15 @@ export function graphqlGetEdgesByBoardId(boardId?: string) {
           return { ...item.data };
         }),
       );
+
+      let map: Record<string, string> = {};
+
+      for (let i = 0; i < dataGetEdges.edges.length; i++) {
+        let nodeID = dataGetEdges.edges[i].data.id as unknown as any;
+        map[nodeID] = dataGetEdges.edges[i].id;
+      }
+
+      setEdgesIdMap({ ...map });
     }
   }, [loadingGetEdges, errorGetEdges, dataGetEdges]);
 }

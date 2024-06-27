@@ -5,10 +5,12 @@ export const $flow = createStore<IFlowSchema>({
   isDrawingMode: false,
   targetBoard: "clxlirvxg0000ru4lc4sevksl",
   nodesIdMap: {},
+  edgesIdMap: {},
 });
 
 export const changeDrawingMode = createEvent<boolean>();
 export const setNodesIdMap = createEvent<Record<string, string>>();
+export const setEdgesIdMap = createEvent<Record<string, string>>();
 
 const setNodesIdMapReducer = (
   state: IFlowSchema,
@@ -17,6 +19,16 @@ const setNodesIdMapReducer = (
   return {
     ...state,
     nodesIdMap: { ...nodesIdMap },
+  };
+};
+
+const setEdgesIdMapReducer = (
+  state: IFlowSchema,
+  edgesIdMap: Record<string, string>,
+): IFlowSchema => {
+  return {
+    ...state,
+    edgesIdMap: { ...edgesIdMap },
   };
 };
 
@@ -32,3 +44,4 @@ const updateDrawingModeReducer = (
 
 $flow.on(changeDrawingMode, updateDrawingModeReducer);
 $flow.on(setNodesIdMap, setNodesIdMapReducer);
+$flow.on(setEdgesIdMap, setEdgesIdMapReducer);

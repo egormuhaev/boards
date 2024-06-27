@@ -48,7 +48,6 @@ export function useCopyPaste<NodeData, EdgeData>() {
         for (const event of events) {
           rfDomNode.removeEventListener(event, preventDefault);
         }
-
         rfDomNode.removeEventListener("mousemove", onMouseMove);
       };
     }
@@ -59,14 +58,14 @@ export function useCopyPaste<NodeData, EdgeData>() {
     const selectedEdges = getConnectedEdges(selectedNodes, getEdges()).filter(
       (edge) => {
         const isExternalSource = selectedNodes.every(
-          (n) => n.id !== edge.source
+          (n) => n.id !== edge.source,
         );
         const isExternalTarget = selectedNodes.every(
-          (n) => n.id !== edge.target
+          (n) => n.id !== edge.target,
         );
 
         return !(isExternalSource || isExternalTarget);
-      }
+      },
     );
 
     setBufferedNodes(selectedNodes);
@@ -78,14 +77,14 @@ export function useCopyPaste<NodeData, EdgeData>() {
     const selectedEdges = getConnectedEdges(selectedNodes, getEdges()).filter(
       (edge) => {
         const isExternalSource = selectedNodes.every(
-          (n) => n.id !== edge.source
+          (n) => n.id !== edge.source,
         );
         const isExternalTarget = selectedNodes.every(
-          (n) => n.id !== edge.target
+          (n) => n.id !== edge.target,
         );
 
         return !(isExternalSource || isExternalTarget);
-      }
+      },
     );
 
     setBufferedNodes(selectedNodes);
@@ -101,7 +100,7 @@ export function useCopyPaste<NodeData, EdgeData>() {
       { x: pasteX, y: pasteY } = screenToFlowPosition({
         x: mousePosRef.current.x,
         y: mousePosRef.current.y,
-      })
+      }),
     ) => {
       const minX = Math.min(...bufferedNodes.map((s) => s.position.x));
       const minY = Math.min(...bufferedNodes.map((s) => s.position.y));
@@ -133,7 +132,7 @@ export function useCopyPaste<NodeData, EdgeData>() {
         ...newEdges,
       ]);
     },
-    [bufferedNodes, bufferedEdges, screenToFlowPosition, setNodes, setEdges]
+    [bufferedNodes, bufferedEdges, screenToFlowPosition, setNodes, setEdges],
   );
 
   useShortcut(["Meta+x", "Control+x"], cut);

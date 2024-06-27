@@ -41,6 +41,8 @@ import useMouseEvents from "@/hooks/useMouseEvents";
 import { $draw } from "./store/draw.slice";
 import useInitFlowData from "@/server/useInitFlowData";
 import { useNodesChangeServer } from "@/server/useNodesChangeServer";
+import { useCreateNewEdges } from "@/server/edges/create/useCreateNewEdges";
+import { useEdgesChangeServer } from "@/server/useEdgesChangeServer";
 
 const flowKey = "example-flow";
 
@@ -50,6 +52,8 @@ const FlowMonitor = () => {
   const drawState = useUnit($draw);
   useInitFlowData();
   const functX = useNodesChangeServer();
+  const functY = useEdgesChangeServer();
+  const createEdgesFunction = useCreateNewEdges();
 
   const proOptions = {
     account: "paid-pro",
@@ -112,6 +116,7 @@ const FlowMonitor = () => {
 
   const onCustomEdgesChange = (changes: EdgeChange[]) => {
     onEdgesChange(changes);
+    functY(changes);
   };
 
   const onConnect = useCallback(
@@ -140,6 +145,13 @@ const FlowMonitor = () => {
       };
 
       takeSnapshot();
+      createEdgesFunction({
+        ...edge,
+        source: connection.source!,
+        sourceHandle: connection.sourceHandle,
+        target: connection.target!,
+        targetHandle: connection.targetHandle,
+      });
 
       setEdges((edges) => addEdge(edge, edges));
     },
