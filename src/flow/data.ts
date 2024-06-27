@@ -12,6 +12,7 @@ export const defaultTextNodeData = {
   alignContent: "center",
   color: "black",
   fontSize: 14,
+  rotation: 0,
 };
 
 export const colorsPalet = [

@@ -6,41 +6,42 @@ import {
   Position,
   useKeyPress,
   useReactFlow,
+  useUpdateNodeInternals,
+  useViewport,
   type NodeProps,
 } from "reactflow";
 
 import { AlignContent, TextAlign } from "@/flow/store/types/playground.schema";
-import { CSSProperties } from "react";
-// import Content from "./shapeNode/Content";
+import {
+  CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import ToolbarControlls from "./nodeEnviroment/ToolbarControlls";
+import { RotateCw } from "lucide-react";
+import ContentEditable from "./shapeNode/Content";
+import useUndoRedo from "@/hooks/useUndoRedo";
+import { select } from "d3-selection";
+import { drag } from "d3-drag";
+import Handles from "./nodeEnviroment/Handles";
 
 export interface TextNodeData extends CSSProperties {
-  type: "rectangle";
+  type: "text";
   color?: string;
-  borderWidth?: number;
   textAlign?: TextAlign;
   alignContent?: AlignContent;
   fontSize?: number;
   lineHeight?: number;
-  text?: string;
+  rotation?: number;
+  html?: string;
 }
 
 const contentCssFormules = {
   width: "90%",
   height: "90%",
-};
-
-const resizerHandleStyles = {
-  height: "5px",
-  width: "5px",
-  borderColor: "grey",
-  backgroundColor: "grey",
-  borderRadius: 0,
-};
-
-const resizerLineStyle = {
-  borderWidth: "2px",
-  borderColor: "grey",
 };
 
 const defaultNodeHandles: {
@@ -73,13 +74,18 @@ const defaultNodeHandles: {
 function TextNode({ id, selected, data }: NodeProps<TextNodeData>) {
   const shiftKeyPressed = useKeyPress("Shift");
   const { setNodes } = useReactFlow();
+  const { takeSnapshot } = useUndoRedo();
+  const { zoom } = useViewport();
 
-  const handleStyle = { backgroundColor: data.backgroundColor };
+  const [rotation, setRotation] = useState(data.rotation || 0);
 
-  const onEditText = (e: React.ChangeEvent<Element>) => {
-    const value = e.target.textContent;
-    updateNode({ text: value || "" });
-  };
+  const rotateControlRef = useRef<HTMLDivElement>(null);
+  const updateNodeInternals = useUpdateNodeInternals();
+
+  const onEditText = useCallback((e: React.ChangeEvent) => {
+    const value = e.target.innerHTML || "";
+    updateNode({ html: value });
+  }, []);
 
   const updateNode = (nodePart: Partial<TextNodeData>) =>
     setNodes((nds) =>
@@ -96,41 +102,116 @@ function TextNode({ id, selected, data }: NodeProps<TextNodeData>) {
       ),
     );
 
+  useEffect(() => {
+    updateNodeInternals(id);
+  }, []);
+
+  useEffect(() => {
+    if (!rotateControlRef.current) return;
+
+    const selection = select(rotateControlRef.current);
+
+    const dragHandler = drag<HTMLDivElement, any>()
+      .on("drag", (evt) => {
+        const dx = evt.x - 100;
+        const dy = evt.y - 100;
+        const rad = Math.atan2(dx, dy);
+        const deg = rad * (180 / Math.PI);
+
+        setRotation(180 - deg);
+        updateNodeInternals(id);
+      })
+      .on("end", (evt) => {
+        const dx = evt.x - 100;
+        const dy = evt.y - 100;
+        const rad = Math.atan2(dx, dy);
+        const deg = rad * (180 / Math.PI);
+
+        updateNode({ rotation: 180 - deg });
+      });
+
+    selection.call(dragHandler);
+  }, [id, updateNodeInternals, takeSnapshot]);
+
+  const handleStyle = useMemo(
+    () => ({
+      backgroundColor: data.backgroundColor,
+      maxHeight: "50px",
+      maxWidth: "50px",
+      height: 10 / zoom + "px",
+      width: 10 / zoom + "px",
+    }),
+    [data, zoom],
+  );
+
+  const contentStyle = useMemo(
+    () => ({
+      ...data,
+      width: contentCssFormules.width,
+      maxHeight: contentCssFormules.height,
+      fontSize: data.fontSize + "px",
+      lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
+    }),
+    [data],
+  );
+
   return (
-    <div>
+    <div
+      className="h-full"
+      style={{
+        transform: `rotate(${rotation}deg)`,
+      }}
+    >
       <NodeToolbar isVisible={selected} position={Position.Top} offset={40}>
-        <ToolbarControlls id={id} data={data} />
+        <ToolbarControlls
+          id={id}
+          data={data}
+          bold
+          italic
+          underline
+          strike
+          textAlign
+          alignContent
+          color
+          fontSize
+        />
       </NodeToolbar>
 
       <NodeResizer
-        isVisible={selected}
-        handleStyle={resizerHandleStyles}
-        lineStyle={resizerLineStyle}
         keepAspectRatio={shiftKeyPressed}
+        isVisible={selected}
+        handleStyle={{
+          maxHeight: "50px",
+          maxWidth: "50px",
+          height: 10 / zoom + "px",
+          width: 10 / zoom + "px",
+          borderColor: "#0066ff",
+          backgroundColor: "#0066ff",
+          borderRadius: 0,
+        }}
+        lineStyle={{
+          borderWidth: 2 / zoom + "px",
+          borderColor: "#0066ff",
+        }}
+        onResizeStart={() => takeSnapshot()}
       />
 
-      {defaultNodeHandles.map((handle) => (
-        <Handle
-          key={handle.id}
-          style={handleStyle}
-          id={handle.id}
-          type={handle.type}
-          position={handle.position}
-        />
-      ))}
+      <Handles handleStyle={handleStyle} />
 
-      {/* <Content
-        value={data.text}
-        placeholder="Текстовый блок"
+      <div
+        ref={rotateControlRef}
+        className={`${
+          !selected && "hidden"
+        } absolute block top-[-30px] left-1/2 -translate-x-1/2 nodrag w-5 h-5`}
+      >
+        <RotateCw size={16} />
+      </div>
+
+      <ContentEditable
+        value={data.html ?? "Введите текст"}
         onChange={onEditText}
-        style={{
-          ...data,
-          width: contentCssFormules.width,
-          maxHeight: contentCssFormules.height,
-          fontSize: data.fontSize + "px",
-          lineHeight: data.fontSize ? data.fontSize + 6 + "px" : undefined,
-        }}
-      /> */}
+        style={contentStyle}
+      />
     </div>
   );
 }

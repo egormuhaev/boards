@@ -1,5 +1,6 @@
 import {
   Handle,
+  HandleType,
   NodeResizer,
   NodeToolbar,
   Position,
@@ -24,10 +25,10 @@ import {
   useState,
 } from "react";
 import ToolbarControlls from "../nodeEnviroment/ToolbarControlls";
-import Shape, { ShapeType } from "./Shape";
-import { Circle, Rectangle } from "./shapes";
+import Shape, { ShapeComponents, ShapeType } from "./Shape";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import ContentEditable from "./Content";
+import Handles from "../nodeEnviroment/Handles";
 
 export interface ShapeNodeData extends CSSProperties {
   type: ShapeType;
@@ -42,23 +43,15 @@ export interface ShapeNodeData extends CSSProperties {
   rotation?: number;
   text?: string;
   html?: string;
-  bold?: boolean;
-  italic?: boolean;
-  underline?: boolean;
 }
 
-function useNodeDimensions(id: string) {
+export function useNodeDimensions(id: string) {
   const node = useStore((state) => state.nodeInternals.get(id));
   return {
     width: node?.width || 0,
     height: node?.height || 0,
   };
 }
-
-export const ShapeComponents = {
-  circle: Circle,
-  rectangle: Rectangle,
-};
 
 const contentCssFormules: Record<
   keyof typeof ShapeComponents,
@@ -86,14 +79,6 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
   const { zoom } = useViewport();
 
   const [rotation, setRotation] = useState(data.rotation || 0);
-
-  const handleStyle = {
-    backgroundColor: data.backgroundColor,
-    maxHeight: "50px",
-    maxWidth: "50px",
-    height: 10 / zoom + "px",
-    width: 10 / zoom + "px",
-  };
 
   const rotateControlRef = useRef<HTMLDivElement>(null);
   const updateNodeInternals = useUpdateNodeInternals();
@@ -149,6 +134,17 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
     selection.call(dragHandler);
   }, [id, updateNodeInternals, takeSnapshot]);
 
+  const handleStyle = useMemo(
+    () => ({
+      backgroundColor: data.backgroundColor,
+      maxHeight: "50px",
+      maxWidth: "50px",
+      height: 10 / zoom + "px",
+      width: 10 / zoom + "px",
+    }),
+    [data, zoom],
+  );
+
   const contentStyle = useMemo(
     () => ({
       ...data,
@@ -161,85 +157,73 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
   );
 
   return (
-    <>
-      <div
-        style={{
-          transform: `rotate(${rotation}deg)`,
+    <div
+      className="h-full"
+      style={{
+        transform: `rotate(${rotation}deg)`,
+      }}
+    >
+      <NodeToolbar isVisible={selected} position={Position.Top} offset={40}>
+        <ToolbarControlls
+          id={id}
+          data={data}
+          bold
+          italic
+          underline
+          strike
+          textAlign
+          alignContent
+          color
+          backgroundColor
+          fontSize
+        />
+      </NodeToolbar>
+
+      <NodeResizer
+        keepAspectRatio={shiftKeyPressed}
+        isVisible={selected}
+        handleStyle={{
+          maxHeight: "50px",
+          maxWidth: "50px",
+          height: 10 / zoom + "px",
+          width: 10 / zoom + "px",
+          borderColor: "#0066ff",
+          backgroundColor: "#0066ff",
+          borderRadius: 0,
         }}
+        lineStyle={{
+          borderWidth: 2 / zoom + "px",
+          borderColor: "#0066ff",
+        }}
+        onResizeStart={() => takeSnapshot()}
+      />
+
+      <Shape
+        type={data.type}
+        width={width}
+        height={height}
+        fill={data.backgroundColor}
+        strokeWidth={2}
+        stroke={data.borderColor}
+      />
+
+      <Handles handleStyle={handleStyle} />
+
+      <div
+        ref={rotateControlRef}
+        className={`${
+          !selected && "hidden"
+        } absolute block top-[-30px] left-1/2 -translate-x-1/2 nodrag w-5 h-5`}
       >
-        <NodeToolbar isVisible={selected} position={Position.Top} offset={40}>
-          <ToolbarControlls id={id} data={data} />
-        </NodeToolbar>
-
-        <NodeResizer
-          keepAspectRatio={shiftKeyPressed}
-          isVisible={selected}
-          handleStyle={{
-            maxHeight: "50px",
-            maxWidth: "50px",
-            height: 10 / zoom + "px",
-            width: 10 / zoom + "px",
-            borderColor: "grey",
-            backgroundColor: "grey",
-            borderRadius: 0,
-          }}
-          lineStyle={{
-            borderWidth: 2 / zoom + "px",
-            borderColor: "grey",
-          }}
-          onResizeStart={() => takeSnapshot()}
-        />
-
-        <Shape
-          type={data.type}
-          width={width}
-          height={height}
-          fill={data.backgroundColor}
-          strokeWidth={2}
-          stroke={data.borderColor}
-        />
-
-        <Handle
-          style={handleStyle}
-          id="top"
-          type="source"
-          position={Position.Top}
-        />
-        <Handle
-          style={handleStyle}
-          id="right"
-          type="source"
-          position={Position.Right}
-        />
-        <Handle
-          style={handleStyle}
-          id="bottom"
-          type="source"
-          position={Position.Bottom}
-        />
-        <Handle
-          style={handleStyle}
-          id="left"
-          type="source"
-          position={Position.Left}
-        />
-
-        <div
-          ref={rotateControlRef}
-          className={`${
-            !selected && "hidden"
-          } absolute block top-[-30px] left-1/2 -translate-x-1/2 nodrag w-5 h-5`}
-        >
-          <RotateCw size={16} />
-        </div>
-
-        <ContentEditable
-          value={data.html ?? "Введите текст"}
-          onChange={onEditText}
-          style={contentStyle}
-        />
+        <RotateCw size={16} />
       </div>
-    </>
+
+      <ContentEditable
+        value={data.html ?? "Введите текст"}
+        onChange={onEditText}
+        style={contentStyle}
+      />
+    </div>
   );
 }
 

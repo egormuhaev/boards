@@ -16,12 +16,14 @@ export const clearInput = <T extends HTMLInputElement>(ref: RefObject<T>) => {
 
 //FIXME: при отмене выбора промис зависает, потому что не срабатывает функция onChange
 export const selectFiles = async <T extends HTMLInputElement>(
-  ref: RefObject<T>
+  ref: RefObject<T>,
 ) => {
   const files: FileList | null = await new Promise((resolve) => {
     if (ref.current) {
       ref.current.onchange = (event) => {
         const files = (event.target as HTMLInputElement).files;
+
+        if (!files) console.log("no files");
 
         resolve(files);
       };

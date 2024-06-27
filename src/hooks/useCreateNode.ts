@@ -1,13 +1,7 @@
 import { nodeTypes } from "@/components/nodes";
-import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 import { clearInput, randomColor, selectFiles } from "@/flow/utils/randomColor";
 import { RefObject, useCallback } from "react";
-import {
-  Node,
-  XYPosition,
-  useReactFlow,
-  useUpdateNodeInternals,
-} from "reactflow";
+import { Node, XYPosition, useReactFlow } from "reactflow";
 import { v4 } from "uuid";
 import {
   colorsPalet,
@@ -19,6 +13,7 @@ import { $draw } from "@/flow/store/draw.slice";
 import { PlotSize } from "@/components/nodes/svgDrawingNode/desktop/types";
 import { FileComponents } from "@/components/nodes/fileNodes/FileNode";
 import { CustomFile } from "@/components/nodes/fileNodes/files/types";
+import { ShapeComponents } from "@/components/nodes/shapeNode/Shape";
 
 // TODO: заменить Function на нужный тип
 // Заменить везде file на тип
@@ -109,9 +104,6 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
 
       for (let i = 0; i < files.length; i++) {
         const file: CustomFile = files[i];
-        // const fileExtension = file.fileName.slice(
-        //   file.fileName.lastIndexOf(".") + 1
-        // );
 
         const type = fileSubTypes[file.fileExtension] ?? "file";
 

@@ -35,8 +35,22 @@ const ContentEditable = ({
   const editableClickHandler = (event: MouseEvent) =>
     active ? event.stopPropagation() : setActive(true);
 
+  const selectText = () => {
+    if (!contentRef.current) return;
+
+    const range = document.createRange();
+    range.selectNodeContents(contentRef.current);
+
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+
   useEffect(() => {
     if (active) {
+      selectText();
       contentRef.current?.focus();
     }
   }, [active]);

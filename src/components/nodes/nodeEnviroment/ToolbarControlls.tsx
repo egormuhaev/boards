@@ -16,19 +16,38 @@ import { memo, useCallback, useState } from "react";
 import { BlockPicker } from "react-color";
 import { useNodes, useReactFlow } from "reactflow";
 import { ShapeNodeData } from "../shapeNode/ShapeNode";
+import { TextNodeData } from "../TextNode";
 
-interface Props {
+interface ToolbarProps {
   id: string;
-  data: ShapeNodeData;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strike?: boolean;
+  textAlign?: boolean;
+  alignContent?: boolean;
+  color?: boolean;
+  backgroundColor?: boolean;
+  fontSize?: boolean;
+  data: ShapeNodeData | TextNodeData;
 }
 
 const ToolbarControlls = ({
   id,
-  data: { textAlign, alignContent, color, backgroundColor, fontSize },
-}: Props) => {
+  bold,
+  italic,
+  underline,
+  strike,
+  textAlign,
+  alignContent,
+  color,
+  backgroundColor,
+  fontSize,
+  data,
+}: ToolbarProps) => {
   const { takeSnapshot } = useUndoRedo();
-  const nodes = useNodes();
-  const { setNodes, deleteElements } = useReactFlow();
+  const { setNodes, deleteElements, getNode } = useReactFlow();
+  const node = getNode(id);
 
   const updateNode = useCallback(
     (changes: Partial<ShapeNodeData>) => {
@@ -46,7 +65,7 @@ const ToolbarControlls = ({
         ),
       );
     },
-    [nodes],
+    [node],
   );
 
   return (
@@ -54,10 +73,10 @@ const ToolbarControlls = ({
       onClick={(e) => e.stopPropagation()}
       className="flex flex-row gap-2 justify-center p-2 items-center bg-white border border-solid-1 border-slate-300 rounded-lg h-10 box-border"
     >
-      {backgroundColor && (
+      {backgroundColor && data.backgroundColor && (
         <>
           <ColorPickerButton
-            color={backgroundColor}
+            color={data.backgroundColor}
             pickHandler={updateNode}
             updatingKey="backgroundColor"
           />
@@ -65,10 +84,10 @@ const ToolbarControlls = ({
         </>
       )}
 
-      {color && (
+      {color && data.color && (
         <>
           <ColorPickerButton
-            color={color}
+            color={data.color}
             pickHandler={updateNode}
             icon={<Type color="white" size={16} />}
             updatingKey="color"
@@ -77,35 +96,51 @@ const ToolbarControlls = ({
         </>
       )}
 
-      <FontRichButton
-        rich="bold"
-        clickHandler={() => document.execCommand("bold", false)}
-      />
-      <FontRichButton
-        rich="italic"
-        clickHandler={() => document.execCommand("italic", true, null)}
-      />
-      <FontRichButton
-        rich="underline"
-        clickHandler={() => document.execCommand("underline", false, null)}
-      />
+      {bold && (
+        <FontRichButton
+          rich="bold"
+          clickHandler={() => document.execCommand("bold", false)}
+        />
+      )}
+      {italic && (
+        <FontRichButton
+          rich="italic"
+          clickHandler={() => document.execCommand("italic", false)}
+        />
+      )}
+      {underline && (
+        <FontRichButton
+          rich="underline"
+          clickHandler={() => document.execCommand("underline", false)}
+        />
+      )}
+      {strike && (
+        <FontRichButton
+          rich="strike"
+          clickHandler={() => document.execCommand("strikethrough", false)}
+        />
+      )}
+      {bold ||
+        italic ||
+        underline ||
+        (strike && <div className="h-full w-[1px] bg-slate-300" />)}
 
       {textAlign && (
         <>
           <HorizontalAlignTextButton
             clickHandler={updateNode}
             textAlign="left"
-            active={textAlign === "left"}
+            active={data.textAlign === "left"}
           />
           <HorizontalAlignTextButton
             clickHandler={updateNode}
             textAlign="center"
-            active={textAlign === "center"}
+            active={data.textAlign === "center"}
           />
           <HorizontalAlignTextButton
             clickHandler={updateNode}
             textAlign="right"
-            active={textAlign === "right"}
+            active={data.textAlign === "right"}
           />
           <div className="h-full w-[1px] bg-slate-300" />
         </>
@@ -116,17 +151,17 @@ const ToolbarControlls = ({
           <VerticalAlignTextButton
             clickHandler={updateNode}
             alignContent="start"
-            active={alignContent === "start"}
+            active={data.alignContent === "start"}
           />
           <VerticalAlignTextButton
             clickHandler={updateNode}
             alignContent="center"
-            active={alignContent === "center"}
+            active={data.alignContent === "center"}
           />
           <VerticalAlignTextButton
             clickHandler={updateNode}
             alignContent="end"
-            active={alignContent === "end"}
+            active={data.alignContent === "end"}
           />
           <div className="h-full w-[1px] bg-slate-300" />
         </>
@@ -134,14 +169,13 @@ const ToolbarControlls = ({
 
       {fontSize && (
         <>
-          <FontSelect fontSize={fontSize} clickHandler={updateNode} />
+          <FontSelect fontSize={data.fontSize} clickHandler={updateNode} />
           <div className="h-full w-[1px] bg-slate-300" />
         </>
       )}
 
       <TrashButton
         clickHandler={() => {
-          const node = nodes.find((nds) => nds.id == id);
           if (!node) return;
 
           takeSnapshot();
@@ -158,7 +192,7 @@ const FontRichButton = memo(
     rich,
     clickHandler,
   }: {
-    rich: "bold" | "italic" | "underline";
+    rich: "bold" | "italic" | "underline" | "strike";
     clickHandler: () => void;
   }) => {
     return (
@@ -167,11 +201,19 @@ const FontRichButton = memo(
         className={`text-[18px] h-full aspect-square bg-white p-[1px] text-black border border-solid-2 border-black hover:bg-black hover:text-white rounded-sm`}
       >
         {rich === "bold" ? (
-          <span>B</span>
+          <span>
+            <b>B</b>
+          </span>
         ) : rich === "italic" ? (
-          <span>I</span>
+          <span>
+            <i>I</i>
+          </span>
         ) : rich === "underline" ? (
           <span>U</span>
+        ) : rich === "strike" ? (
+          <span>
+            <s>S</s>
+          </span>
         ) : null}
       </Button>
     );
@@ -180,10 +222,10 @@ const FontRichButton = memo(
 
 const FontSelect = memo(
   ({
-    fontSize,
+    fontSize = 14,
     clickHandler,
   }: {
-    fontSize: number;
+    fontSize?: number;
     clickHandler: (changes: Partial<ShapeNodeData>) => void;
   }) => {
     const values: number[] = [...Array(100)]
