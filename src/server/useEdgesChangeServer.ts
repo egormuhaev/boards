@@ -8,11 +8,6 @@ import { useDeleteEdges } from "./edges/delete/useDeleteEdges";
 export function useEdgesChangeServer() {
   const { setHeep: setHeapReset } = useChangeEdgesReset();
   const { setHeep: setHeapDelete } = useDeleteEdges();
-  // const { setHeep: setHeapPosition } = useChangePosition();
-  // const { setHeep: setHeapDimension } = useChangeDimension();
-  // const { setHeep: setHeapReset } = useChangeReset();
-  // const { setHeep: setHeapSelect } = useChangeSelect();
-  // const { setHeep: setHeapDelete } = useDeleteNodes();
   const { isDrawingMode } = useUnit($flow);
 
   const eventProcessing = useCallback(

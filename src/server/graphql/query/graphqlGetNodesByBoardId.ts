@@ -35,7 +35,7 @@ export function graphqlGetNodesByBoardId(boardId?: string) {
       setNodesIdMap({ ...map });
       setNodes(
         dataGetNodes.nodes.map((item: any) => {
-          return { ...item.data };
+          return { ...item.data, selected: false };
         }),
       );
     }

@@ -23,11 +23,12 @@ export function graphqlGetEdgesByBoardId(boardId?: string) {
     },
   });
   const { setEdges } = useReactFlow();
+
   useEffect(() => {
     if (!loadingGetEdges && !errorGetEdges) {
       setEdges(
         dataGetEdges.edges.map((item: any) => {
-          return { ...item.data };
+          return { ...item.data, selected: false };
         }),
       );
 
