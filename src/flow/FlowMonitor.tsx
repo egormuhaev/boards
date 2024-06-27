@@ -11,7 +11,7 @@ import useEvents from "@/hooks/useEvents";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import { getHelperLines } from "@/lib/utils";
 import { useUnit } from "effector-react";
-import { DragEvent, useCallback, useRef, useState } from "react";
+import { DragEvent, useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -22,10 +22,13 @@ import ReactFlow, {
   MiniMap,
   NodeChange,
   // Panel,
+  // Panel,
   ReactFlowInstance,
   addEdge,
   useEdgesState,
   useNodesState,
+  useReactFlow,
+  // useReactFlow,
   // useReactFlow,
 } from "reactflow";
 import { v4 } from "uuid";
@@ -39,6 +42,7 @@ import { handleDragEvent } from "./utils/randomColor";
 import useMouseEvents from "@/hooks/useMouseEvents";
 // import { Redo, Undo } from "lucide-react";
 import { $draw } from "./store/draw.slice";
+
 import useInitFlowData from "@/server/useInitFlowData";
 import { useNodesChangeServer } from "@/server/useNodesChangeServer";
 import { useCreateNewEdges } from "@/server/edges/create/useCreateNewEdges";
@@ -54,11 +58,31 @@ const FlowMonitor = () => {
   const functX = useNodesChangeServer();
   const functY = useEdgesChangeServer();
   const createEdgesFunction = useCreateNewEdges();
+  const { setViewport } = useReactFlow();
 
   const proOptions = {
     account: "paid-pro",
     hideAttribution: true,
   };
+
+  useEffect(() => {
+    const viewportMetaTag = document.querySelector('meta[name="viewport"]');
+    if (!viewportMetaTag) return;
+
+    viewportMetaTag.setAttribute(
+      "content",
+      "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
+    );
+
+    return () => {
+      viewportMetaTag.setAttribute(
+        "content",
+        "width=device-width, initial-scale=1.0",
+      );
+    };
+  }, []);
+
+  // const playgroundState = useUnit($boardPlayground);
 
   const flowState = useUnit($flow);
 
@@ -89,6 +113,30 @@ const FlowMonitor = () => {
   const [, setHelperLineHorizontal] = useState<number>();
   const [, setHelperLineVertical] = useState<number>();
 
+  const saveFlow = useCallback(() => {
+    console.log("saving flow...");
+    if (reactFlowInstance) {
+      const flow = reactFlowInstance.toObject();
+      localStorage.setItem(flowKey, JSON.stringify(flow));
+    }
+  }, [reactFlowInstance]);
+
+  useEffect(() => {
+    saveFlow();
+  }, [nodes, edges]);
+
+  useEffect(() => {
+    const ls = localStorage.getItem(flowKey);
+    if (!ls) return;
+    const flow = JSON.parse(ls);
+    if (flow) {
+      const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+      setNodes(flow.nodes || []);
+      setEdges(flow.edges || []);
+      setViewport({ x, y, zoom });
+    }
+  }, []);
+
   const onCustomNodesChange = (changes: NodeChange[]) => {
     setHelperLineHorizontal(undefined);
     setHelperLineVertical(undefined);
@@ -110,11 +158,15 @@ const FlowMonitor = () => {
       setHelperLineVertical(helperLines.vertical);
     }
 
+    saveFlow();
+    console.log("nodes changes");
     onNodesChange(changes);
     functX(changes);
   };
 
   const onCustomEdgesChange = (changes: EdgeChange[]) => {
+    saveFlow();
+    console.log("edges changes");
     onEdgesChange(changes);
     functY(changes);
   };
@@ -238,6 +290,8 @@ const FlowMonitor = () => {
         onSelectionDragStart={onSelectionDragStart}
         onNodesDelete={onNodesDelete}
         onEdgesDelete={onEdgesDelete}
+        onNodeDragStop={() => console.log("drag stop")}
+        onEdgeUpdateEnd={() => console.log("edge update end")}
         className={theme}
         zoomOnDoubleClick={!flowState.isDrawingMode}
         nodesDraggable={!flowState.isDrawingMode}
@@ -247,15 +301,6 @@ const FlowMonitor = () => {
         onlyRenderVisibleElements={!flowState.isDrawingMode} // Оптимизация: Скрытие элементов вне
       >
         {/* {!drawState.drawingInThisMoment && <Theme />} */}
-
-        {/* {!drawState.drawingInThisMoment && (
-          <Panel
-            position="bottom-center"
-            className="w-[100px] flex justify-around z-50 gap-5 p-2 bg-white rounded-lg border border-solid-1 border-slate-300"
-          >
-            <FlowUndoRedo />
-          </Panel>
-        )} */}
 
         {!drawState.drawingInThisMoment && <FlowHeadToolbar />}
 

@@ -1,5 +1,4 @@
 import { nodeTypes } from "@/components/nodes";
-import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 import { clearInput, randomColor, selectFiles } from "@/flow/utils/randomColor";
 import { RefObject, useCallback } from "react";
 import { Node, XYPosition, useReactFlow } from "reactflow";
@@ -13,7 +12,11 @@ import { useUnit } from "effector-react";
 import { $draw } from "@/flow/store/draw.slice";
 import { PlotSize } from "@/components/nodes/svgDrawingNode/desktop/types";
 import { FileComponents } from "@/components/nodes/fileNodes/FileNode";
+
 import { useCreateNewNodeServer } from "../server/nodes/create/useCreateNewNode";
+
+import { CustomFile } from "@/components/nodes/fileNodes/files/types";
+import { ShapeComponents } from "@/components/nodes/shapeNode/Shape";
 
 // TODO: заменить Function на нужный тип
 // Заменить везде file на тип
@@ -106,14 +109,13 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       const newNodes: Node[] = [];
 
       for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const fileExtension = file.name.slice(file.name.lastIndexOf(".") + 1);
+        const file: CustomFile = files[i];
 
-        const type = fileSubTypes[fileExtension] ?? "file";
+        const type = fileSubTypes[file.fileExtension] ?? "file";
 
         const newNode: Node = {
           id: v4(),
-          data: { file, type },
+          data: { type, ...file },
           type: "file",
           style:
             type === "pdf"

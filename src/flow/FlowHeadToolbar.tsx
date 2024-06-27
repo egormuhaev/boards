@@ -1,5 +1,4 @@
 import { nodeTypes } from "@/components/nodes";
-import { ShapeComponents } from "@/components/nodes/shapeNode/ShapeNode";
 import { useCleaningEmptyCanvasesAfterDrawing } from "@/hooks/useCleaningEmptyCanvasesAfterDrawing";
 import { Button } from "@/shadcn/ui/button";
 import { useUnit } from "effector-react";
@@ -13,6 +12,7 @@ import {
   clearBufferCreatingType,
   setCreateBuffer,
 } from "./store/playground.slice";
+import { ShapeComponents } from "@/components/nodes/shapeNode/Shape";
 
 const FlowHeadToolbar = ({}) => {
   const flowState = useUnit($flow);
@@ -22,7 +22,7 @@ const FlowHeadToolbar = ({}) => {
 
   const saveCreatingTypeInBuffer = (
     nodeType: keyof typeof nodeTypes,
-    subType?: keyof typeof ShapeComponents
+    subType?: keyof typeof ShapeComponents,
   ) => {
     setCreateBuffer({
       nodeType,
@@ -33,7 +33,7 @@ const FlowHeadToolbar = ({}) => {
   const onDragStart = (
     event: DragEvent<HTMLButtonElement>,
     nodeType: keyof typeof nodeTypes,
-    subType?: keyof typeof ShapeComponents
+    subType?: keyof typeof ShapeComponents,
   ) => {
     event.dataTransfer.setData("nodeType", nodeType);
     if (subType) event.dataTransfer.setData("subType", subType);
@@ -74,7 +74,8 @@ const FlowHeadToolbar = ({}) => {
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Карандаш"
         style={{
-          background: flowState.isDrawingMode ? "yellow" : undefined,
+          color: flowState.isDrawingMode ? "white" : undefined,
+          background: flowState.isDrawingMode ? "black" : undefined,
         }}
       >
         <Pencil className="h-full w-full" />
@@ -99,9 +100,13 @@ const FlowHeadToolbar = ({}) => {
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Прямоугольник"
         style={{
+          color:
+            buffer?.nodeType === "shape" && buffer.subType === "rectangle"
+              ? "white"
+              : undefined,
           background:
             buffer?.nodeType === "shape" && buffer.subType === "rectangle"
-              ? "yellow"
+              ? "black"
               : undefined,
         }}
       >
@@ -124,9 +129,13 @@ const FlowHeadToolbar = ({}) => {
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Круг"
         style={{
+          color:
+            buffer?.nodeType === "shape" && buffer.subType === "circle"
+              ? "white"
+              : undefined,
           background:
             buffer?.nodeType === "shape" && buffer.subType === "circle"
-              ? "yellow"
+              ? "black"
               : undefined,
         }}
       >
@@ -149,7 +158,8 @@ const FlowHeadToolbar = ({}) => {
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Текст"
         style={{
-          background: buffer?.nodeType === "text" ? "yellow" : undefined,
+          color: buffer?.nodeType === "text" ? "white" : undefined,
+          background: buffer?.nodeType === "text" ? "black" : undefined,
         }}
       >
         <Type className="h-full w-full" />
@@ -171,28 +181,12 @@ const FlowHeadToolbar = ({}) => {
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Файл"
         style={{
-          background: buffer?.nodeType === "file" ? "yellow" : undefined,
+          color: buffer?.nodeType === "file" ? "white" : undefined,
+          background: buffer?.nodeType === "file" ? "black" : undefined,
         }}
       >
         <FaFile className="h-full w-full" />
       </Button>
-
-      {/* <Button
-        className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
-        title="Звук"
-      >
-        <BsMusicNoteBeamed className="h-full w-full" />
-      </Button>
-
-      <Button
-        className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
-        title="Медиа"
-      >
-        <FaPhotoVideo
-          onClick={saveNewNodeDataInBuffer(NodeTypes.VideoNodeFlowTypes)}
-          className="h-full w-full"
-        />
-      </Button> */}
     </nav>
   );
 };

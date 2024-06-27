@@ -13,25 +13,44 @@ import {
   Type,
 } from "lucide-react";
 import { memo, useCallback, useState } from "react";
-import { BlockPicker, ColorResult } from "react-color";
+import { BlockPicker } from "react-color";
 import { useNodes, useReactFlow } from "reactflow";
 import { ShapeNodeData } from "../shapeNode/ShapeNode";
+import { TextNodeData } from "../TextNode";
 
-interface Props {
+interface ToolbarProps {
   id: string;
-  data: ShapeNodeData;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strike?: boolean;
+  textAlign?: boolean;
+  alignContent?: boolean;
+  color?: boolean;
+  backgroundColor?: boolean;
+  fontSize?: boolean;
+  data: ShapeNodeData | TextNodeData;
 }
 
 const ToolbarControlls = ({
   id,
-  data: { textAlign, alignContent, color, backgroundColor, fontSize },
-}: Props) => {
+  bold,
+  italic,
+  underline,
+  strike,
+  textAlign,
+  alignContent,
+  color,
+  backgroundColor,
+  fontSize,
+  data,
+}: ToolbarProps) => {
   const { takeSnapshot } = useUndoRedo();
-  const nodes = useNodes();
-  const { setNodes } = useReactFlow();
+  const { setNodes, deleteElements, getNode } = useReactFlow();
+  const node = getNode(id);
 
-  const onChangeTextAlign = useCallback(
-    (textAlign: string) => {
+  const updateNode = useCallback(
+    (changes: Partial<ShapeNodeData>) => {
       setNodes((nds) =>
         nds.map((node) =>
           node.id === id
@@ -39,131 +58,89 @@ const ToolbarControlls = ({
                 ...node,
                 data: {
                   ...node.data,
-                  textAlign,
+                  ...changes,
                 },
               }
-            : node
-        )
+            : node,
+        ),
       );
     },
-    [nodes]
-  );
-
-  const onChangeAlignContent = useCallback(
-    (alignContent: string) => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === id
-            ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  alignContent,
-                },
-              }
-            : node
-        )
-      );
-    },
-    [nodes]
-  );
-
-  const onChangeFontSize = useCallback(
-    (fontSize: number) => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === id
-            ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  fontSize,
-                },
-              }
-            : node
-        )
-      );
-    },
-    [nodes]
-  );
-
-  const onChangeBgColor = useCallback(
-    (color: ColorResult) => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === id
-            ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  backgroundColor: color.hex,
-                },
-              }
-            : node
-        )
-      );
-    },
-    [nodes]
-  );
-
-  const onChangeFontColor = useCallback(
-    (color: ColorResult) => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === id
-            ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  color: color.hex,
-                },
-              }
-            : node
-        )
-      );
-    },
-    [nodes]
+    [node],
   );
 
   return (
-    <div className="flex flex-row gap-2 justify-center p-2 items-center bg-white border border-solid-1 border-slate-300 rounded-lg h-10 box-border">
-      {backgroundColor && (
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="flex flex-row gap-2 justify-center p-2 items-center bg-white border border-solid-1 border-slate-300 rounded-lg h-10 box-border"
+    >
+      {backgroundColor && data.backgroundColor && (
         <>
           <ColorPickerButton
-            color={backgroundColor}
-            pickHandler={onChangeBgColor}
+            color={data.backgroundColor}
+            pickHandler={updateNode}
+            updatingKey="backgroundColor"
           />
           <div className="h-full w-[1px] bg-slate-300" />
         </>
       )}
 
-      {color && (
+      {color && data.color && (
         <>
           <ColorPickerButton
-            color={color}
-            pickHandler={onChangeFontColor}
+            color={data.color}
+            pickHandler={updateNode}
             icon={<Type color="white" size={16} />}
+            updatingKey="color"
           />
           <div className="h-full w-[1px] bg-slate-300" />
         </>
       )}
+
+      {bold && (
+        <FontRichButton
+          rich="bold"
+          clickHandler={() => document.execCommand("bold", false)}
+        />
+      )}
+      {italic && (
+        <FontRichButton
+          rich="italic"
+          clickHandler={() => document.execCommand("italic", false)}
+        />
+      )}
+      {underline && (
+        <FontRichButton
+          rich="underline"
+          clickHandler={() => document.execCommand("underline", false)}
+        />
+      )}
+      {strike && (
+        <FontRichButton
+          rich="strike"
+          clickHandler={() => document.execCommand("strikethrough", false)}
+        />
+      )}
+      {bold ||
+        italic ||
+        underline ||
+        (strike && <div className="h-full w-[1px] bg-slate-300" />)}
 
       {textAlign && (
         <>
           <HorizontalAlignTextButton
-            clickHandler={onChangeTextAlign}
-            position="left"
-            active={textAlign === "left"}
+            clickHandler={updateNode}
+            textAlign="left"
+            active={data.textAlign === "left"}
           />
           <HorizontalAlignTextButton
-            clickHandler={onChangeTextAlign}
-            position="center"
-            active={textAlign === "center"}
+            clickHandler={updateNode}
+            textAlign="center"
+            active={data.textAlign === "center"}
           />
           <HorizontalAlignTextButton
-            clickHandler={onChangeTextAlign}
-            position="right"
-            active={textAlign === "right"}
+            clickHandler={updateNode}
+            textAlign="right"
+            active={data.textAlign === "right"}
           />
           <div className="h-full w-[1px] bg-slate-300" />
         </>
@@ -172,57 +149,94 @@ const ToolbarControlls = ({
       {alignContent && (
         <>
           <VerticalAlignTextButton
-            clickHandler={onChangeAlignContent}
-            position="start"
-            active={alignContent === "start"}
+            clickHandler={updateNode}
+            alignContent="start"
+            active={data.alignContent === "start"}
           />
           <VerticalAlignTextButton
-            clickHandler={onChangeAlignContent}
-            position="center"
-            active={alignContent === "center"}
+            clickHandler={updateNode}
+            alignContent="center"
+            active={data.alignContent === "center"}
           />
           <VerticalAlignTextButton
-            clickHandler={onChangeAlignContent}
-            position="end"
-            active={alignContent === "end"}
+            clickHandler={updateNode}
+            alignContent="end"
+            active={data.alignContent === "end"}
           />
+          <div className="h-full w-[1px] bg-slate-300" />
         </>
       )}
 
       {fontSize && (
-        <FontSelect fontSize={fontSize} clickHandler={onChangeFontSize} />
+        <>
+          <FontSelect fontSize={data.fontSize} clickHandler={updateNode} />
+          <div className="h-full w-[1px] bg-slate-300" />
+        </>
       )}
 
-      {
-        <TrashButton
-          clickHandler={() => {
-            const node = nodes.find((nds) => nds.id == id);
-            if (!node) return;
+      <TrashButton
+        clickHandler={() => {
+          if (!node) return;
 
-            takeSnapshot();
+          takeSnapshot();
 
-            setNodes((nds) => nds.filter((node) => node.id !== id));
-          }}
-        />
-      }
+          deleteElements({ nodes: [node] });
+        }}
+      />
     </div>
   );
 };
 
-const FontSelect = memo(
+const FontRichButton = memo(
   ({
-    fontSize,
+    rich,
     clickHandler,
   }: {
-    fontSize: number;
-    clickHandler: (fontSize: number) => void;
+    rich: "bold" | "italic" | "underline" | "strike";
+    clickHandler: () => void;
+  }) => {
+    return (
+      <Button
+        onClick={clickHandler}
+        className={`text-[18px] h-full aspect-square bg-white p-[1px] text-black border border-solid-2 border-black hover:bg-black hover:text-white rounded-sm`}
+      >
+        {rich === "bold" ? (
+          <span>
+            <b>B</b>
+          </span>
+        ) : rich === "italic" ? (
+          <span>
+            <i>I</i>
+          </span>
+        ) : rich === "underline" ? (
+          <span>U</span>
+        ) : rich === "strike" ? (
+          <span>
+            <s>S</s>
+          </span>
+        ) : null}
+      </Button>
+    );
+  },
+);
+
+const FontSelect = memo(
+  ({
+    fontSize = 14,
+    clickHandler,
+  }: {
+    fontSize?: number;
+    clickHandler: (changes: Partial<ShapeNodeData>) => void;
   }) => {
     const values: number[] = [...Array(100)]
       .map((_, i) => i + 1)
       .filter((val) => val % 2 === 0);
 
     return (
-      <select value={fontSize} onChange={(e) => clickHandler(+e.target.value)}>
+      <select
+        value={fontSize}
+        onChange={(e) => clickHandler({ fontSize: +e.target.value })}
+      >
         {values.map((val) => (
           <option
             key={val}
@@ -234,7 +248,7 @@ const FontSelect = memo(
         ))}
       </select>
     );
-  }
+  },
 );
 
 const TrashButton = memo(({ clickHandler }: { clickHandler: () => void }) => {
@@ -251,11 +265,11 @@ const TrashButton = memo(({ clickHandler }: { clickHandler: () => void }) => {
 const VerticalAlignTextButton = memo(
   ({
     clickHandler,
-    position,
+    alignContent,
     active,
   }: {
-    clickHandler: (position: AlignContent) => void;
-    position: AlignContent;
+    clickHandler: (changes: Partial<ShapeNodeData>) => void;
+    alignContent: AlignContent;
     active?: boolean;
   }) => {
     const theme = active
@@ -264,29 +278,29 @@ const VerticalAlignTextButton = memo(
 
     return (
       <Button
-        onClick={() => clickHandler(position)}
+        onClick={() => clickHandler({ alignContent })}
         className={`h-full aspect-square bg-white p-[1px] border border-solid-2 border-black rounded-sm ${theme}`}
       >
-        {position === "start" ? (
+        {alignContent === "start" ? (
           <ArrowUpToLine size={16} />
-        ) : position === "center" ? (
+        ) : alignContent === "center" ? (
           <FoldVertical size={16} />
         ) : (
           <ArrowDownToLine size={16} />
         )}
       </Button>
     );
-  }
+  },
 );
 
 const HorizontalAlignTextButton = memo(
   ({
     clickHandler,
-    position,
+    textAlign,
     active,
   }: {
-    clickHandler: (position: TextAlign) => void;
-    position: TextAlign;
+    clickHandler: (changes: Partial<ShapeNodeData>) => void;
+    textAlign: TextAlign;
     active?: boolean;
   }) => {
     const theme = active
@@ -295,19 +309,19 @@ const HorizontalAlignTextButton = memo(
 
     return (
       <Button
-        onClick={() => clickHandler(position)}
+        onClick={() => clickHandler({ textAlign })}
         className={`h-full aspect-square bg-white p-[1px] border border-solid-2 border-black rounded-sm ${theme}`}
       >
-        {position === "center" ? (
+        {textAlign === "center" ? (
           <AlignCenter size={16} />
-        ) : position === "right" ? (
+        ) : textAlign === "right" ? (
           <AlignRight size={16} />
         ) : (
           <AlignLeft size={16} />
         )}
       </Button>
     );
-  }
+  },
 );
 
 const ColorPickerButton = memo(
@@ -315,10 +329,12 @@ const ColorPickerButton = memo(
     color,
     pickHandler,
     icon,
+    updatingKey,
   }: {
     color: string;
-    pickHandler: (color: ColorResult) => void;
+    pickHandler: (changes: Partial<ShapeNodeData>) => void;
     icon?: JSX.Element;
+    updatingKey: "color" | "backgroundColor";
   }) => {
     const [visibleColorPicker, setVisibleColorPicker] = useState(false);
 
@@ -339,7 +355,7 @@ const ColorPickerButton = memo(
               color={color}
               colors={colorsPalet.map((color: string) => "#" + color)}
               onChangeComplete={(e) => {
-                pickHandler(e);
+                pickHandler({ [updatingKey]: e.hex });
                 setVisibleColorPicker(false);
               }}
             />
@@ -347,7 +363,7 @@ const ColorPickerButton = memo(
         )}
       </Button>
     );
-  }
+  },
 );
 
 export default memo(ToolbarControlls);

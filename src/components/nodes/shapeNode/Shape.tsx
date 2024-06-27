@@ -1,17 +1,21 @@
-import { ShapeComponents } from "./ShapeNode";
+import { Circle, Rectangle } from "./shapes";
 import { ShapeProps } from "./shapes/types";
 
-export type ShapeType = keyof typeof ShapeComponents;
+export const ShapeComponents = {
+  circle: Circle,
+  rectangle: Rectangle,
+};
 
+export type ShapeType = keyof typeof ShapeComponents;
 export type ShapeComponentProps = Partial<ShapeProps> & { type: ShapeType };
 
-function Shape({
+const Shape = ({
   type,
   width,
   height,
   children,
   ...svgAttributes
-}: ShapeComponentProps) {
+}: ShapeComponentProps) => {
   const ShapeComponent = ShapeComponents[type];
 
   if (!ShapeComponent || !width || !height) {
@@ -40,6 +44,6 @@ function Shape({
       </g>
     </svg>
   );
-}
+};
 
 export default Shape;

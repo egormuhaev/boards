@@ -1,8 +1,12 @@
 import useOnClickOutside from "@/hooks/useOnClickOutside";
 import { useRef, useState } from "react";
-import { CustomFile } from "./types";
+import { FileNodeData } from "../FileNode";
 
-const Pdf = ({ file }: { file: CustomFile }) => {
+const fileViewerUrl = `${
+  import.meta.env.VITE_FILE_SERVER_URL
+}/pdf-reader/web/viewer.html?file=/`;
+
+const Pdf = ({ filePath }: FileNodeData) => {
   const [active, setActive] = useState(false);
   const ref = useRef(null);
 
@@ -16,7 +20,7 @@ const Pdf = ({ file }: { file: CustomFile }) => {
     >
       <iframe
         id="pdf-js-viewer"
-        src={`${file.path}`}
+        src={fileViewerUrl + filePath.slice(filePath.lastIndexOf("/") + 1)}
         title="webviewer"
         width="100%"
         height="100%"

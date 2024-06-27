@@ -1,12 +1,12 @@
 import { Handle, NodeProps, NodeResizer, Position } from "reactflow";
 import Video from "./files/Video";
 import File, { FileType } from "./File";
-import Image from "../shapeNode/shapes/Image";
+import Image from "./files/Image";
 import Pdf from "./files/Pdf";
+import { CustomFile } from "./files/types";
 
-export interface FileNodeData {
+export interface FileNodeData extends CustomFile {
   type: FileType;
-  file: File;
 }
 
 export const FileComponents = {
@@ -32,13 +32,12 @@ const FileNode = ({ data, selected }: NodeProps<FileNodeData>) => {
           borderColor: "grey",
         }}
       />
-
       <Handle id="top" type="source" position={Position.Top} />
       <Handle id="right" type="source" position={Position.Right} />
       <Handle id="bottom" type="source" position={Position.Bottom} />
       <Handle id="left" type="source" position={Position.Left} />
 
-      <File type={data.type} file={data.file} />
+      <File {...data} />
     </>
   );
 };
