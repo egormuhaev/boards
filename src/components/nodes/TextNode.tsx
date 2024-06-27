@@ -27,6 +27,8 @@ import useUndoRedo from "@/hooks/useUndoRedo";
 import { select } from "d3-selection";
 import { drag } from "d3-drag";
 import Handles from "./nodeEnviroment/Handles";
+import { useUnit } from "effector-react";
+import { $flow } from "@/flow/store/flow.slice";
 
 export interface TextNodeData extends CSSProperties {
   type: "text";
@@ -76,6 +78,7 @@ function TextNode({ id, selected, data }: NodeProps<TextNodeData>) {
   const { setNodes } = useReactFlow();
   const { takeSnapshot } = useUndoRedo();
   const { zoom } = useViewport();
+  const { isDrawingMode } = useUnit($flow);
 
   const [rotation, setRotation] = useState(data.rotation || 0);
 
@@ -162,20 +165,22 @@ function TextNode({ id, selected, data }: NodeProps<TextNodeData>) {
         transform: `rotate(${rotation}deg)`,
       }}
     >
-      <NodeToolbar isVisible={selected} position={Position.Top} offset={40}>
-        <ToolbarControlls
-          id={id}
-          data={data}
-          bold
-          italic
-          underline
-          strike
-          textAlign
-          alignContent
-          color
-          fontSize
-        />
-      </NodeToolbar>
+      {!isDrawingMode && (
+        <NodeToolbar isVisible={selected} position={Position.Top} offset={40}>
+          <ToolbarControlls
+            id={id}
+            data={data}
+            bold
+            italic
+            underline
+            strike
+            textAlign
+            alignContent
+            color
+            fontSize
+          />
+        </NodeToolbar>
+      )}
 
       <NodeResizer
         keepAspectRatio={shiftKeyPressed}
