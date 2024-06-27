@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { memo, useCallback, useState } from "react";
 import { BlockPicker } from "react-color";
-import { useNodes, useReactFlow } from "reactflow";
+import { useReactFlow } from "reactflow";
 import { ShapeNodeData } from "../shapeNode/ShapeNode";
 import { TextNodeData } from "../TextNode";
 
@@ -120,10 +120,9 @@ const ToolbarControlls = ({
           clickHandler={() => document.execCommand("strikethrough", false)}
         />
       )}
-      {bold ||
-        italic ||
-        underline ||
-        (strike && <div className="h-full w-[1px] bg-slate-300" />)}
+      {(bold || italic || underline || strike) && (
+        <div className="h-full w-[1px] bg-slate-300" />
+      )}
 
       {textAlign && (
         <>
