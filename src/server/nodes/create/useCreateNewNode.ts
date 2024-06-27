@@ -1,7 +1,7 @@
 import { $flow, setNodesIdMap } from "@/flow/store/flow.slice";
 import { graphqlCreateNewNode } from "../../graphql/mutation/graphqlCreateNewNode";
 import { useUnit } from "effector-react";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { Node } from "reactflow";
 
 export function useCreateNewNodeServer() {
@@ -21,7 +21,7 @@ export function useCreateNewNodeServer() {
     }
   }, [data]);
 
-  const createNewNode = (node: Node<any>) => {
+  const createNewNode = useCallback((node: Node<any>) => {
     mutateFunction({
       variables: {
         data: {
@@ -35,7 +35,7 @@ export function useCreateNewNodeServer() {
         },
       },
     });
-  };
+  }, []);
 
   return createNewNode;
 }

@@ -1,11 +1,17 @@
-import { NodeProps, NodeResizer, XYPosition, useReactFlow } from "reactflow";
+import {
+  NodeProps,
+  NodeResizer,
+  XYPosition,
+  useReactFlow,
+  Node,
+} from "reactflow";
 import { PlotSize, Props } from "./types";
 import calculateNaturalSizeOfDrawing from "./utils/calculateNaturalSizeOfDrawing";
 import { SvgPolyline } from "../SvgPolyline";
 import { SvgDrawingNodeHandle } from "../SvgDrawingNodeHandle";
 import { useUnit } from "effector-react";
 import { $flow } from "@/flow/store/flow.slice";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { SvgPath } from "../SvgPath";
 import smoothPolyline from "./utils/smoothPolyline";
 import resizeSVGContainer from "./utils/resizeSVGContainer";
@@ -41,35 +47,9 @@ export default function SvgDrawingNode({
   const svgContainerRef = useRef<HTMLDivElement>(null);
   const updateDrawingServer = useCreateNewNodeServer();
 
-  useEffect(() => {
-    if (!isDrawing && isCompletedDrawing && !isActual) {
-      const nodes = getNodes();
-      const nodeCuttentState = getNodeById(id, nodes);
-      if (
-        points.length > 5 &&
-        plotSize.width !== -Infinity &&
-        plotSize.height !== -Infinity
-      )
-        updateDrawingServer(nodeCuttentState);
-      setNodesCustom(
-        {
-          plotSize,
-          isActual: true,
-          isDrawing: false,
-          isCompletedDrawing: true,
-          points,
-        },
-        {
-          x: xPos,
-          y: yPos,
-        },
-      );
-    }
-  }, [isDrawing, isCompletedDrawing]);
-
   const conditionVizibleHandeTools = selected && !flowState.isDrawingMode;
   const conditionActionsDrawEnable =
-    !isCompletedDrawing && flowState.isDrawingMode;
+    !isActual && !isCompletedDrawing && flowState.isDrawingMode;
 
   const setNodesCustom = (args: Props, position?: XYPosition) => {
     const nodes = getNodes();
@@ -91,7 +71,7 @@ export default function SvgDrawingNode({
     setNodesCustom({
       points: [{ x: offsetX, y: offsetY }],
       isDrawing: true,
-      isActual,
+      isActual: false,
     });
     changeDrawingInThisMoment(true);
   };
@@ -103,7 +83,7 @@ export default function SvgDrawingNode({
       plotSize: { width: width, height: height },
       points: [...points, { x: offsetX, y: offsetY }],
       isDrawing: true,
-      isActual,
+      isActual: false,
     });
   };
 
@@ -112,6 +92,9 @@ export default function SvgDrawingNode({
       points.slice(1, points.length),
     );
 
+    const nodes = getNodes();
+    const nodeCuttentState = getNodeById(id, nodes);
+
     const currentNormalPoints = normalizationSvgOffset(
       minX,
       minY,
@@ -119,23 +102,27 @@ export default function SvgDrawingNode({
       lineWidth,
     );
 
-    setNodesCustom(
-      {
+    const newNode: Node<any> = {
+      ...nodeCuttentState,
+      position: {
+        x: xPos + minX - lineWidth,
+        y: yPos + minY - lineWidth,
+      },
+      data: {
         plotSize: {
           width: maxX - minX,
           height: maxY - minY,
         },
-        isActual,
+        isActual: true,
         isDrawing: false,
         isCompletedDrawing: true,
         points: [...currentNormalPoints],
       },
-      {
-        x: xPos + minX - lineWidth,
-        y: yPos + minY - lineWidth,
-      },
-    );
+    };
+
+    setNodesCustom(newNode.data, newNode.position);
     changeDrawingInThisMoment(false);
+    updateDrawingServer(newNode);
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
