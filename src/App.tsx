@@ -1,6 +1,5 @@
 import Router from "./app/Router";
 import { BrowserRouter } from "react-router-dom";
-// import FlowMonitor from "./flow/FlowMonitor";
 
 function App() {
   return (
@@ -8,8 +7,6 @@ function App() {
       <BrowserRouter>
         <Router />
       </BrowserRouter>
-
-      {/* <FlowMonitor /> */}
     </div>
   );
 }

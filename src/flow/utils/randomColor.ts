@@ -41,7 +41,7 @@ export const selectFiles = async <T extends HTMLInputElement>(
     formData.append("files", files[i]);
   }
 
-  const response = await fetch("http://localhost:3000/api/files", {
+  const response = await fetch("http://localhost:3001/api/files", {
     method: "POST",
     body: formData,
   });

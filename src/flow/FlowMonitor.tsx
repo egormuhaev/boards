@@ -11,7 +11,7 @@ import useEvents from "@/hooks/useEvents";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import { getHelperLines } from "@/lib/utils";
 import { useUnit } from "effector-react";
-import { DragEvent, useCallback, useEffect, useRef, useState } from "react";
+import { DragEvent, useCallback, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -22,13 +22,10 @@ import ReactFlow, {
   MiniMap,
   NodeChange,
   // Panel,
-  // Panel,
   ReactFlowInstance,
   addEdge,
   useEdgesState,
   useNodesState,
-  useReactFlow,
-  // useReactFlow,
   // useReactFlow,
 } from "reactflow";
 import { v4 } from "uuid";
@@ -47,8 +44,10 @@ import useInitFlowData from "@/server/useInitFlowData";
 import { useNodesChangeServer } from "@/server/useNodesChangeServer";
 import { useCreateNewEdges } from "@/server/edges/create/useCreateNewEdges";
 import { useEdgesChangeServer } from "@/server/useEdgesChangeServer";
+import HelperLines from "@/components/HelperLines";
+import FlowHeadPanel from "./FlowHeadPanel";
 
-const flowKey = "example-flow";
+// const flowKey = "example-flow";
 
 const FlowMonitor = () => {
   const [reactFlowInstance, setReactFlowInstance] =
@@ -58,29 +57,29 @@ const FlowMonitor = () => {
   const functX = useNodesChangeServer();
   const functY = useEdgesChangeServer();
   const createEdgesFunction = useCreateNewEdges();
-  const { setViewport } = useReactFlow();
+  // const { setViewport } = useReactFlow();
 
   const proOptions = {
     account: "paid-pro",
     hideAttribution: true,
   };
 
-  useEffect(() => {
-    const viewportMetaTag = document.querySelector('meta[name="viewport"]');
-    if (!viewportMetaTag) return;
+  // useEffect(() => {
+  //   const viewportMetaTag = document.querySelector('meta[name="viewport"]');
+  //   if (!viewportMetaTag) return;
 
-    viewportMetaTag.setAttribute(
-      "content",
-      "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
-    );
+  //   viewportMetaTag.setAttribute(
+  //     "content",
+  //     "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
+  //   );
 
-    return () => {
-      viewportMetaTag.setAttribute(
-        "content",
-        "width=device-width, initial-scale=1.0",
-      );
-    };
-  }, []);
+  //   return () => {
+  //     viewportMetaTag.setAttribute(
+  //       "content",
+  //       "width=device-width, initial-scale=1.0",
+  //     );
+  //   };
+  // }, []);
 
   // const playgroundState = useUnit($boardPlayground);
 
@@ -110,32 +109,32 @@ const FlowMonitor = () => {
   const { takeSnapshot } = useUndoRedo();
   useCopyPaste();
 
-  const [, setHelperLineHorizontal] = useState<number>();
-  const [, setHelperLineVertical] = useState<number>();
+  const [helperLineHorizontal, setHelperLineHorizontal] = useState<number>();
+  const [helperLineVertical, setHelperLineVertical] = useState<number>();
 
-  const saveFlow = useCallback(() => {
-    console.log("saving flow...");
-    if (reactFlowInstance) {
-      const flow = reactFlowInstance.toObject();
-      localStorage.setItem(flowKey, JSON.stringify(flow));
-    }
-  }, [reactFlowInstance]);
+  // const saveFlow = useCallback(() => {
+  //   console.log("saving flow...");
+  //   if (reactFlowInstance) {
+  //     const flow = reactFlowInstance.toObject();
+  //     localStorage.setItem(flowKey, JSON.stringify(flow));
+  //   }
+  // }, [reactFlowInstance]);
 
-  useEffect(() => {
-    saveFlow();
-  }, [nodes, edges]);
+  // useEffect(() => {
+  //   saveFlow();
+  // }, [nodes, edges]);
 
-  useEffect(() => {
-    const ls = localStorage.getItem(flowKey);
-    if (!ls) return;
-    const flow = JSON.parse(ls);
-    if (flow) {
-      const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-      setNodes(flow.nodes || []);
-      setEdges(flow.edges || []);
-      setViewport({ x, y, zoom });
-    }
-  }, []);
+  // useEffect(() => {
+  //   const ls = localStorage.getItem(flowKey);
+  //   if (!ls) return;
+  //   const flow = JSON.parse(ls);
+  //   if (flow) {
+  //     const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+  //     setNodes(flow.nodes || []);
+  //     setEdges(flow.edges || []);
+  //     setViewport({ x, y, zoom });
+  //   }
+  // }, []);
 
   const onCustomNodesChange = (changes: NodeChange[]) => {
     setHelperLineHorizontal(undefined);
@@ -158,15 +157,15 @@ const FlowMonitor = () => {
       setHelperLineVertical(helperLines.vertical);
     }
 
-    saveFlow();
-    console.log("nodes changes");
+    // saveFlow();
+    // console.log("nodes changes");
     onNodesChange(changes);
     functX(changes);
   };
 
   const onCustomEdgesChange = (changes: EdgeChange[]) => {
-    saveFlow();
-    console.log("edges changes");
+    // saveFlow();
+    // console.log("edges changes");
     onEdgesChange(changes);
     functY(changes);
   };
@@ -303,6 +302,8 @@ const FlowMonitor = () => {
       >
         {/* {!drawState.drawingInThisMoment && <Theme />} */}
 
+        {!drawState.drawingInThisMoment && <FlowHeadPanel />}
+
         {!drawState.drawingInThisMoment && <FlowHeadToolbar />}
 
         {flowState.isDrawingMode && !drawState.drawingInThisMoment && (
@@ -320,10 +321,10 @@ const FlowMonitor = () => {
           />
         )}
 
-        {/* <HelperLines
+        <HelperLines
           horizontal={helperLineHorizontal}
           vertical={helperLineVertical}
-        /> */}
+        />
 
         {!drawState.drawingInThisMoment && (
           <MiniMap nodeStrokeWidth={3} zoomable pannable />
