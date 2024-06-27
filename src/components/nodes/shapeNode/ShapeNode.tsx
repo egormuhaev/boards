@@ -183,6 +183,7 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
         keepAspectRatio={shiftKeyPressed}
         isVisible={selected}
         handleStyle={{
+          zIndex: "10 !important",
           maxHeight: "50px",
           maxWidth: "50px",
           height: 10 / zoom + "px",
