@@ -29,6 +29,8 @@ import Shape, { ShapeComponents, ShapeType } from "./Shape";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import ContentEditable from "./Content";
 import Handles from "../nodeEnviroment/Handles";
+import { useUnit } from "effector-react";
+import { $flow } from "@/flow/store/flow.slice";
 
 export interface ShapeNodeData extends CSSProperties {
   type: ShapeType;
@@ -73,6 +75,7 @@ const contentCssFormules: Record<
 
 function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
   const { width, height } = useNodeDimensions(id);
+  const { isDrawingMode } = useUnit($flow);
   const shiftKeyPressed = useKeyPress("Shift");
   const { setNodes } = useReactFlow();
   const { takeSnapshot } = useUndoRedo();
@@ -163,21 +166,23 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNodeData>) {
         transform: `rotate(${rotation}deg)`,
       }}
     >
-      <NodeToolbar isVisible={selected} position={Position.Top} offset={40}>
-        <ToolbarControlls
-          id={id}
-          data={data}
-          bold
-          italic
-          underline
-          strike
-          textAlign
-          alignContent
-          color
-          backgroundColor
-          fontSize
-        />
-      </NodeToolbar>
+      {!isDrawingMode && (
+        <NodeToolbar isVisible={selected} position={Position.Top} offset={40}>
+          <ToolbarControlls
+            id={id}
+            data={data}
+            bold
+            italic
+            underline
+            strike
+            textAlign
+            alignContent
+            color
+            backgroundColor
+            fontSize
+          />
+        </NodeToolbar>
+      )}
 
       <NodeResizer
         keepAspectRatio={shiftKeyPressed}
