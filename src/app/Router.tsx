@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { AppRoutes, RoutePropsCustom } from "./types";
 import { routesSchema } from "./router.config";
+import Protect from "./Protect";
 
 const Router = () => {
   type Routes =
@@ -10,7 +11,11 @@ const Router = () => {
 
   function renderRoutes(routes: Routes) {
     return Object.values(routes).map((route) => (
-      <Route key={route.path} path={route.path} element={route.element}>
+      <Route
+        key={route.path}
+        path={route.path}
+        element={<Protect route={route}>{route.element}</Protect>}
+      >
         {route.nestedRoutes && renderRoutes(route.nestedRoutes)}
       </Route>
     ));

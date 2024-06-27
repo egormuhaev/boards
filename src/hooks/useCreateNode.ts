@@ -29,6 +29,7 @@ export const fileSubTypes: Record<string, keyof typeof FileComponents> = {
   jpg: "image",
   jpeg: "image",
   png: "image",
+  webp: "image",
   pdf: "pdf",
 };
 

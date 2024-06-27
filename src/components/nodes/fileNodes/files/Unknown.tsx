@@ -1,13 +1,13 @@
 import { FileNodeData } from "../FileNode";
 import { ArrowDownToLine } from "lucide-react";
 
-const downloadFile = async (filePath: string, fileName: string) => {
+export const downloadFile = async (filePath: string, fileName: string) => {
   const response = await fetch(filePath);
   if (!response.ok) {
     alert("Не удалось загрузить файл! Возможно он был удален.");
     return;
   }
-
+  console.log(fileName);
   const blob = await response.blob();
 
   const url = window.URL.createObjectURL(blob);

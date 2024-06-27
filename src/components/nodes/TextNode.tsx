@@ -1,6 +1,4 @@
 import {
-  Handle,
-  HandleType,
   NodeResizer,
   NodeToolbar,
   Position,
@@ -45,33 +43,6 @@ const contentCssFormules = {
   width: "90%",
   height: "90%",
 };
-
-const defaultNodeHandles: {
-  id: string;
-  type: HandleType;
-  position: Position;
-}[] = [
-  {
-    id: "top",
-    type: "source",
-    position: Position.Top,
-  },
-  {
-    id: "right",
-    type: "source",
-    position: Position.Right,
-  },
-  {
-    id: "bottom",
-    type: "source",
-    position: Position.Bottom,
-  },
-  {
-    id: "left",
-    type: "source",
-    position: Position.Left,
-  },
-];
 
 function TextNode({ id, selected, data }: NodeProps<TextNodeData>) {
   const shiftKeyPressed = useKeyPress("Shift");

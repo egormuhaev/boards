@@ -4,6 +4,9 @@ export enum AppRoutes {
   HOME = "home",
   BOARD = "board",
   NOT_FOUND = "not_found",
+  SIGN_IN = "sign_in",
+  SIGN_UP = "sign_up",
+  PROFILE = "profile",
 }
 
 export interface RoutePropsCustom {
