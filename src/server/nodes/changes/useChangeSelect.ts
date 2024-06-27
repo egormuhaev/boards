@@ -1,28 +1,24 @@
-import { useEffect, useState } from "react";
 import { NodeSelectionChange } from "reactflow";
-import { useSendingModifiedNodeValues } from "@/server/query/useSendingModifiedNodeValues";
+import { useQueryUpdateNodesByIds } from "@/server/query/useQueryUpdateNodesByIds";
 
 export function useChangeSelect() {
-  const [heap, setHeap] = useState<NodeSelectionChange[]>([]);
-  const query = useSendingModifiedNodeValues();
+  const query = useQueryUpdateNodesByIds();
 
-  useEffect(() => {
-    console.log("useChangeSelect");
+  const onChangeSelect = async (heap: NodeSelectionChange[]) => {
     if (heap.length !== 0) {
       let nodesWithCompletedSelect = heap.map((item) => item.id);
       if (nodesWithCompletedSelect.length > 0) {
         query(nodesWithCompletedSelect);
-        setHeap([]);
       }
     }
-  }, [heap]);
+  };
 
-  const setHeep = (change: NodeSelectionChange[]) => {
+  const setHeep = async (change: NodeSelectionChange[]) => {
     if (change.length === 0) {
       return;
     }
 
-    setHeap([...heap, ...change]);
+    onChangeSelect(change);
   };
 
   return { setHeep };

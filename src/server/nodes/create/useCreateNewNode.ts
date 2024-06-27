@@ -15,7 +15,7 @@ export function useCreateNewNodeServer() {
 
       if (nodeId && nodeNaturalId) {
         let newNodesIdMap = { ...nodesIdMap, [nodeId]: nodeNaturalId };
-        console.log(newNodesIdMap);
+
         setNodesIdMap(newNodesIdMap);
       }
     }

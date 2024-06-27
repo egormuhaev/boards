@@ -11,7 +11,6 @@ export function SvgPolyline({
   const pointsAsString = useMemo(() => {
     return points.map((p) => `${p.x},${p.y}`).join(" ");
   }, [points]);
-
   return (
     <svg className="h-full w-full">
       <polyline

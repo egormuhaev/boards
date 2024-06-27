@@ -1,13 +1,10 @@
-import { useEffect, useState } from "react";
 import { NodeDimensionChange } from "reactflow";
-import { useSendingModifiedNodeValues } from "@/server/query/useSendingModifiedNodeValues";
+import { useQueryUpdateNodesByIds } from "@/server/query/useQueryUpdateNodesByIds";
 
 export function useChangeDimension() {
-  const [heap, setHeap] = useState<NodeDimensionChange[]>([]);
-  const query = useSendingModifiedNodeValues();
+  const query = useQueryUpdateNodesByIds();
 
-  useEffect(() => {
-    console.log("useChangeDimension");
+  const onChangeDimension = async (heap: NodeDimensionChange[]) => {
     if (heap.length !== 0) {
       let nodesWithCompletedResize = [];
       for (let i = 0; i < heap.length; i++) {
@@ -18,14 +15,11 @@ export function useChangeDimension() {
 
       if (nodesWithCompletedResize.length > 0) {
         query(nodesWithCompletedResize);
-        setHeap([
-          ...heap.filter((item) => !nodesWithCompletedResize.includes(item.id)),
-        ]);
       }
     }
-  }, [heap]);
+  };
 
-  const setHeep = (change: NodeDimensionChange[]) => {
+  const setHeep = async (change: NodeDimensionChange[]) => {
     const chengeDontHaveCompleteElement = change.filter(
       (item) => item.resizing === false,
     );
@@ -33,7 +27,7 @@ export function useChangeDimension() {
       return;
     }
 
-    setHeap([...heap, ...change]);
+    onChangeDimension(change);
   };
 
   return { setHeep };

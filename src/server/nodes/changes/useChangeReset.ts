@@ -1,28 +1,23 @@
-import { useEffect, useState } from "react";
 import { NodeResetChange } from "reactflow";
-import { useSendingResetingNodeValues } from "@/server/query/useSendingResetingNodeValues";
+import { useQueryUpdateNodes } from "@/server/query/useQueryUpdateNodes";
 
 export function useChangeReset() {
-  const [heap, setHeap] = useState<NodeResetChange[]>([]);
-  const query = useSendingResetingNodeValues();
+  const query = useQueryUpdateNodes();
 
-  useEffect(() => {
-    console.log("useChangeReset");
+  const onChangeReset = async (heap: NodeResetChange[]) => {
     if (heap.length !== 0) {
       let nodesWithCompletedReset = heap.map((item) => item.item);
       if (nodesWithCompletedReset.length > 0) {
         query(nodesWithCompletedReset);
-
-        setHeap([]);
       }
     }
-  }, [heap]);
+  };
 
-  const setHeep = (change: NodeResetChange[]) => {
+  const setHeep = async (change: NodeResetChange[]) => {
     if (change.length === 0) {
       return;
     }
-    setHeap([...change]);
+    onChangeReset(change);
   };
 
   return { setHeep };

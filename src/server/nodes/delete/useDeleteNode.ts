@@ -1,27 +1,23 @@
-import { useEffect, useState } from "react";
 import { NodeRemoveChange } from "reactflow";
-import { useRemoveNode } from "@/server/query/useRemoveNode";
+import { useQueryRemoveNode } from "@/server/query/useQueryRemoveNode";
 
 export function useDeleteNodes() {
-  const [heap, setHeap] = useState<NodeRemoveChange[]>([]);
-  const query = useRemoveNode();
+  const query = useQueryRemoveNode();
 
-  useEffect(() => {
-    console.log("useDeleteNode");
+  const onDeleteNodes = async (heap: NodeRemoveChange[]) => {
     if (heap.length !== 0) {
       let nodesWithCompletedReset = heap.map((item) => item.id);
       if (nodesWithCompletedReset.length > 0) {
         query(nodesWithCompletedReset);
-        setHeap([]);
       }
     }
-  }, [heap]);
+  };
 
   const setHeep = (change: NodeRemoveChange[]) => {
     if (change.length === 0) {
       return;
     }
-    setHeap([...change]);
+    onDeleteNodes(change);
   };
 
   return { setHeep };

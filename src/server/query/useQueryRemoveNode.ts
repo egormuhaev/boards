@@ -2,7 +2,7 @@ import { $flow } from "@/flow/store/flow.slice";
 import { useUnit } from "effector-react";
 import { graphqlDeleteNodes } from "../graphql/mutation/graphqlDeleteNodes";
 
-export function useRemoveNode() {
+export function useQueryRemoveNode() {
   const { nodesIdMap } = useUnit($flow);
   const { deleteNodeFunction } = graphqlDeleteNodes();
 

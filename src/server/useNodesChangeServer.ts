@@ -13,6 +13,7 @@ import { useChangeSelect } from "./nodes/changes/useChangeSelect";
 import { useUnit } from "effector-react";
 import { $flow } from "@/flow/store/flow.slice";
 import { useDeleteNodes } from "./nodes/delete/useDeleteNode";
+import { useCallback } from "react";
 
 export function useNodesChangeServer() {
   const { setHeep: setHeapPosition } = useChangePosition();
@@ -22,30 +23,37 @@ export function useNodesChangeServer() {
   const { setHeep: setHeapDelete } = useDeleteNodes();
   const { isDrawingMode } = useUnit($flow);
 
-  return (changes: NodeChange[]) => {
-    const { position, remove, dimension, reset, select } =
-      classificationOfChangeEvents(changes, isDrawingMode);
+  const eventProcessing = useCallback(
+    async (changes: NodeChange[]) => {
+      const { position, remove, dimension, reset, select } =
+        classificationOfChangeEvents(changes, isDrawingMode);
+      if (select.length > 0) {
+        setHeapSelect(select as NodeSelectionChange[]);
+      }
+      if (remove.length > 0) {
+        setHeapDelete(remove as NodeRemoveChange[]);
+      }
+      if (position.length > 0) {
+        setHeapPosition(position as NodePositionChange[]);
+      }
+      if (dimension.length > 0) {
+        setHeapDimension(dimension as NodeDimensionChange[]);
+      }
+      if (reset.length > 0) {
+        setHeapReset(reset as NodeResetChange[]);
+      }
+    },
+    [
+      setHeapPosition,
+      setHeapDimension,
+      setHeapReset,
+      setHeapSelect,
+      setHeapDelete,
+      isDrawingMode,
+    ],
+  );
 
-    if (select.length > 0) {
-      setHeapSelect(select as NodeSelectionChange[]);
-    }
-
-    if (remove.length > 0) {
-      setHeapDelete(remove as NodeRemoveChange[]);
-    }
-
-    if (position.length > 0) {
-      setHeapPosition(position as NodePositionChange[]);
-    }
-
-    if (dimension.length > 0) {
-      setHeapDimension(dimension as NodeDimensionChange[]);
-    }
-
-    if (reset.length > 0) {
-      setHeapReset(reset as NodeResetChange[]);
-    }
-  };
+  return eventProcessing;
 }
 
 function classificationOfChangeEvents(

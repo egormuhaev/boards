@@ -1,44 +1,42 @@
-import { useEffect, useState } from "react";
 import { NodePositionChange } from "reactflow";
-import { useSendingModifiedNodeValues } from "@/server/query/useSendingModifiedNodeValues";
+import { useQueryUpdateNodesByIds } from "@/server/query/useQueryUpdateNodesByIds";
+import { useCallback } from "react";
 
 export function useChangePosition() {
-  const [heap, setHeap] = useState<NodePositionChange[]>([]);
-  const query = useSendingModifiedNodeValues();
+  const query = useQueryUpdateNodesByIds();
 
-  useEffect(() => {
-    console.log("useChangePosition");
-    if (heap.length !== 0) {
-      let nodesWithCompletedMovement = [];
+  const onChangePosition = useCallback(
+    (heap: NodePositionChange[]) => {
+      if (heap.length !== 0) {
+        let nodesWithCompletedMovement = [];
 
-      for (let i = 0; i < heap.length; i++) {
-        if (heap[i].dragging === false) {
-          nodesWithCompletedMovement.push(heap[i].id);
+        for (let i = 0; i < heap.length; i++) {
+          if (heap[i].dragging === false) {
+            nodesWithCompletedMovement.push(heap[i].id);
+          }
+        }
+
+        if (nodesWithCompletedMovement.length > 0) {
+          query(nodesWithCompletedMovement);
         }
       }
+    },
+    [query],
+  );
 
-      if (nodesWithCompletedMovement.length > 0) {
-        query(nodesWithCompletedMovement);
-
-        setHeap([
-          ...heap.filter(
-            (item) => !nodesWithCompletedMovement.includes(item.id),
-          ),
-        ]);
+  const setHeep = useCallback(
+    async (change: NodePositionChange[]) => {
+      const chengeDontHaveCompleteElement = change.filter(
+        (item) => item.dragging === false,
+      );
+      if (chengeDontHaveCompleteElement.length === 0) {
+        return;
       }
-    }
-  }, [heap]);
 
-  const setHeep = (change: NodePositionChange[]) => {
-    const chengeDontHaveCompleteElement = change.filter(
-      (item) => item.dragging === false,
-    );
-    if (chengeDontHaveCompleteElement.length === 0) {
-      return;
-    }
-
-    setHeap([...heap, ...change]);
-  };
+      onChangePosition(change);
+    },
+    [onChangePosition],
+  );
 
   return { setHeep };
 }

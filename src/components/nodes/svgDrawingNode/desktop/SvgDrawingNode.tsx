@@ -1,11 +1,4 @@
-import {
-  NodeProps,
-  NodeResizer,
-  XYPosition,
-  applyNodeChanges,
-  useNodes,
-  useReactFlow,
-} from "reactflow";
+import { NodeProps, NodeResizer, XYPosition, useReactFlow } from "reactflow";
 import { PlotSize, Props } from "./types";
 import calculateNaturalSizeOfDrawing from "./utils/calculateNaturalSizeOfDrawing";
 import { SvgPolyline } from "../SvgPolyline";
@@ -44,13 +37,13 @@ export default function SvgDrawingNode({
   },
 }: NodeProps<Props>) {
   const flowState = useUnit($flow);
-  const nodes = useNodes<Props>();
-  const { setNodes } = useReactFlow();
+  const { setNodes, getNodes } = useReactFlow();
   const svgContainerRef = useRef<HTMLDivElement>(null);
   const updateDrawingServer = useCreateNewNodeServer();
 
   useEffect(() => {
     if (!isDrawing && isCompletedDrawing && !isActual) {
+      const nodes = getNodes();
       const nodeCuttentState = getNodeById(id, nodes);
       if (
         points.length > 5 &&
@@ -78,11 +71,8 @@ export default function SvgDrawingNode({
   const conditionActionsDrawEnable =
     !isCompletedDrawing && flowState.isDrawingMode;
 
-  // const setNodesChengeCustom = (args: Props, position?: XYPosition) {
-
-  // }
-
   const setNodesCustom = (args: Props, position?: XYPosition) => {
+    const nodes = getNodes();
     const curentState = getNodeById(id, nodes);
     setNodes([
       ...nodes,

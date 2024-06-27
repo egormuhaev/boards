@@ -232,7 +232,7 @@ const FlowMonitor = () => {
         panOnDrag={!(flowState.isDrawingMode || buffer?.nodeType === "shape")} // Нужно для того чтобы карта не двигалась при рисовании и создании ноды ресайзингом
         zoomOnScroll
         proOptions={proOptions}
-        //onlyRenderVisibleElements={true} // Оптимизация: Скрытие элементов вне
+        onlyRenderVisibleElements={!flowState.isDrawingMode} // Оптимизация: Скрытие элементов вне
       >
         {/* {!drawState.drawingInThisMoment && <Theme />} */}
 
