@@ -14,12 +14,9 @@ export function useCreateNewNodeServer() {
 
   useEffect(() => {
     if (dataCreateNode) {
-      let nodeId = dataCreateNode.createNode.nodeId;
-      let nodeNaturalId = dataCreateNode.createNode.id;
-
-      if (nodeId && nodeNaturalId) {
-        let newNodesIdMap = { ...nodesIdMap, [nodeId]: nodeNaturalId };
-
+      const { nodeId, id } = dataCreateNode.createNode;
+      if (nodeId && id) {
+        let newNodesIdMap = { ...nodesIdMap, [nodeId]: id };
         setNodesIdMap(newNodesIdMap);
       }
     }
@@ -29,11 +26,9 @@ export function useCreateNewNodeServer() {
     let localNodesIdMap: Record<string, string> = {};
     if (dataCreateNodes) {
       dataCreateNodes.createNodes.forEach(
-        (itam: { nodeId: string; id: string }) => {
-          let nodeId = itam.nodeId;
-          let nodeNaturalId = itam.id;
-          if (nodeId && nodeNaturalId) {
-            localNodesIdMap[nodeId] = nodeNaturalId;
+        ({ nodeId, id }: { nodeId: string; id: string }) => {
+          if (nodeId && id) {
+            localNodesIdMap[nodeId] = id;
           }
         },
       );
