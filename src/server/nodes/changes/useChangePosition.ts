@@ -6,7 +6,7 @@ export function useChangePosition() {
   const query = useQueryUpdateNodesByIds();
 
   const onChangePosition = useCallback(
-    (heap: NodePositionChange[]) => {
+    async (heap: NodePositionChange[]) => {
       if (heap.length !== 0) {
         let nodesWithCompletedMovement = [];
 
