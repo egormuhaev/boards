@@ -55,7 +55,7 @@ const FileNode = ({ id, data, selected }: NodeProps<FileNodeData>) => {
       )}
 
       <NodeResizer
-        keepAspectRatio={shiftKeyPressed}
+        keepAspectRatio
         isVisible={selected}
         handleStyle={{
           maxHeight: "50px",

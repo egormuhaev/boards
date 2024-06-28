@@ -27,11 +27,11 @@ const Unknown = ({ filePath, fileName, fileSize }: FileNodeData) => {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="h-16 flex justify-center items-center gap-3 bg-black text-white p-5 box-content rounded-full"
+      className="h-full flex justify-center items-center gap-3 bg-black text-white p-5 box-border rounded-full overflow-hidden text-lg"
     >
       <button
         onClick={() => downloadFile(filePath, fileName)}
-        className="bg-white rounded-full h-full aspect-square flex justify-center items-center hover:cursor-pointer"
+        className="bg-white rounded-full h-full min-h-10 max-h-28 aspect-square flex justify-center items-center hover:cursor-pointer"
       >
         <ArrowDownToLine size={28} color="black" />
       </button>
