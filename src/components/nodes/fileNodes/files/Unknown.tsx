@@ -7,7 +7,7 @@ export const downloadFile = async (filePath: string, fileName: string) => {
     alert("Не удалось загрузить файл! Возможно он был удален.");
     return;
   }
-  console.log(fileName);
+
   const blob = await response.blob();
 
   const url = window.URL.createObjectURL(blob);
@@ -27,7 +27,7 @@ const Unknown = ({ filePath, fileName, fileSize }: FileNodeData) => {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="flex justify-center items-center gap-3 h-16 bg-black text-white p-5 box-content rounded-full"
+      className="h-16 flex justify-center items-center gap-3 bg-black text-white p-5 box-content rounded-full"
     >
       <button
         onClick={() => downloadFile(filePath, fileName)}

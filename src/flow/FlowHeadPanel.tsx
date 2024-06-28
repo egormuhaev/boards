@@ -1,36 +1,17 @@
-import { nodeTypes } from "@/components/nodes";
 import { useCleaningEmptyCanvasesAfterDrawing } from "@/hooks/useCleaningEmptyCanvasesAfterDrawing";
 import { Button } from "@/shadcn/ui/button";
 import { useUnit } from "effector-react";
-import { ArrowLeft, Pencil, Type } from "lucide-react";
-import { DragEvent, MouseEvent } from "react";
-import { FaFile } from "react-icons/fa";
-import { LuCircle, LuRectangleHorizontal } from "react-icons/lu";
+import { ArrowLeft } from "lucide-react";
+import { MouseEvent } from "react";
 import { $flow, changeDrawingMode } from "./store/flow.slice";
-import {
-  $boardPlayground,
-  clearBufferCreatingType,
-  setCreateBuffer,
-} from "./store/playground.slice";
-import { ShapeComponents } from "@/components/nodes/shapeNode/Shape";
+import { clearBufferCreatingType } from "./store/playground.slice";
 import { useNavigate } from "react-router-dom";
 
 const FlowHeadPanel = ({}) => {
   const navigate = useNavigate();
   const flowState = useUnit($flow);
-  const { buffer } = useUnit($boardPlayground);
   const cleaningEmptyCanvasesAfterDrawing =
     useCleaningEmptyCanvasesAfterDrawing();
-
-  const saveCreatingTypeInBuffer = (
-    nodeType: keyof typeof nodeTypes,
-    subType?: keyof typeof ShapeComponents,
-  ) => {
-    setCreateBuffer({
-      nodeType,
-      subType,
-    });
-  };
 
   const clickHandler = (e: MouseEvent<HTMLButtonElement>, func: Function) => {
     e.preventDefault();

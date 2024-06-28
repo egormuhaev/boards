@@ -102,7 +102,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
     async (
       position: XYPosition,
       { width, height }: { width: number; height: number },
-      fileList?: FileList,
+      fileList: CustomFile[] | null,
     ) => {
       const files = fileList?.length ? fileList : await selectFiles(ref);
       if (!files?.length) return;
