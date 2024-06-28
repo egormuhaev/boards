@@ -82,7 +82,7 @@ const FlowMonitor = ({ boardId }: { boardId: string }) => {
     useMouseEvents(inputFileRef);
 
   const { connectionLinePath } = useUnit($boardPlayground);
-  const { buffer, theme } = useUnit($boardPlayground);
+  const { theme } = useUnit($boardPlayground);
   const { takeSnapshot } = useUndoRedo();
   useCopyPaste();
 
@@ -238,8 +238,9 @@ const FlowMonitor = ({ boardId }: { boardId: string }) => {
       className={theme}
       zoomOnDoubleClick={!flowState.isDrawingMode}
       nodesDraggable={!flowState.isDrawingMode}
-      panOnDrag={!(flowState.isDrawingMode || buffer?.nodeType === "shape")} // Нужно для того чтобы карта не двигалась при рисовании и создании ноды ресайзингом
+      panOnDrag={false} // Нужно для того чтобы карта не двигалась при рисовании и создании ноды ресайзингом
       zoomOnScroll
+      panOnScroll
       proOptions={proOptions}
       elevateNodesOnSelect={!flowState.isDrawingMode}
       onlyRenderVisibleElements={!flowState.isDrawingMode} // Оптимизация: Скрытие элементов вне

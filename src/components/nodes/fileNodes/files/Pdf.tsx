@@ -7,7 +7,7 @@ const fileViewerUrl = `${
 }/pdf-reader/web/viewer.html?file=/`;
 
 const Pdf = ({ filePath }: FileNodeData) => {
-  const [active, setActive] = useState(false);
+  const [active, setActive] = useState(true);
   const ref = useRef(null);
 
   useOnClickOutside(ref, () => setActive(true));
@@ -15,7 +15,7 @@ const Pdf = ({ filePath }: FileNodeData) => {
   return (
     <div
       ref={ref}
-      onClick={() => setActive(false)}
+      onDoubleClick={() => setActive(false)}
       className="flex justify-center items-center box-border bg-transparent gap-3 w-full h-full"
     >
       <iframe

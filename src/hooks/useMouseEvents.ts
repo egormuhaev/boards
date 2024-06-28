@@ -49,7 +49,7 @@ const useMouseEvents = (ref: RefObject<HTMLInputElement>) => {
         height: 600,
       };
 
-      await addFileNode(position, nodeSize);
+      await addFileNode(position, nodeSize, null);
     } else if (buffer.nodeType === "text") {
       const nodeSize = {
         width: 180,
