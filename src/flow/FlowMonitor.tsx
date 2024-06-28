@@ -37,7 +37,6 @@ import { $flow } from "./store/flow.slice";
 import { $boardPlayground } from "./store/playground.slice";
 import { handleDragEvent } from "./utils/randomColor";
 import useMouseEvents from "@/hooks/useMouseEvents";
-// import { Redo, Undo } from "lucide-react";
 import { $draw } from "./store/draw.slice";
 
 import useInitFlowData from "@/server/useInitFlowData";
@@ -47,8 +46,6 @@ import { useEdgesChangeServer } from "@/server/useEdgesChangeServer";
 import HelperLines from "@/components/HelperLines";
 import FlowHeadPanel from "./FlowHeadPanel";
 
-// const flowKey = "example-flow";
-
 const FlowMonitor = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
@@ -56,32 +53,12 @@ const FlowMonitor = () => {
   useInitFlowData();
   const functX = useNodesChangeServer();
   const functY = useEdgesChangeServer();
-  const createEdgesFunction = useCreateNewEdges();
-  // const { setViewport } = useReactFlow();
+  const { createNewEdge } = useCreateNewEdges();
 
   const proOptions = {
     account: "paid-pro",
     hideAttribution: true,
   };
-
-  // useEffect(() => {
-  //   const viewportMetaTag = document.querySelector('meta[name="viewport"]');
-  //   if (!viewportMetaTag) return;
-
-  //   viewportMetaTag.setAttribute(
-  //     "content",
-  //     "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
-  //   );
-
-  //   return () => {
-  //     viewportMetaTag.setAttribute(
-  //       "content",
-  //       "width=device-width, initial-scale=1.0",
-  //     );
-  //   };
-  // }, []);
-
-  // const playgroundState = useUnit($boardPlayground);
 
   const flowState = useUnit($flow);
 
@@ -112,30 +89,6 @@ const FlowMonitor = () => {
   const [helperLineHorizontal, setHelperLineHorizontal] = useState<number>();
   const [helperLineVertical, setHelperLineVertical] = useState<number>();
 
-  // const saveFlow = useCallback(() => {
-  //   console.log("saving flow...");
-  //   if (reactFlowInstance) {
-  //     const flow = reactFlowInstance.toObject();
-  //     localStorage.setItem(flowKey, JSON.stringify(flow));
-  //   }
-  // }, [reactFlowInstance]);
-
-  // useEffect(() => {
-  //   saveFlow();
-  // }, [nodes, edges]);
-
-  // useEffect(() => {
-  //   const ls = localStorage.getItem(flowKey);
-  //   if (!ls) return;
-  //   const flow = JSON.parse(ls);
-  //   if (flow) {
-  //     const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-  //     setNodes(flow.nodes || []);
-  //     setEdges(flow.edges || []);
-  //     setViewport({ x, y, zoom });
-  //   }
-  // }, []);
-
   const onCustomNodesChange = (changes: NodeChange[]) => {
     setHelperLineHorizontal(undefined);
     setHelperLineVertical(undefined);
@@ -157,15 +110,11 @@ const FlowMonitor = () => {
       setHelperLineVertical(helperLines.vertical);
     }
 
-    // saveFlow();
-    // console.log("nodes changes");
     onNodesChange(changes);
     functX(changes);
   };
 
   const onCustomEdgesChange = (changes: EdgeChange[]) => {
-    // saveFlow();
-    // console.log("edges changes");
     onEdgesChange(changes);
     functY(changes);
   };
@@ -196,7 +145,7 @@ const FlowMonitor = () => {
       };
 
       takeSnapshot();
-      createEdgesFunction({
+      createNewEdge({
         ...edge,
         source: connection.source!,
         sourceHandle: connection.sourceHandle,
@@ -264,6 +213,7 @@ const FlowMonitor = () => {
       {/* Инпут находится снаружи, чтобы искусственный клик по нему не вызывал заново функцию onClick */}
       <input multiple type="file" ref={inputFileRef} hidden />
       <ReactFlow
+        fitView
         onInit={setReactFlowInstance}
         onClick={onClick}
         onMouseDown={onMouseDown}

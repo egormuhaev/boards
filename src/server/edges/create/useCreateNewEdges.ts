@@ -3,29 +3,42 @@ import { graphqlCreateEdge } from "../../graphql/mutation/graphqlCreateEdge";
 import { useUnit } from "effector-react";
 import { Edge } from "reactflow";
 import { useEffect } from "react";
+import { graphqlCreateEdges } from "@/server/graphql/mutation/graphqlCreateEdges";
 
 export function useCreateNewEdges() {
   const { targetBoard, edgesIdMap } = useUnit($flow);
-  const { mutateFunction, data } = graphqlCreateEdge(targetBoard);
+  const { mutateFunction: mutationCreateEdge, data: dataCreateEdge } =
+    graphqlCreateEdge(targetBoard);
+  const { mutateFunction: mutationCreateEdges, data: dataCreateEdges } =
+    graphqlCreateEdges(targetBoard);
 
   useEffect(() => {
-    if (data) {
-      let edgeId = data.createEdge.edgeId;
-      let edgeNaturalId = data.createEdge.id;
-      console.log(edgeId);
-      console.log(edgeNaturalId);
+    let localEdgesIdMap: Record<string, string> = {};
+    if (dataCreateEdges) {
+      dataCreateEdges.createEdges.forEach(
+        ({ edgeId, id }: { edgeId: string; id: string }) => {
+          if (edgeId && id) {
+            localEdgesIdMap[edgeId] = id;
+          }
+        },
+      );
 
-      if (edgeId && edgeNaturalId) {
-        let newEdgesIdMap = { ...edgesIdMap, [edgeId]: edgeNaturalId };
+      setEdgesIdMap({ ...edgesIdMap, ...localEdgesIdMap });
+    }
+  }, [dataCreateEdges]);
 
+  useEffect(() => {
+    if (dataCreateEdge) {
+      let { edgeId, id } = dataCreateEdge.createEdge;
+      if (edgeId && id) {
+        let newEdgesIdMap = { ...edgesIdMap, [edgeId]: id };
         setEdgesIdMap(newEdgesIdMap);
-        console.log(newEdgesIdMap);
       }
     }
-  }, [data]);
+  }, [dataCreateEdge]);
 
-  const createNewEdge = (edge: Edge<any>) => {
-    mutateFunction({
+  const createNewEdge = async (edge: Edge<any>) => {
+    mutationCreateEdge({
       variables: {
         data: {
           edgeId: edge.id,
@@ -40,5 +53,23 @@ export function useCreateNewEdges() {
     });
   };
 
-  return createNewEdge;
+  const createNewEdges = async (edges: Edge<any>[]) => {
+    let queryData = edges.map((item) => ({
+      edgeId: item.id,
+      data: { ...item },
+      board: {
+        connect: {
+          id: targetBoard,
+        },
+      },
+    }));
+
+    mutationCreateEdges({
+      variables: {
+        data: [...queryData],
+      },
+    });
+  };
+
+  return { createNewEdges, createNewEdge };
 }

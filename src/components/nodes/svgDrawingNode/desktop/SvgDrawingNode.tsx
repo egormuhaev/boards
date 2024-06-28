@@ -45,7 +45,7 @@ export default function SvgDrawingNode({
   const flowState = useUnit($flow);
   const { setNodes, getNodes } = useReactFlow();
   const svgContainerRef = useRef<HTMLDivElement>(null);
-  const updateDrawingServer = useCreateNewNodeServer();
+  const { createNewNode } = useCreateNewNodeServer();
 
   const conditionVizibleHandeTools = selected && !flowState.isDrawingMode;
   const conditionActionsDrawEnable =
@@ -122,7 +122,7 @@ export default function SvgDrawingNode({
 
     setNodesCustom(newNode.data, newNode.position);
     changeDrawingInThisMoment(false);
-    updateDrawingServer(newNode);
+    createNewNode(newNode);
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

@@ -11,11 +11,13 @@ import {
 } from "reactflow";
 import useUndoRedo from "./useUndoRedo";
 import { useCreateNewNodeServer } from "@/server/nodes/create/useCreateNewNode";
+import { useCreateNewEdges } from "@/server/edges/create/useCreateNewEdges";
 
 export function useCopyPaste<NodeData, EdgeData>() {
   const mousePosRef = useRef<XYPosition>({ x: 0, y: 0 });
   const rfDomNode = useStore((state) => state.domNode);
   const { createNewNodes } = useCreateNewNodeServer();
+  const { createNewEdges } = useCreateNewEdges();
 
   const { getNodes, setNodes, getEdges, setEdges, screenToFlowPosition } =
     useReactFlow<NodeData, EdgeData>();
@@ -135,6 +137,7 @@ export function useCopyPaste<NodeData, EdgeData>() {
         ...newEdges,
       ]);
       createNewNodes(newNodes);
+      createNewEdges(newEdges);
     },
     [bufferedNodes, bufferedEdges, screenToFlowPosition, setNodes, setEdges],
   );
