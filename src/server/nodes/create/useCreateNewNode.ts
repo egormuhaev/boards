@@ -3,15 +3,19 @@ import { graphqlCreateNewNode } from "../../graphql/mutation/graphqlCreateNewNod
 import { useUnit } from "effector-react";
 import { useCallback, useEffect } from "react";
 import { Node } from "reactflow";
+import { graphqlCreateNodes } from "@/server/graphql/mutation/graphqlCreateNodes";
 
 export function useCreateNewNodeServer() {
   const { targetBoard, nodesIdMap } = useUnit($flow);
-  const { mutateFunction, data } = graphqlCreateNewNode(targetBoard);
+  const { mutateFunction: mutatuinCreateNode, data: dataCreateNode } =
+    graphqlCreateNewNode(targetBoard);
+  const { mutateFunction: mutatuinCreateNodes, data: dataCreateNodes } =
+    graphqlCreateNodes(targetBoard);
 
   useEffect(() => {
-    if (data) {
-      let nodeId = data.createNode.nodeId;
-      let nodeNaturalId = data.createNode.id;
+    if (dataCreateNode) {
+      let nodeId = dataCreateNode.createNode.nodeId;
+      let nodeNaturalId = dataCreateNode.createNode.id;
 
       if (nodeId && nodeNaturalId) {
         let newNodesIdMap = { ...nodesIdMap, [nodeId]: nodeNaturalId };
@@ -19,10 +23,45 @@ export function useCreateNewNodeServer() {
         setNodesIdMap(newNodesIdMap);
       }
     }
-  }, [data]);
+  }, [dataCreateNode]);
 
-  const createNewNode = useCallback((node: Node<any>) => {
-    mutateFunction({
+  useEffect(() => {
+    let localNodesIdMap: Record<string, string> = {};
+    if (dataCreateNodes) {
+      dataCreateNodes.createNodes.forEach(
+        (itam: { nodeId: string; id: string }) => {
+          let nodeId = itam.nodeId;
+          let nodeNaturalId = itam.id;
+          if (nodeId && nodeNaturalId) {
+            localNodesIdMap[nodeId] = nodeNaturalId;
+          }
+        },
+      );
+
+      setNodesIdMap({ ...nodesIdMap, ...localNodesIdMap });
+    }
+  }, [dataCreateNodes]);
+
+  const createNewNodes = useCallback(async (nodes: Node<any>[]) => {
+    let queryData = nodes.map((item) => ({
+      nodeId: item.id,
+      data: { ...item },
+      board: {
+        connect: {
+          id: targetBoard,
+        },
+      },
+    }));
+
+    mutatuinCreateNodes({
+      variables: {
+        data: [...queryData],
+      },
+    });
+  }, []);
+
+  const createNewNode = useCallback(async (node: Node<any>) => {
+    mutatuinCreateNode({
       variables: {
         data: {
           nodeId: node.id,
@@ -37,5 +76,5 @@ export function useCreateNewNodeServer() {
     });
   }, []);
 
-  return createNewNode;
+  return { createNewNode, createNewNodes };
 }

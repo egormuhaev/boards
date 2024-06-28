@@ -58,7 +58,7 @@ function getCurrentParamsDrawingPlot(
 const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
   const { setNodes, getZoom } = useReactFlow();
   const drawState = useUnit($draw);
-  const createNewNode = useCreateNewNodeServer();
+  const { createNewNode } = useCreateNewNodeServer();
 
   const addShapeNode = (
     types: ShapeNodeTypes,
