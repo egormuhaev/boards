@@ -109,6 +109,9 @@ export default function SvgDrawingNode({
         y: yPos + minY - lineWidth,
       },
       data: {
+        lineColor,
+        lineWidth,
+        tool,
         plotSize: {
           width: maxX - minX,
           height: maxY - minY,
