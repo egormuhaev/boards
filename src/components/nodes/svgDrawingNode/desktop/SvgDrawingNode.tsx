@@ -20,6 +20,7 @@ import { DrawTools } from "../constants";
 import { changeDrawingInThisMoment } from "@/flow/store/draw.slice";
 import { useCreateNewNodeServer } from "@/server/nodes/create/useCreateNewNode";
 import { getNodeById } from "@/server/nodes/utils/getNodeById";
+import BrushLine from "../SvgBrushLine";
 
 const defaultSvgPlotSize: PlotSize = {
   width: window.screen.height * 2,
@@ -184,13 +185,20 @@ export default function SvgDrawingNode({
           />
         )}
         {!isCompletedDrawing && (
-          <SvgPolyline
+          <SvgPath
             tool={tool}
             lineColor={lineColor}
             lineWidth={lineWidth}
-            points={points.slice(1, points.length)}
+            path={smoothPolyline(points.slice(1, points.length))}
             isCompletedDrawing={isCompletedDrawing}
           />
+          // <SvgPolyline
+          //   tool={tool}
+          //   lineColor={lineColor}
+          //   lineWidth={lineWidth}
+          //   points={points.slice(1, points.length)}
+          //   isCompletedDrawing={isCompletedDrawing}
+          // />
         )}
       </div>
     </>

@@ -23,6 +23,7 @@ import ReactFlow, {
   NodeChange,
   // Panel,
   ReactFlowInstance,
+  SelectionMode,
   addEdge,
   useEdgesState,
   useNodesState,
@@ -134,7 +135,7 @@ const FlowMonitor = () => {
                 ...point,
                 data: {
                   lineColor: "#000",
-                  lineWidth: 2,
+                  lineWidth: 4,
                 },
                 id: v4(),
                 prev: i === 0 ? undefined : connectionLinePath[i - 1],
@@ -210,7 +211,6 @@ const FlowMonitor = () => {
 
   return (
     <>
-      {/* Инпут находится снаружи, чтобы искусственный клик по нему не вызывал заново функцию onClick */}
       <input multiple type="file" ref={inputFileRef} hidden />
       <ReactFlow
         fitView
