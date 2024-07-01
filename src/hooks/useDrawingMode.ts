@@ -17,7 +17,7 @@ export default function useDrawingMode() {
   const { getViewport } = useReactFlow();
   const { addDrawingNode } = useCreateNode();
 
-  const disactivated = () => {
+  const diactivated = () => {
     changeDrawingMode(false);
     setDrawingMobileContainerId(null);
     clearBufferCreatingType();
@@ -38,7 +38,7 @@ export default function useDrawingMode() {
 
   const onDrawingMode = () => {
     if (flowState.isDrawingMode) {
-      disactivated();
+      diactivated();
     } else {
       activated();
     }
@@ -48,5 +48,7 @@ export default function useDrawingMode() {
     isDrawingMode: flowState.isDrawingMode,
     onDrawingMode,
     cleaningCanvas: cleaningEmptyCanvasesAfterDrawing,
+    diactivatedDrawing: diactivated,
+    activatedDrawing: activated,
   };
 }

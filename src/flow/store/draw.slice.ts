@@ -1,6 +1,6 @@
 import { createStore, createEvent } from "effector";
 import { IDrawSchema } from "./types/draw.schema";
-import { DrawTools } from "@/components/nodes/svgDrawingNode/constants";
+import { DrawTools } from "@/components/nodes/drawingNode/constants";
 
 export const $draw = createStore<IDrawSchema>({
   color: "#000",

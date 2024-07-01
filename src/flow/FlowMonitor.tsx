@@ -1,4 +1,3 @@
-// import Theme from "@/components/Theme";
 import { edgeTypes } from "@/components/egdes";
 import { ConnectionLine } from "@/components/egdes/ConectionLine";
 import { ControlPointData } from "@/components/egdes/EditableEdge";
@@ -9,7 +8,7 @@ import useEvents from "@/hooks/useEvents";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import { getHelperLines } from "@/lib/utils";
 import { useUnit } from "effector-react";
-import { DragEvent, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import ReactFlow, {
   Background,
@@ -24,6 +23,7 @@ import ReactFlow, {
   addEdge,
   useEdgesState,
   useNodesState,
+  useReactFlow,
 } from "reactflow";
 import { v4 } from "uuid";
 import FlowHeadDrawingTools from "./FlowHeadDrawingTools";
@@ -42,6 +42,7 @@ import HelperLines from "@/components/HelperLines";
 import FlowHeadPanel from "./FlowHeadPanel";
 import { Redo, Undo } from "lucide-react";
 import useDrawingMode from "@/hooks/useDrawingMode";
+import { isMobile } from "react-device-detect";
 
 const proOptions = {
   account: "paid-pro",
@@ -49,6 +50,7 @@ const proOptions = {
 };
 
 const FlowMonitor = ({ boardId }: { boardId: string }) => {
+  const { setViewport, screenToFlowPosition, getZoom } = useReactFlow();
   const { isDrawingMode, cleaningCanvas } = useDrawingMode();
   const [helperLineHorizontal, setHelperLineHorizontal] = useState<number>();
   const [helperLineVertical, setHelperLineVertical] = useState<number>();
@@ -56,8 +58,8 @@ const FlowMonitor = ({ boardId }: { boardId: string }) => {
 
   useInitFlowData();
   useCopyPaste();
-  const functX = useNodesChangeServer();
-  const functY = useEdgesChangeServer();
+  const serverListenerNodesChange = useNodesChangeServer();
+  const serverListenerEdgesChange = useEdgesChangeServer();
   const { createNewEdge } = useCreateNewEdges();
 
   const flowState = useUnit($flow);
@@ -107,12 +109,12 @@ const FlowMonitor = ({ boardId }: { boardId: string }) => {
     }
 
     onNodesChange(changes);
-    functX(changes);
+    serverListenerNodesChange(changes);
   };
 
   const onCustomEdgesChange = (changes: EdgeChange[]) => {
     onEdgesChange(changes);
-    functY(changes);
+    serverListenerEdgesChange(changes);
   };
 
   const onConnect = useCallback(
@@ -156,6 +158,10 @@ const FlowMonitor = ({ boardId }: { boardId: string }) => {
 
   return (
     <ReactFlow
+      style={{
+        height: "100vh !important",
+        width: "100%",
+      }}
       onInit={setReactFlowInstance}
       onClick={onClick}
       onMouseDown={onMouseDown}
@@ -186,9 +192,10 @@ const FlowMonitor = ({ boardId }: { boardId: string }) => {
       className={theme}
       zoomOnDoubleClick={!flowState.isDrawingMode}
       nodesDraggable={!flowState.isDrawingMode}
-      panOnDrag={false} // Нужно для того чтобы карта не двигалась при рисовании и создании ноды ресайзингом
+      // Нужно для того чтобы карта не двигалась при рисовании и создании ноды ресайзингом
       zoomOnScroll
       panOnScroll
+      panOnDrag={isMobile && !flowState.isDrawingMode}
       proOptions={proOptions}
       elevateNodesOnSelect={!flowState.isDrawingMode}
       onlyRenderVisibleElements={!flowState.isDrawingMode} // Оптимизация: Скрытие элементов вне

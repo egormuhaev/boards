@@ -3,12 +3,11 @@ import { nodeTypes } from "@/components/nodes";
 import { isMobile } from "react-device-detect";
 
 import {
-  clearInput,
   randomColor,
   selectFiles,
   uploadFiles,
 } from "@/flow/utils/randomColor";
-import { CSSProperties, RefObject, useCallback, useState } from "react";
+import { CSSProperties, useCallback } from "react";
 
 import { Node, XYPosition, useReactFlow } from "reactflow";
 import { v4 } from "uuid";

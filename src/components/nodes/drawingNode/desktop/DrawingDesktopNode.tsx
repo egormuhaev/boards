@@ -6,27 +6,26 @@ import {
   Node,
 } from "reactflow";
 import { PlotSize, Props } from "../types";
-import calculateNaturalSizeOfDrawing from "../desktop/utils/calculateNaturalSizeOfDrawing";
+import calculateNaturalSizeOfDrawing from "../utils/calculateNaturalSizeOfDrawing";
 import { SvgDrawingNodeHandle } from "../SvgDrawingNodeHandle";
 import { useUnit } from "effector-react";
 import { $flow } from "@/flow/store/flow.slice";
 import { useRef } from "react";
 import { SvgPath } from "../SvgPath";
-import smoothPolyline from "../desktop/utils/smoothPolyline";
-import resizeSVGContainer from "../desktop/utils/resizeSVGContainer";
-import normalizationSvgOffset from "../desktop/utils/normalizationSvgOffset";
+import smoothPolyline from "../utils/smoothPolyline";
+import resizeSVGContainer from "../utils/resizeSVGContainer";
+import normalizationSvgOffset from "../utils/normalizationSvgOffset";
 import { DrawTools } from "../constants";
-import { $draw, changeDrawingInThisMoment } from "@/flow/store/draw.slice";
+import { changeDrawingInThisMoment } from "@/flow/store/draw.slice";
 import { useCreateNewNodeServer } from "@/server/nodes/create/useCreateNewNode";
 import { getNodeById } from "@/server/nodes/utils/getNodeById";
-import { v4 } from "uuid";
 
 const defaultSvgPlotSize: PlotSize = {
   width: window.screen.height * 2,
   height: window.screen.width * 2,
 };
 
-export default function SvgMobileDrawingNode({
+export default function DrawingDesktopNode({
   selected,
   id,
   xPos,
@@ -34,6 +33,7 @@ export default function SvgMobileDrawingNode({
   data: {
     tool = DrawTools.Pen,
     isCompletedDrawing = false,
+    isDrawing = false,
     plotSize = defaultSvgPlotSize,
     points = [],
     lineColor = "#000",
@@ -42,39 +42,13 @@ export default function SvgMobileDrawingNode({
   },
 }: NodeProps<Props>) {
   const flowState = useUnit($flow);
-  const drawState = useUnit($draw);
-  const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
+  const { setNodes, getNodes } = useReactFlow();
   const svgContainerRef = useRef<HTMLDivElement>(null);
   const { createNewNode } = useCreateNewNodeServer();
 
   const conditionVizibleHandeTools = selected && !flowState.isDrawingMode;
-  !isActual && !isCompletedDrawing && flowState.isDrawingMode;
-
-  const getNativeTouchScreenCoordinate = (e: TouchEvent) => {
-    if (svgContainerRef.current) {
-      const rect = svgContainerRef.current.getBoundingClientRect();
-
-      const targetRect = screenToFlowPosition({
-        x: rect.x,
-        y: rect.y,
-      });
-
-      const touch = screenToFlowPosition({
-        x: e.targetTouches[0].clientX!,
-        y: e.targetTouches[0].clientY!,
-      });
-
-      return {
-        x: touch.x - targetRect.x,
-        y: touch.y - targetRect.y,
-      };
-    }
-
-    return {
-      x: 0,
-      y: 0,
-    };
-  };
+  const conditionActionsDrawEnable =
+    !isActual && !isCompletedDrawing && flowState.isDrawingMode;
 
   const setNodesCustom = (args: Props, position?: XYPosition) => {
     const nodes = getNodes();
@@ -96,9 +70,6 @@ export default function SvgMobileDrawingNode({
     setNodesCustom({
       points: [{ x: offsetX, y: offsetY }],
       isDrawing: true,
-      lineColor,
-      tool,
-      lineWidth,
       isActual: false,
     });
     changeDrawingInThisMoment(true);
@@ -106,13 +77,9 @@ export default function SvgMobileDrawingNode({
 
   const onDrawing = (offsetX: number, offsetY: number) => {
     const { width, height } = resizeSVGContainer(offsetX, offsetY, plotSize);
-
     setNodesCustom({
       plotSize: { width: width, height: height },
       points: [...points, { x: offsetX, y: offsetY }],
-      lineColor,
-      lineWidth,
-      tool,
       isDrawing: true,
       isActual: false,
     });
@@ -124,6 +91,7 @@ export default function SvgMobileDrawingNode({
     );
 
     const nodes = getNodes();
+    const nodeCuttentState = getNodeById(id, nodes);
 
     const currentNormalPoints = normalizationSvgOffset(
       minX,
@@ -133,17 +101,15 @@ export default function SvgMobileDrawingNode({
     );
 
     const newNode: Node<any> = {
-      id: v4(),
-      type: "drawing",
-      zIndex: 1,
+      ...nodeCuttentState,
       position: {
         x: xPos + minX - lineWidth,
         y: yPos + minY - lineWidth,
       },
       data: {
-        lineColor: drawState.color,
-        lineWidth: drawState.width,
-        tool: drawState.tool,
+        lineColor,
+        lineWidth,
+        tool,
         plotSize: {
           width: maxX - minX,
           height: maxY - minY,
@@ -155,37 +121,27 @@ export default function SvgMobileDrawingNode({
       },
     };
 
-    createNewNode(newNode);
-    setNodes(
-      [...nodes, newNode].map((node) => {
-        if (node.id === id) {
-          return {
-            ...node,
-            zIndex: 100,
-            data: {
-              ...node.data,
-              points: [],
-              lineColor: drawState.color,
-              lineWidth: drawState.width,
-              tool: drawState.tool,
-            },
-          };
-        }
-        return node;
-      }),
-    );
+    setNodesCustom(newNode.data, newNode.position);
     changeDrawingInThisMoment(false);
+    createNewNode(newNode);
   };
 
-  const onTouchStart = (e: TouchEvent) => {
-    const { x, y } = getNativeTouchScreenCoordinate(e);
-    onStartDrawing(x, y);
+  const handleMouseDown = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    const { offsetX, offsetY } = event.nativeEvent;
+    onStartDrawing(offsetX, offsetY);
   };
-  const onTouchMove = (e: TouchEvent) => {
-    const { x, y } = getNativeTouchScreenCoordinate(e);
-    onDrawing(x, y);
+
+  const handleMouseMove = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    if (!isDrawing) return;
+    const { offsetX, offsetY } = event.nativeEvent;
+    onDrawing(offsetX, offsetY);
   };
-  const onTouchEnd = (_: TouchEvent) => {
+
+  const handleMouseUp = (_: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     onEndDrawing();
   };
 
@@ -193,11 +149,17 @@ export default function SvgMobileDrawingNode({
     <>
       <div
         ref={svgContainerRef}
-        onTouchStart={onTouchStart as any}
-        onTouchMove={onTouchMove as any}
-        onTouchEnd={onTouchEnd as any}
+        onMouseEnter={
+          conditionActionsDrawEnable && points.length === 0
+            ? handleMouseDown
+            : undefined
+        }
+        onMouseDown={conditionActionsDrawEnable ? handleMouseDown : undefined}
+        onMouseMove={conditionActionsDrawEnable ? handleMouseMove : undefined}
+        onMouseUp={conditionActionsDrawEnable ? handleMouseUp : undefined}
+        onMouseLeave={conditionActionsDrawEnable ? handleMouseUp : undefined}
         style={{
-          zIndex: 1000,
+          zIndex: !isCompletedDrawing ? 1000 : 10,
           width: plotSize.width + lineWidth * 2,
           height: plotSize.height + lineWidth * 2,
         }}
@@ -234,5 +196,3 @@ export default function SvgMobileDrawingNode({
     </>
   );
 }
-
-export const svgDrawingNodeTypes = "drawing";

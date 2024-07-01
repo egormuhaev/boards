@@ -13,7 +13,7 @@ import {
 import { useCleaningEmptyCanvasesAfterDrawing } from "@/hooks/useCleaningEmptyCanvasesAfterDrawing";
 import { Pen, Highlighter } from "lucide-react";
 import { Slider } from "@/shadcn/ui/slider";
-import { DrawTools } from "@/components/nodes/svgDrawingNode/constants";
+import { DrawTools } from "@/components/nodes/drawingNode/constants";
 import { isMobile } from "react-device-detect";
 
 export default function FlowHeadDrawingTools() {

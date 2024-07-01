@@ -1,4 +1,4 @@
-import { DrawTools } from "../constants";
+import { DrawTools } from "./constants";
 
 export interface Point {
   x: number;
