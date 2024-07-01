@@ -1,6 +1,11 @@
 import { nodeTypes } from "@/components/nodes";
-import { clearInput, randomColor, selectFiles } from "@/flow/utils/randomColor";
-import { RefObject, useCallback } from "react";
+import {
+  clearInput,
+  randomColor,
+  selectFiles,
+  uploadFiles,
+} from "@/flow/utils/randomColor";
+import { CSSProperties, RefObject, useCallback, useState } from "react";
 import { Node, XYPosition, useReactFlow } from "reactflow";
 import { v4 } from "uuid";
 import {
@@ -17,6 +22,21 @@ import { useCreateNewNodeServer } from "../server/nodes/create/useCreateNewNode"
 
 import { CustomFile } from "@/components/nodes/fileNodes/files/types";
 import { ShapeComponents } from "@/components/nodes/shapeNode/Shape";
+import { ShapeNodeData } from "@/components/nodes/shapeNode/ShapeNode";
+import {
+  $boardPlayground,
+  clearBufferCreatingType,
+} from "@/flow/store/playground.slice";
+import { $flow } from "@/flow/store/flow.slice";
+
+const defaultNodeSizes: Record<
+  keyof Omit<typeof nodeTypes, "drawing">,
+  { width: number; height: number }
+> = {
+  shape: { width: 180, height: 180 },
+  file: { width: 500, height: 600 },
+  text: { width: 180, height: 40 },
+};
 
 // TODO: заменить Function на нужный тип
 // Заменить везде file на тип
@@ -55,30 +75,34 @@ function getCurrentParamsDrawingPlot(
   return [positionCurrent, { width: plotSizeWidth, height: plotSizeHeight }];
 }
 
-const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
+const useCreateNode = () => {
   const { setNodes, getZoom } = useReactFlow();
   const drawState = useUnit($draw);
+  const flowState = useUnit($flow);
+  const { buffer } = useUnit($boardPlayground);
   const createNewNode = useCreateNewNodeServer();
 
   const addShapeNode = (
-    types: ShapeNodeTypes,
     position: XYPosition,
-    { width, height }: { width: number; height: number },
+    style: CSSProperties,
+    data: ShapeNodeData,
   ) => {
     const newNode = {
       id: v4(),
       position,
-      type: types.nodeType,
-      style: { width, height },
+      type: "shape",
+      style,
       data: {
         ...defaultNodeData,
-        type: types.subType,
+        ...data,
         backgroundColor: randomColor(colorsPalet),
         color: randomColor(colorsPalet),
       },
     };
+
     createNewNode(newNode);
     setNodes((nds) => nds.concat(newNode));
+    clearBufferCreatingType();
   };
 
   const addTextNode = (
@@ -94,17 +118,19 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
     };
 
     createNewNode(newNode);
-
     setNodes((nds) => nds.concat(newNode));
+    clearBufferCreatingType();
   };
 
   const addFileNode = useCallback(
     async (
       position: XYPosition,
       { width, height }: { width: number; height: number },
-      fileList: CustomFile[] | null,
+      fileList?: FileList,
     ) => {
-      const files = fileList?.length ? fileList : await selectFiles(ref);
+      const files = fileList
+        ? await uploadFiles(fileList)
+        : await selectFiles();
       if (!files?.length) return;
 
       const newNodes: Node[] = [];
@@ -133,7 +159,7 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
       }
 
       setNodes((nds) => nds.concat(newNodes));
-      clearInput(ref);
+      clearBufferCreatingType();
     },
     [],
   );
@@ -159,11 +185,68 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
     setNodes((nds) => nds.concat(newNode));
   };
 
+  const addShapeNodeOnResize = (
+    startPosition: XYPosition,
+    endPosition: XYPosition,
+    data: ShapeNodeData,
+  ) => {
+    const smartStartPosition = {
+      x: startPosition.x < endPosition.x ? startPosition.x : endPosition.x,
+      y: startPosition.y < endPosition.y ? startPosition.y : endPosition.y,
+    };
+
+    const width = Math.abs(endPosition.x - startPosition.x);
+    const height = Math.abs(endPosition.y - startPosition.y);
+
+    const sizes = { width, height };
+
+    addShapeNode(smartStartPosition, sizes, data);
+  };
+
+  const addNode = async ({
+    startPosition,
+    endPosition,
+    files,
+  }: {
+    startPosition: XYPosition;
+    endPosition?: XYPosition;
+    files?: FileList;
+  }) => {
+    if (buffer?.nodeType === "shape") {
+      if (!buffer.subType) return;
+
+      console.log(startPosition, endPosition);
+
+      if (
+        startPosition.x === endPosition?.x &&
+        startPosition.y === endPosition.y
+      ) {
+        addShapeNode(startPosition, defaultNodeSizes[buffer.nodeType], {
+          type: buffer.subType,
+        });
+      } else {
+        if (endPosition) {
+          addShapeNodeOnResize(startPosition, endPosition, {
+            type: buffer.subType,
+          });
+        }
+      }
+    } else if (buffer?.nodeType === "text") {
+      addTextNode(startPosition, defaultNodeSizes[buffer.nodeType]);
+    } else if (buffer?.nodeType === "file") {
+      // Добавить получение файлов внутри функции
+      await addFileNode(
+        startPosition,
+        defaultNodeSizes[buffer.nodeType],
+        files,
+      );
+    } else if (flowState.isDrawingMode) {
+      addDrawingNode(startPosition);
+    }
+  };
+
   return {
-    addFileNode,
-    addTextNode,
-    addShapeNode,
-    addDrawingNode,
+    addNode,
   };
 };
 

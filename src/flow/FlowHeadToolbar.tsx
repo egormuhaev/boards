@@ -37,9 +37,7 @@ const FlowHeadToolbar = ({}) => {
     nodeType: keyof typeof nodeTypes,
     subType?: keyof typeof ShapeComponents,
   ) => {
-    event.dataTransfer.setData("nodeType", nodeType);
-    if (subType) event.dataTransfer.setData("subType", subType);
-    event.dataTransfer.effectAllowed = "move";
+    saveCreatingTypeInBuffer(nodeType, subType);
   };
 
   const clickHandler = (e: MouseEvent<HTMLButtonElement>, func: Function) => {

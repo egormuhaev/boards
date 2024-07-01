@@ -5,12 +5,11 @@ import { ControlPointData } from "@/components/egdes/EditableEdge";
 import { DEFAULT_ALGORITHM } from "@/components/egdes/EditableEdge/constants";
 import { nodeTypes } from "@/components/nodes";
 import useCopyPaste from "@/hooks/useCopyPaste";
-import useCreateNode, { ShapeNodeTypes } from "@/hooks/useCreateNode";
 import useEvents from "@/hooks/useEvents";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import { getHelperLines } from "@/lib/utils";
 import { useUnit } from "effector-react";
-import { DragEvent, useCallback, useRef, useState } from "react";
+import { DragEvent, useCallback, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -33,7 +32,6 @@ import { config } from "./data";
 import { $flow } from "./store/flow.slice";
 import { $boardPlayground } from "./store/playground.slice";
 import { handleDragEvent, uploadFiles } from "./utils/randomColor";
-import useMouseEvents from "@/hooks/useMouseEvents";
 import { $draw } from "./store/draw.slice";
 
 import useInitFlowData from "@/server/useInitFlowData";
@@ -42,6 +40,7 @@ import { useCreateNewEdges } from "@/server/edges/create/useCreateNewEdges";
 import { useEdgesChangeServer } from "@/server/useEdgesChangeServer";
 import HelperLines from "@/components/HelperLines";
 import FlowHeadPanel from "./FlowHeadPanel";
+import { Redo, Undo } from "lucide-react";
 
 const proOptions = {
   account: "paid-pro",
@@ -51,43 +50,32 @@ const proOptions = {
 const FlowMonitor = ({ boardId }: { boardId: string }) => {
   console.log(boardId);
 
-  const [reactFlowInstance, setReactFlowInstance] =
-    useState<ReactFlowInstance | null>(null);
-  const drawState = useUnit($draw);
+  const [helperLineHorizontal, setHelperLineHorizontal] = useState<number>();
+  const [helperLineVertical, setHelperLineVertical] = useState<number>();
+  const [, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   useInitFlowData();
+  useCopyPaste();
   const functX = useNodesChangeServer();
   const functY = useEdgesChangeServer();
   const createEdgesFunction = useCreateNewEdges();
-  const { screenToFlowPosition } = useReactFlow();
-
   const flowState = useUnit($flow);
-
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-
+  const drawState = useUnit($draw);
+  const { theme, connectionLinePath } = useUnit($boardPlayground);
+  const { takeSnapshot, canRedo, canUndo, undo, redo } = useUndoRedo();
+  const [nodes, , onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  const inputFileRef = useRef<HTMLInputElement>(null);
-
-  const { addFileNode, addShapeNode, addTextNode } =
-    useCreateNode(inputFileRef);
-
   const {
+    onClick,
+    onDrop,
+    onMouseDown,
+    onMouseUp,
+    onMouseMove,
     onNodeDragStart,
     onSelectionDragStart,
     onNodesDelete,
     onEdgesDelete,
   } = useEvents();
-
-  const { onClick, onMouseDown, onMouseMove, onMouseUp } =
-    useMouseEvents(inputFileRef);
-
-  const { connectionLinePath } = useUnit($boardPlayground);
-  const { theme } = useUnit($boardPlayground);
-  const { takeSnapshot } = useUndoRedo();
-  useCopyPaste();
-
-  const [helperLineHorizontal, setHelperLineHorizontal] = useState<number>();
-  const [helperLineVertical, setHelperLineVertical] = useState<number>();
 
   const onCustomNodesChange = (changes: NodeChange[]) => {
     setHelperLineHorizontal(undefined);
@@ -158,54 +146,6 @@ const FlowMonitor = ({ boardId }: { boardId: string }) => {
     [setEdges, takeSnapshot],
   );
 
-  const onDrop = useCallback(
-    async (e: DragEvent<HTMLDivElement>) => {
-      handleDragEvent(e);
-
-      const nodeType = e.dataTransfer.getData("nodeType");
-      const subType = e.dataTransfer.getData("subType");
-
-      const transferFiles = e.dataTransfer.files;
-
-      const files = await uploadFiles(transferFiles);
-
-      const position = screenToFlowPosition({
-        x: e.clientX,
-        y: e.clientY,
-      });
-
-      takeSnapshot();
-
-      if (files || nodeType === "file") {
-        const nodeSize = {
-          width: 500,
-          height: 600,
-        };
-
-        addFileNode(position, nodeSize, files);
-      } else if (nodeType === "text") {
-        const nodeSize = {
-          width: 180,
-          height: 40,
-        };
-
-        addTextNode(position, nodeSize);
-      } else {
-        const nodeSize = {
-          width: 180,
-          height: 180,
-        };
-
-        addShapeNode(
-          { nodeType, subType } as ShapeNodeTypes,
-          position,
-          nodeSize,
-        );
-      }
-    },
-    [reactFlowInstance, takeSnapshot, setNodes],
-  );
-
   return (
     <ReactFlow
       onInit={setReactFlowInstance}
@@ -248,6 +188,17 @@ const FlowMonitor = ({ boardId }: { boardId: string }) => {
       {/* {!drawState.drawingInThisMoment && <Theme />} */}
 
       {!drawState.drawingInThisMoment && <FlowHeadPanel />}
+
+      {!drawState.drawingInThisMoment && (
+        <div className="absolute z-50 bottom-5 left-1/2 -translate-x-1/2 bg-white border border=solid-1 border-slate-300 rounded-lg flex gap-2 p-2">
+          <button disabled={canUndo} onClick={undo}>
+            <Undo color={!canUndo ? "black" : "#e5e7eb"} />
+          </button>
+          <button disabled={canRedo} onClick={redo}>
+            <Redo color={!canRedo ? "black" : "#e5e7eb"} />
+          </button>
+        </div>
+      )}
 
       {!drawState.drawingInThisMoment && <FlowHeadToolbar />}
 
