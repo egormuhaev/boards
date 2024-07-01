@@ -1,5 +1,6 @@
 // import HelperLines from "@/components/HelperLines";
 // import Theme from "@/components/Theme";
+
 import { edgeTypes } from "@/components/egdes";
 import { ConnectionLine } from "@/components/egdes/ConectionLine";
 import { ControlPointData } from "@/components/egdes/EditableEdge";
@@ -29,6 +30,7 @@ import ReactFlow, {
   useNodesState,
   useReactFlow,
   useViewport,
+
   // useReactFlow,
 } from "reactflow";
 import { v4 } from "uuid";
@@ -48,6 +50,7 @@ import { useCreateNewEdges } from "@/server/edges/create/useCreateNewEdges";
 import { useEdgesChangeServer } from "@/server/useEdgesChangeServer";
 import HelperLines from "@/components/HelperLines";
 import FlowHeadPanel from "./FlowHeadPanel";
+
 import { useCleaningEmptyCanvasesAfterDrawing } from "@/hooks/useCleaningEmptyCanvasesAfterDrawing";
 
 const FlowMonitor = () => {
@@ -60,6 +63,7 @@ const FlowMonitor = () => {
   const functX = useNodesChangeServer();
   const functY = useEdgesChangeServer();
   const { createNewEdge } = useCreateNewEdges();
+
   const { zoom } = useViewport();
 
   const proOptions = {
@@ -225,6 +229,7 @@ const FlowMonitor = () => {
     <>
       <input multiple type="file" ref={inputFileRef} hidden />
       <ReactFlow
+        fitView
         onInit={setReactFlowInstance}
         onClick={onClick}
         onMouseDown={onMouseDown}
