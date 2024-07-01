@@ -14,7 +14,7 @@ import { ShapeComponents } from "@/components/nodes/shapeNode/Shape";
 import useDrawingMode from "@/hooks/useDrawingMode";
 
 const FlowHeadToolbar = ({}) => {
-  const { isDrawingMode, onDrawingMode } = useDrawingMode();
+  const { isDrawingMode, onDrawingMode, diactivatedDrawing } = useDrawingMode();
 
   const { buffer } = useUnit($boardPlayground);
 
@@ -57,8 +57,25 @@ const FlowHeadToolbar = ({}) => {
       </Button>
 
       <Button
-        onClick={onDrawingMode}
-        onDragStart={(event) => onDragStart(event, "shape", "rectangle")}
+        onClick={(e) =>
+          clickHandler(e, () => {
+            diactivatedDrawing();
+            if (
+              buffer?.nodeType === "shape" &&
+              buffer.subType === "rectangle"
+            ) {
+              clearBufferCreatingType();
+            } else {
+              saveCreatingTypeInBuffer("shape", "rectangle");
+            }
+          })
+        }
+        onDragStart={(e) => {
+          clickHandler(e, () => {
+            diactivatedDrawing();
+            onDragStart(e, "shape", "rectangle");
+          });
+        }}
         draggable
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Прямоугольник"
@@ -79,7 +96,7 @@ const FlowHeadToolbar = ({}) => {
       <Button
         onClick={(e) =>
           clickHandler(e, () => {
-            disabledDrawingMode();
+            diactivatedDrawing();
             if (buffer?.nodeType === "shape" && buffer.subType === "circle") {
               clearBufferCreatingType();
             } else {
@@ -108,7 +125,7 @@ const FlowHeadToolbar = ({}) => {
       <Button
         onClick={(e) =>
           clickHandler(e, () => {
-            disabledDrawingMode();
+            diactivatedDrawing();
             if (buffer?.nodeType === "text") {
               clearBufferCreatingType();
             } else {
@@ -131,7 +148,7 @@ const FlowHeadToolbar = ({}) => {
       <Button
         onClick={(e) =>
           clickHandler(e, () => {
-            disabledDrawingMode();
+            diactivatedDrawing();
             if (buffer?.nodeType === "file") {
               clearBufferCreatingType();
             } else {

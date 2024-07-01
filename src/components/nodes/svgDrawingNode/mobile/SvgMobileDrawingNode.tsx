@@ -96,9 +96,9 @@ export default function SvgMobileDrawingNode({
     setNodesCustom({
       points: [{ x: offsetX, y: offsetY }],
       isDrawing: true,
-      lineColor,
-      tool,
-      lineWidth,
+      lineColor: drawState.color,
+      tool: drawState.tool,
+      lineWidth: drawState.width,
       isActual: false,
     });
     changeDrawingInThisMoment(true);
