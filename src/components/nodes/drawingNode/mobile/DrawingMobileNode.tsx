@@ -6,15 +6,15 @@ import {
   Node,
 } from "reactflow";
 import { PlotSize, Props } from "../types";
-import calculateNaturalSizeOfDrawing from "../desktop/utils/calculateNaturalSizeOfDrawing";
+import calculateNaturalSizeOfDrawing from "../utils/calculateNaturalSizeOfDrawing";
 import { SvgDrawingNodeHandle } from "../SvgDrawingNodeHandle";
 import { useUnit } from "effector-react";
 import { $flow } from "@/flow/store/flow.slice";
 import { useRef } from "react";
 import { SvgPath } from "../SvgPath";
-import smoothPolyline from "../desktop/utils/smoothPolyline";
-import resizeSVGContainer from "../desktop/utils/resizeSVGContainer";
-import normalizationSvgOffset from "../desktop/utils/normalizationSvgOffset";
+import smoothPolyline from "../utils/smoothPolyline";
+import resizeSVGContainer from "../utils/resizeSVGContainer";
+import normalizationSvgOffset from "../utils/normalizationSvgOffset";
 import { DrawTools } from "../constants";
 import { $draw, changeDrawingInThisMoment } from "@/flow/store/draw.slice";
 import { useCreateNewNodeServer } from "@/server/nodes/create/useCreateNewNode";
@@ -26,7 +26,7 @@ const defaultSvgPlotSize: PlotSize = {
   height: window.screen.width * 2,
 };
 
-export default function SvgMobileDrawingNode({
+export default function DrawingMobileNode({
   selected,
   id,
   xPos,
@@ -234,5 +234,3 @@ export default function SvgMobileDrawingNode({
     </>
   );
 }
-
-export const svgDrawingNodeTypes = "drawing";
