@@ -1,10 +1,8 @@
 import {
-  Handle,
   NodeProps,
   NodeResizer,
   NodeToolbar,
   Position,
-  useKeyPress,
   useViewport,
 } from "reactflow";
 import Video from "./files/Video";
@@ -30,7 +28,6 @@ export const FileComponents = {
 };
 
 const FileNode = ({ id, data, selected }: NodeProps<FileNodeData>) => {
-  const shiftKeyPressed = useKeyPress("Shift");
   const { zoom } = useViewport();
   const { takeSnapshot } = useUndoRedo();
   const { isDrawingMode } = useUnit($flow);
@@ -55,7 +52,7 @@ const FileNode = ({ id, data, selected }: NodeProps<FileNodeData>) => {
       )}
 
       <NodeResizer
-        keepAspectRatio={shiftKeyPressed}
+        keepAspectRatio
         isVisible={selected}
         handleStyle={{
           maxHeight: "50px",

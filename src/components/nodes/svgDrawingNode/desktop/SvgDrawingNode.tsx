@@ -7,7 +7,6 @@ import {
 } from "reactflow";
 import { PlotSize, Props } from "./types";
 import calculateNaturalSizeOfDrawing from "./utils/calculateNaturalSizeOfDrawing";
-// import { SvgPolyline } from "../SvgPolyline";
 import { SvgDrawingNodeHandle } from "../SvgDrawingNodeHandle";
 import { useUnit } from "effector-react";
 import { $flow } from "@/flow/store/flow.slice";
@@ -78,7 +77,6 @@ export default function SvgDrawingNode({
 
   const onDrawing = (offsetX: number, offsetY: number) => {
     const { width, height } = resizeSVGContainer(offsetX, offsetY, plotSize);
-
     setNodesCustom({
       plotSize: { width: width, height: height },
       points: [...points, { x: offsetX, y: offsetY }],
@@ -191,13 +189,6 @@ export default function SvgDrawingNode({
             path={smoothPolyline(points.slice(1, points.length))}
             isCompletedDrawing={isCompletedDrawing}
           />
-          // <SvgPolyline
-          //   tool={tool}
-          //   lineColor={lineColor}
-          //   lineWidth={lineWidth}
-          //   points={points.slice(1, points.length)}
-          //   isCompletedDrawing={isCompletedDrawing}
-          // />
         )}
       </div>
     </>

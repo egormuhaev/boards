@@ -5,14 +5,12 @@ import { Pencil, Type } from "lucide-react";
 import { DragEvent, MouseEvent } from "react";
 import { FaFile } from "react-icons/fa";
 import { LuCircle, LuRectangleHorizontal } from "react-icons/lu";
-import { changeDrawingMode } from "./store/flow.slice";
 import {
   $boardPlayground,
   clearBufferCreatingType,
   setCreateBuffer,
 } from "./store/playground.slice";
 import { ShapeComponents } from "@/components/nodes/shapeNode/Shape";
-import { setDrawingMobileContainerId } from "@/flow/store/draw.slice";
 import useDrawingMode from "@/hooks/useDrawingMode";
 
 const FlowHeadToolbar = ({}) => {
@@ -35,21 +33,13 @@ const FlowHeadToolbar = ({}) => {
     nodeType: keyof typeof nodeTypes,
     subType?: keyof typeof ShapeComponents,
   ) => {
-    event.dataTransfer.setData("nodeType", nodeType);
-    if (subType) event.dataTransfer.setData("subType", subType);
-    event.dataTransfer.effectAllowed = "move";
+    saveCreatingTypeInBuffer(nodeType, subType);
   };
 
   const clickHandler = (e: MouseEvent<HTMLButtonElement>, func: Function) => {
     e.preventDefault();
     e.stopPropagation();
     func();
-  };
-
-  const disabledDrawingMode = () => {
-    changeDrawingMode(false);
-    setDrawingMobileContainerId(null);
-    clearBufferCreatingType();
   };
 
   return (
@@ -67,19 +57,7 @@ const FlowHeadToolbar = ({}) => {
       </Button>
 
       <Button
-        onClick={(e) =>
-          clickHandler(e, () => {
-            disabledDrawingMode();
-            if (
-              buffer?.nodeType === "shape" &&
-              buffer.subType === "rectangle"
-            ) {
-              clearBufferCreatingType();
-            } else {
-              saveCreatingTypeInBuffer("shape", "rectangle");
-            }
-          })
-        }
+        onClick={onDrawingMode}
         onDragStart={(event) => onDragStart(event, "shape", "rectangle")}
         draggable
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"

@@ -6,10 +6,13 @@ import {
 } from "@/flow/store/playground.slice";
 import { useUnit } from "effector-react";
 import useCreateNode from "./useCreateNode";
-import { useReactFlow } from "reactflow";
+import { useReactFlow, XYPosition } from "reactflow";
 import { isMobile } from "react-device-detect";
+import { useCleaningEmptyCanvasesAfterDrawing } from "./useCleaningEmptyCanvasesAfterDrawing";
 
 export default function useDrawingMode() {
+  const cleaningEmptyCanvasesAfterDrawing =
+    useCleaningEmptyCanvasesAfterDrawing();
   const flowState = useUnit($flow);
   const { getViewport } = useReactFlow();
   const { addDrawingNode } = useCreateNode();
@@ -25,8 +28,11 @@ export default function useDrawingMode() {
     setCreateBuffer({
       nodeType: "drawing",
     });
+
+    const position: XYPosition = { x: getViewport().x, y: getViewport().y };
+
     if (isMobile) {
-      addDrawingNode({ x: getViewport().x, y: getViewport().y });
+      addDrawingNode(position);
     }
   };
 
@@ -41,5 +47,6 @@ export default function useDrawingMode() {
   return {
     isDrawingMode: flowState.isDrawingMode,
     onDrawingMode,
+    cleaningCanvas: cleaningEmptyCanvasesAfterDrawing,
   };
 }
