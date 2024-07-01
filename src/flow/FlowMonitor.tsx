@@ -11,7 +11,7 @@ import useEvents from "@/hooks/useEvents";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import { getHelperLines } from "@/lib/utils";
 import { useUnit } from "effector-react";
-import { DragEvent, useCallback, useRef, useState } from "react";
+import { DragEvent, useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -21,12 +21,14 @@ import ReactFlow, {
   EdgeChange,
   MiniMap,
   NodeChange,
-  // Panel,
+  Panel,
   ReactFlowInstance,
   SelectionMode,
   addEdge,
   useEdgesState,
   useNodesState,
+  useReactFlow,
+  useViewport,
   // useReactFlow,
 } from "reactflow";
 import { v4 } from "uuid";
@@ -46,15 +48,19 @@ import { useCreateNewEdges } from "@/server/edges/create/useCreateNewEdges";
 import { useEdgesChangeServer } from "@/server/useEdgesChangeServer";
 import HelperLines from "@/components/HelperLines";
 import FlowHeadPanel from "./FlowHeadPanel";
+import { useCleaningEmptyCanvasesAfterDrawing } from "@/hooks/useCleaningEmptyCanvasesAfterDrawing";
 
 const FlowMonitor = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
   const drawState = useUnit($draw);
   useInitFlowData();
+  const cleaningEmptyCanvasesAfterDrawing =
+    useCleaningEmptyCanvasesAfterDrawing();
   const functX = useNodesChangeServer();
   const functY = useEdgesChangeServer();
   const { createNewEdge } = useCreateNewEdges();
+  const { zoom } = useViewport();
 
   const proOptions = {
     account: "paid-pro",
@@ -62,6 +68,12 @@ const FlowMonitor = () => {
   };
 
   const flowState = useUnit($flow);
+
+  useEffect(() => {
+    if (!flowState.isDrawingMode) {
+      cleaningEmptyCanvasesAfterDrawing();
+    }
+  }, [flowState.isDrawingMode]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
 
@@ -213,7 +225,6 @@ const FlowMonitor = () => {
     <>
       <input multiple type="file" ref={inputFileRef} hidden />
       <ReactFlow
-        fitView
         onInit={setReactFlowInstance}
         onClick={onClick}
         onMouseDown={onMouseDown}
@@ -259,6 +270,8 @@ const FlowMonitor = () => {
         {flowState.isDrawingMode && !drawState.drawingInThisMoment && (
           <FlowHeadDrawingTools />
         )}
+
+        <Panel position="top-right">{zoom}</Panel>
 
         <Background color="#ccc" variant={BackgroundVariant.Cross} size={2} />
 

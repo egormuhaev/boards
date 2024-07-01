@@ -5,4 +5,5 @@ export interface IDrawSchema {
   width: number;
   tool: DrawTools;
   drawingInThisMoment: boolean;
+  drawingMobileContainer: string | null;
 }

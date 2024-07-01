@@ -14,6 +14,7 @@ import { useCleaningEmptyCanvasesAfterDrawing } from "@/hooks/useCleaningEmptyCa
 import { Pen, Highlighter } from "lucide-react";
 import { Slider } from "@/shadcn/ui/slider";
 import { DrawTools } from "@/components/nodes/svgDrawingNode/constants";
+import { isMobile } from "react-device-detect";
 
 export default function FlowHeadDrawingTools() {
   const drawState = useUnit($draw);
@@ -23,19 +24,19 @@ export default function FlowHeadDrawingTools() {
   const changeDrawingTool = (tool: DrawTools) => {
     return (_: React.MouseEvent<HTMLButtonElement>) => {
       changeTool(tool);
-      cleaningEmptyCanvasesAfterDrawing();
+      if (!isMobile) cleaningEmptyCanvasesAfterDrawing();
     };
   };
 
   const colorPickHangler = (color: ColorResult) => {
     changeColor(color.hex);
-    cleaningEmptyCanvasesAfterDrawing();
+    if (!isMobile) cleaningEmptyCanvasesAfterDrawing();
   };
 
   const changeLineWidth = (slide: number[]) => {
     const width = slide[slide.length - 1];
     changeWidth(width);
-    cleaningEmptyCanvasesAfterDrawing();
+    if (!isMobile) cleaningEmptyCanvasesAfterDrawing();
   };
 
   return (

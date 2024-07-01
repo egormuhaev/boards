@@ -1,5 +1,6 @@
 import { nodeTypes } from "@/components/nodes";
 import { clearInput, randomColor, selectFiles } from "@/flow/utils/randomColor";
+import { isMobile } from "react-device-detect";
 import { RefObject, useCallback } from "react";
 import { Node, XYPosition, useReactFlow } from "reactflow";
 import { v4 } from "uuid";
@@ -55,7 +56,7 @@ function getCurrentParamsDrawingPlot(
   return [positionCurrent, { width: plotSizeWidth, height: plotSizeHeight }];
 }
 
-const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
+const useCreateNode = (ref?: RefObject<HTMLInputElement>) => {
   const { setNodes, getZoom } = useReactFlow();
   const drawState = useUnit($draw);
   const { createNewNode } = useCreateNewNodeServer();
@@ -126,14 +127,12 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
                 : undefined,
           position,
         };
-
         createNewNode(newNode);
-
         newNodes.push(newNode);
       }
 
       setNodes((nds) => nds.concat(newNodes));
-      clearInput(ref);
+      clearInput(ref!);
     },
     [],
   );
@@ -141,11 +140,10 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
   const addDrawingNode = (position: XYPosition) => {
     const [pos, size] = getCurrentParamsDrawingPlot(getZoom(), position);
     const id = v4();
-
-    const newNode = {
+    const newNode: Node<any> = {
       id: id,
       position: pos,
-      type: "drawing",
+      type: isMobile ? "drawingMobile" : "drawing",
       data: {
         isActual: false,
         points: [],
@@ -155,7 +153,6 @@ const useCreateNode = (ref: RefObject<HTMLInputElement>) => {
         tool: drawState.tool,
       },
     };
-
     setNodes((nds) => nds.concat(newNode));
   };
 

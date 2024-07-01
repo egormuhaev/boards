@@ -1,26 +1,24 @@
 import { nodeTypes } from "@/components/nodes";
-import { useCleaningEmptyCanvasesAfterDrawing } from "@/hooks/useCleaningEmptyCanvasesAfterDrawing";
 import { Button } from "@/shadcn/ui/button";
 import { useUnit } from "effector-react";
 import { Pencil, Type } from "lucide-react";
 import { DragEvent, MouseEvent } from "react";
 import { FaFile } from "react-icons/fa";
 import { LuCircle, LuRectangleHorizontal } from "react-icons/lu";
-import { $flow, changeDrawingMode } from "./store/flow.slice";
+import { changeDrawingMode } from "./store/flow.slice";
 import {
   $boardPlayground,
   clearBufferCreatingType,
   setCreateBuffer,
 } from "./store/playground.slice";
 import { ShapeComponents } from "@/components/nodes/shapeNode/Shape";
-import { useReactFlow, Node, Edge } from "reactflow";
+import { setDrawingMobileContainerId } from "@/flow/store/draw.slice";
+import useDrawingMode from "@/hooks/useDrawingMode";
 
 const FlowHeadToolbar = ({}) => {
-  const flowState = useUnit($flow);
+  const { isDrawingMode, onDrawingMode } = useDrawingMode();
+
   const { buffer } = useUnit($boardPlayground);
-  const cleaningEmptyCanvasesAfterDrawing =
-    useCleaningEmptyCanvasesAfterDrawing();
-  const { setNodes, getNodes, setEdges, getEdges } = useReactFlow();
 
   const saveCreatingTypeInBuffer = (
     nodeType: keyof typeof nodeTypes,
@@ -45,51 +43,24 @@ const FlowHeadToolbar = ({}) => {
   const clickHandler = (e: MouseEvent<HTMLButtonElement>, func: Function) => {
     e.preventDefault();
     e.stopPropagation();
-
     func();
   };
 
   const disabledDrawingMode = () => {
-    if (flowState.isDrawingMode) {
-      changeDrawingMode(false);
-      clearBufferCreatingType();
-      cleaningEmptyCanvasesAfterDrawing();
-    }
+    changeDrawingMode(false);
+    setDrawingMobileContainerId(null);
+    clearBufferCreatingType();
   };
 
   return (
     <nav className="w-[50px] fixed top-1/2 left-5 -translate-y-1/2 flex flex-col z-50 gap-5 p-2 bg-white rounded-lg border border-solid-1 border-slate-300">
       <Button
-        onClick={(e: React.MouseEvent) => {
-          e.preventDefault();
-          e.stopPropagation();
-
-          if (flowState.isDrawingMode) {
-            clearBufferCreatingType();
-          } else {
-            saveCreatingTypeInBuffer("drawing");
-          }
-
-          let nodes = getNodes().map((item: Node) => ({
-            ...item,
-            selected: false,
-          }));
-          let edges = getEdges().map((item: Edge) => ({
-            ...item,
-            selected: false,
-          }));
-
-          setEdges([...edges]);
-          setNodes([...nodes]);
-
-          cleaningEmptyCanvasesAfterDrawing();
-          changeDrawingMode(!flowState.isDrawingMode);
-        }}
+        onClick={onDrawingMode}
         className="w-full h-full aspect-square p-2 outline-none border-none text-black bg-white hover:text-white hover:bg-black"
         title="Карандаш"
         style={{
-          color: flowState.isDrawingMode ? "white" : undefined,
-          background: flowState.isDrawingMode ? "black" : undefined,
+          color: isDrawingMode ? "white" : undefined,
+          background: isDrawingMode ? "black" : undefined,
         }}
       >
         <Pencil className="h-full w-full" />
