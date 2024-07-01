@@ -9,14 +9,17 @@ import {
   ArrowDownToLine,
   ArrowUpToLine,
   FoldVertical,
+  ImageDown,
   Trash2,
   Type,
 } from "lucide-react";
 import { memo, useCallback, useState } from "react";
 import { BlockPicker } from "react-color";
-import { useNodes, useReactFlow } from "reactflow";
+import { useReactFlow } from "reactflow";
 import { ShapeNodeData } from "../shapeNode/ShapeNode";
+import { downloadFile } from "../fileNodes/files/Unknown";
 import { TextNodeData } from "../TextNode";
+import { FileNodeData } from "../fileNodes/FileNode";
 
 interface ToolbarProps {
   id: string;
@@ -29,7 +32,9 @@ interface ToolbarProps {
   color?: boolean;
   backgroundColor?: boolean;
   fontSize?: boolean;
-  data: ShapeNodeData | TextNodeData;
+  data: TextNodeData | ShapeNodeData | FileNodeData;
+  download?: boolean;
+  downloadComressed?: boolean;
 }
 
 const ToolbarControlls = ({
@@ -44,6 +49,8 @@ const ToolbarControlls = ({
   backgroundColor,
   fontSize,
   data,
+  download,
+  downloadComressed,
 }: ToolbarProps) => {
   const { takeSnapshot } = useUndoRedo();
   const { setNodes, deleteElements, getNode } = useReactFlow();
@@ -73,7 +80,7 @@ const ToolbarControlls = ({
       onClick={(e) => e.stopPropagation()}
       className="flex flex-row gap-2 justify-center p-2 items-center bg-white border border-solid-1 border-slate-300 rounded-lg h-10 box-border"
     >
-      {backgroundColor && data.backgroundColor && (
+      {backgroundColor && "backgroundColor" in data && data.backgroundColor && (
         <>
           <ColorPickerButton
             color={data.backgroundColor}
@@ -84,7 +91,7 @@ const ToolbarControlls = ({
         </>
       )}
 
-      {color && data.color && (
+      {color && "color" in data && data.color && (
         <>
           <ColorPickerButton
             color={data.color}
@@ -120,12 +127,11 @@ const ToolbarControlls = ({
           clickHandler={() => document.execCommand("strikethrough", false)}
         />
       )}
-      {bold ||
-        italic ||
-        underline ||
-        (strike && <div className="h-full w-[1px] bg-slate-300" />)}
+      {(bold || italic || underline || strike) && (
+        <div className="h-full w-[1px] bg-slate-300" />
+      )}
 
-      {textAlign && (
+      {textAlign && "textAlign" in data && (
         <>
           <HorizontalAlignTextButton
             clickHandler={updateNode}
@@ -146,7 +152,7 @@ const ToolbarControlls = ({
         </>
       )}
 
-      {alignContent && (
+      {alignContent && "alignContent" in data && (
         <>
           <VerticalAlignTextButton
             clickHandler={updateNode}
@@ -167,11 +173,33 @@ const ToolbarControlls = ({
         </>
       )}
 
-      {fontSize && (
+      {fontSize && "fontSize" in data && data.fontSize && (
         <>
           <FontSelect fontSize={data.fontSize} clickHandler={updateNode} />
           <div className="h-full w-[1px] bg-slate-300" />
         </>
+      )}
+
+      {download && "filePath" in data && (
+        <DownloadButton
+          path={data.filePath}
+          name={data.fileName}
+          title="Оригинальное"
+        />
+      )}
+      {downloadComressed &&
+        "compressedFilePath" in data &&
+        "compressedFileName" in data &&
+        data.compressedFilePath &&
+        data.compressedFileName && (
+          <DownloadButton
+            path={data.compressedFilePath}
+            name={data.compressedFileName}
+            title="Сжатое"
+          />
+        )}
+      {(download || downloadComressed) && (
+        <div className="h-full w-[1px] bg-slate-300" />
       )}
 
       <TrashButton
@@ -186,6 +214,20 @@ const ToolbarControlls = ({
     </div>
   );
 };
+
+const DownloadButton = memo(
+  ({ path, name, title }: { path: string; name: string; title?: string }) => {
+    return (
+      <Button
+        onClick={() => downloadFile(path, name)}
+        className={`h-full aspect-square bg-white p-[1px] text-black hover:bg-black hover:text-white rounded-sm`}
+        title={title}
+      >
+        <ImageDown size={18} />
+      </Button>
+    );
+  },
+);
 
 const FontRichButton = memo(
   ({
@@ -225,7 +267,7 @@ const FontSelect = memo(
     fontSize = 14,
     clickHandler,
   }: {
-    fontSize?: number;
+    fontSize?: number | string;
     clickHandler: (changes: Partial<ShapeNodeData>) => void;
   }) => {
     const values: number[] = [...Array(100)]
@@ -234,14 +276,14 @@ const FontSelect = memo(
 
     return (
       <select
-        value={fontSize}
+        value={+fontSize}
         onChange={(e) => clickHandler({ fontSize: +e.target.value })}
       >
         {values.map((val) => (
           <option
             key={val}
             value={val}
-            className={val === fontSize ? `bg-slate-300` : undefined}
+            className={val === +fontSize ? `bg-slate-300` : undefined}
           >
             {val + "px"}
           </option>

@@ -3,4 +3,6 @@ export interface CustomFile {
   fileName: string;
   fileSize: string;
   fileExtension: string;
+  compressedFilePath: string | null;
+  compressedFileName: string | null;
 }

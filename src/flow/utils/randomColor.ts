@@ -1,3 +1,4 @@
+import { CustomFile } from "@/components/nodes/fileNodes/files/types";
 import { DragEvent, RefObject } from "react";
 
 const getRandomInt = (min: number, max: number) => {
@@ -15,25 +16,33 @@ export const clearInput = <T extends HTMLInputElement>(ref: RefObject<T>) => {
 };
 
 //FIXME: при отмене выбора промис зависает, потому что не срабатывает функция onChange
-export const selectFiles = async <T extends HTMLInputElement>(
-  ref: RefObject<T>,
-) => {
+export const selectFiles = async () => {
+  const input = document.createElement("input");
+
+  input.multiple;
+  input.type = "file";
+  input.onchange;
+
   const files: FileList | null = await new Promise((resolve) => {
-    if (ref.current) {
-      ref.current.onchange = (event) => {
-        const files = (event.target as HTMLInputElement).files;
+    input.oninput = (event) => {
+      const files = (event.target as HTMLInputElement).files;
+      if (!files) {
+        resolve(null);
+      }
 
-        if (!files) console.log("no files");
+      resolve(files);
+    };
 
-        resolve(files);
-      };
-      ref.current.click();
-    } else {
-      resolve(null);
-    }
+    input.click();
   });
 
-  if (!files?.length) return;
+  return await uploadFiles(files);
+};
+
+export const uploadFiles = async (
+  files: FileList | null,
+): Promise<CustomFile[] | null> => {
+  if (!files?.length) return null;
 
   const formData = new FormData();
 
@@ -41,7 +50,7 @@ export const selectFiles = async <T extends HTMLInputElement>(
     formData.append("files", files[i]);
   }
 
-  const response = await fetch("http://localhost:3000/api/files", {
+  const response = await fetch("http://localhost:3001/api/files", {
     method: "POST",
     body: formData,
   });
@@ -52,7 +61,7 @@ export const selectFiles = async <T extends HTMLInputElement>(
 
   const result = await response.json();
 
-  return result.files;
+  return result.files || null;
 };
 
 export const handleDragEvent = (e: DragEvent<HTMLDivElement>) => {

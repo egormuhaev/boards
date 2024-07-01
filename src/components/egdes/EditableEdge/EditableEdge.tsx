@@ -22,7 +22,7 @@ const useIdsForInactiveControlPoints = (points: ControlPointData[]) => {
 
   if (prevIds.current.length === points.length) {
     newPoints = points.map((point, i) =>
-      point.active ? point : { ...point, id: prevIds.current[i] }
+      point.active ? point : { ...point, id: prevIds.current[i] },
     );
   } else {
     newPoints = points.map((prevPoint, i) => {
@@ -60,7 +60,7 @@ export function EditableEdge({
     algorithm: Algorithm.Linear,
     points: [],
     lineColor: "#000",
-    lineWidth: 2,
+    lineWidth: 6,
   },
   ...delegated
 }: EdgeProps<EditableEdgeData>) {
@@ -86,7 +86,7 @@ export function EditableEdge({
   });
 
   const setControlPoints = (
-    update: (points: ControlPointData[]) => ControlPointData[]
+    update: (points: ControlPointData[]) => ControlPointData[],
   ) => {
     const newEdges = edges.map((e) => {
       if (e.id !== id) return e;
