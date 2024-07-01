@@ -126,20 +126,22 @@ export default function DrawingDesktopNode({
     createNewNode(newNode);
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const { offsetX, offsetY } = e.nativeEvent;
+  const handleMouseDown = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    const { offsetX, offsetY } = event.nativeEvent;
     onStartDrawing(offsetX, offsetY);
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    e.preventDefault();
+  const handleMouseMove = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
     if (!isDrawing) return;
-    const { offsetX, offsetY } = e.nativeEvent;
+    const { offsetX, offsetY } = event.nativeEvent;
     onDrawing(offsetX, offsetY);
   };
 
-  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    e.preventDefault();
+  const handleMouseUp = (_: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     onEndDrawing();
   };
 

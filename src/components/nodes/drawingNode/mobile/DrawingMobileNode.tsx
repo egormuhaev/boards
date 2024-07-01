@@ -19,6 +19,7 @@ import { DrawTools } from "../constants";
 import { $draw, changeDrawingInThisMoment } from "@/flow/store/draw.slice";
 import { useCreateNewNodeServer } from "@/server/nodes/create/useCreateNewNode";
 import { getNodeById } from "@/server/nodes/utils/getNodeById";
+import getNativeTouchScreenCoordinate from "../utils/getNativeTouchScreenCoordinate";
 import { v4 } from "uuid";
 
 const defaultSvgPlotSize: PlotSize = {
@@ -49,32 +50,6 @@ export default function DrawingMobileNode({
 
   const conditionVizibleHandeTools = selected && !flowState.isDrawingMode;
   !isActual && !isCompletedDrawing && flowState.isDrawingMode;
-
-  const getNativeTouchScreenCoordinate = (e: TouchEvent) => {
-    if (svgContainerRef.current) {
-      const rect = svgContainerRef.current.getBoundingClientRect();
-
-      const targetRect = screenToFlowPosition({
-        x: rect.x,
-        y: rect.y,
-      });
-
-      const touch = screenToFlowPosition({
-        x: e.targetTouches[0].clientX!,
-        y: e.targetTouches[0].clientY!,
-      });
-
-      return {
-        x: touch.x - targetRect.x,
-        y: touch.y - targetRect.y,
-      };
-    }
-
-    return {
-      x: 0,
-      y: 0,
-    };
-  };
 
   const setNodesCustom = (args: Props, position?: XYPosition) => {
     const nodes = getNodes();
@@ -177,12 +152,21 @@ export default function DrawingMobileNode({
     changeDrawingInThisMoment(false);
   };
 
-  const onTouchStart = (e: TouchEvent) => {
-    const { x, y } = getNativeTouchScreenCoordinate(e);
+  const onTouchStart = (event: TouchEvent) => {
+    const { x, y } = getNativeTouchScreenCoordinate(
+      event,
+      svgContainerRef,
+      screenToFlowPosition,
+    );
     onStartDrawing(x, y);
   };
-  const onTouchMove = (e: TouchEvent) => {
-    const { x, y } = getNativeTouchScreenCoordinate(e);
+
+  const onTouchMove = (event: TouchEvent) => {
+    const { x, y } = getNativeTouchScreenCoordinate(
+      event,
+      svgContainerRef,
+      screenToFlowPosition,
+    );
     onDrawing(x, y);
   };
   const onTouchEnd = (_: TouchEvent) => {
@@ -211,7 +195,6 @@ export default function DrawingMobileNode({
           maxHeight={plotSize.height + lineWidth}
         />
         <SvgDrawingNodeHandle visible={conditionVizibleHandeTools} />
-
         {isCompletedDrawing && (
           <SvgPath
             tool={tool}
